@@ -1,16 +1,14 @@
-import { collection, query, where, getDocs } from 'firebase/firestore'
-import { db } from './firebase'
-
+/**
+ * Verifies AMURoboclub membership via the API route.
+ * The API uses Firebase Admin SDK to query members_2025 in the AMURoboclub project,
+ * so Vercera 5.0 can use its own dedicated Firebase project for Auth while
+ * still verifying members against AMURoboclub's data.
+ */
 export interface MemberVerificationResult {
   verified: boolean
   error?: string
 }
 
-/**
- * Verifies AMURoboclub membership by checking members_2025 collection.
- * Matches: enrollmentNumber, facultyNumber, mobile, email
- * Requires: paymentStatus === true
- */
 export async function verifyAMURoboclubMember(data: {
   enrollmentNumber: string
   facultyNumber: string
@@ -18,31 +16,24 @@ export async function verifyAMURoboclubMember(data: {
   email: string
 }): Promise<MemberVerificationResult> {
   try {
-    const membersRef = collection(db, 'members_2025')
+    const res = await fetch('/api/verify-member', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        enrollmentNumber: data.enrollmentNumber,
+        facultyNumber: data.facultyNumber,
+        mobile: data.mobile,
+        email: data.email,
+      }),
+    })
 
-    const q = query(
-      membersRef,
-      where('enrollmentNumber', '==', data.enrollmentNumber.trim()),
-      where('facultyNumber', '==', data.facultyNumber.trim()),
-      where('mobile', '==', data.mobile.trim()),
-      where('email', '==', data.email.trim().toLowerCase())
-    )
+    const result = await res.json()
 
-    const snapshot = await getDocs(q)
-
-    if (snapshot.empty) {
-      return { verified: false, error: 'No matching membership found. Please ensure you entered the same details used for membership purchase.' }
+    if (!res.ok) {
+      return { verified: false, error: result.error || 'Verification failed. Please try again.' }
     }
 
-    const doc = snapshot.docs[0]
-    const memberData = doc.data()
-    const paymentStatus = memberData.paymentStatus
-
-    if (!paymentStatus) {
-      return { verified: false, error: 'Membership payment is not complete. Please complete your membership payment first.' }
-    }
-
-    return { verified: true }
+    return result
   } catch (err) {
     console.error('Member verification error:', err)
     return { verified: false, error: 'Verification failed. Please try again.' }

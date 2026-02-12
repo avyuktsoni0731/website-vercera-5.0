@@ -11,7 +11,9 @@ import { getFirestore } from 'firebase-admin/firestore'
 function getAMURoboclubFirestore() {
   const serviceAccountJson = process.env.FIREBASE_AMUROBOCLUB_SERVICE_ACCOUNT
   if (!serviceAccountJson) {
-    throw new Error('FIREBASE_AMUROBOCLUB_SERVICE_ACCOUNT not configured')
+    throw new Error(
+      'FIREBASE_AMUROBOCLUB_SERVICE_ACCOUNT not configured. Add the AMURoboclub project service account JSON string to verify members.'
+    )
   }
 
   const appName = 'amuroboclub-verification'
