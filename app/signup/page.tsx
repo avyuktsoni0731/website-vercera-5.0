@@ -118,12 +118,12 @@ export default function SignupPage() {
       await setDoc(doc(db, 'vercera_5_participants', user.uid), profile)
       router.push('/dashboard')
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Registration failed'
-      if (message.includes('auth/email-already-in-use')) {
+      const code = err && typeof err === 'object' && 'code' in err ? (err as { code: string }).code : ''
+      if (code === 'auth/email-already-in-use') {
         setError('An account with this email already exists. Please sign in.')
-      } else if (message.includes('auth/invalid-email')) {
+      } else if (code === 'auth/invalid-email') {
         setError('Please enter a valid email address.')
-      } else if (message.includes('auth/weak-password')) {
+      } else if (code === 'auth/weak-password') {
         setError('Password is too weak. Use at least 6 characters.')
       } else {
         setError('Registration failed. Please try again.')
