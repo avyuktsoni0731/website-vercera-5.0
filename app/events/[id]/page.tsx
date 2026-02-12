@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { use, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
@@ -9,14 +9,13 @@ import { events } from '@/lib/events'
 import { ArrowLeft, Clock, MapPin, Users, Trophy, Check } from 'lucide-react'
 
 interface Props {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
 export default function EventDetailPage({ params }: Props) {
   const router = useRouter()
-  const event = events.find((e) => e.id === params.id)
+  const { id } = use(params)
+  const event = events.find((e) => e.id === id)
   const [isRegistering, setIsRegistering] = useState(false)
 
   if (!event) {
