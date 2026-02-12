@@ -52,13 +52,13 @@ export function Footer() {
           </div>
 
           {/* Contact + Map */}
-          <div className="flex flex-col md:flex-row gap-6 md:gap-4 md:items-start">
-            <div className="space-y-4 flex-1 min-w-0">
-              <h4 className="font-bold text-foreground">Get in Touch</h4>
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-bold text-foreground mb-4">Get in Touch</h4>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-start gap-2">
                   <Mail size={16} className="text-accent flex-shrink-0 mt-0.5" />
-                  <a href="mailto:amuroboclub@gmail.com" className="text-foreground/60 hover:text-accent transition-colors">
+                  <a href="mailto:amuroboclub@gmail.com" className="text-foreground/60 hover:text-accent transition-colors break-all">
                     amuroboclub@gmail.com
                   </a>
                 </li>
@@ -74,17 +74,16 @@ export function Footer() {
                 </li>
               </ul>
             </div>
-            <div className="flex-shrink-0 overflow-hidden rounded-xl border border-border/50 bg-card/30 w-full md:w-[280px] h-[180px]">
+            <div className="overflow-hidden rounded-xl border border-border/50 bg-card/30 w-full max-w-[320px] aspect-[4/3]">
               <iframe
                 title="Amuroboclub Office"
                 src={MAP_EMBED_URL}
                 width="100%"
                 height="100%"
-                style={{ border: 0 }}
+                style={{ border: 0, display: 'block' }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                className="w-full h-full"
               />
             </div>
           </div>
