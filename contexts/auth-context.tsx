@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (firebaseUser) {
         try {
-          const profileRef = doc(db, 'users', firebaseUser.uid)
+          const profileRef = doc(db, 'vercera_5_participants', firebaseUser.uid)
           const profileSnap = await getDoc(profileRef)
           if (profileSnap.exists()) {
             setProfile({ uid: firebaseUser.uid, ...profileSnap.data() } as UserProfile)

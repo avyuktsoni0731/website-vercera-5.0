@@ -115,7 +115,7 @@ export default function SignupPage() {
         createdAt: new Date().toISOString(),
       }
 
-      await setDoc(doc(db, 'users', user.uid), profile)
+      await setDoc(doc(db, 'vercera_5_participants', user.uid), profile)
       router.push('/dashboard')
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Registration failed'
