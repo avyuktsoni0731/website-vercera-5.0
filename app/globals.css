@@ -23,10 +23,6 @@ body {
     font-family: 'Playfair Display', serif;
   }
   
-  .gradient-accent {
-    background: linear-gradient(135deg, #d41f3d 0%, #8b1a2e 100%);
-  }
-  
   .floating-nav {
     position: fixed;
     top: 1rem;
@@ -67,32 +63,32 @@ body {
     --radius: 0.5rem;
   }
   
-  /* Dark Theme - Maroon/Burgundy */
+  /* Dark Theme - Black/Dark with Strategic Green Accents */
   :root {
-    --background: 340 15% 8%;
+    --background: 0 0% 4%;
     --foreground: 0 0% 97%;
-    --card: 340 15% 12%;
+    --card: 0 0% 6%;
     --card-foreground: 0 0% 97%;
-    --popover: 340 15% 8%;
+    --popover: 0 0% 4%;
     --popover-foreground: 0 0% 97%;
-    --primary: 340 85% 42%;
-    --primary-foreground: 340 15% 8%;
-    --secondary: 340 15% 18%;
+    --primary: 0 0% 10%;
+    --primary-foreground: 0 0% 97%;
+    --secondary: 0 0% 8%;
     --secondary-foreground: 0 0% 97%;
-    --muted: 340 15% 25%;
+    --muted: 0 0% 12%;
     --muted-foreground: 0 0% 65%;
-    --accent: 348 89% 52%;
-    --accent-foreground: 340 15% 8%;
+    --accent: 72 79% 55%;
+    --accent-foreground: 0 0% 4%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 340 15% 20%;
-    --input: 340 15% 14%;
-    --ring: 348 89% 52%;
-    --chart-1: 348 89% 52%;
-    --chart-2: 340 85% 42%;
-    --chart-3: 330 80% 45%;
-    --chart-4: 0 95% 55%;
-    --chart-5: 35 95% 50%;
+    --border: 0 0% 12%;
+    --input: 0 0% 8%;
+    --ring: 72 79% 55%;
+    --chart-1: 72 79% 55%;
+    --chart-2: 95 28% 21%;
+    --chart-3: 100 26% 21%;
+    --chart-4: 72 79% 65%;
+    --chart-5: 95 35% 35%;
   }
 }
 

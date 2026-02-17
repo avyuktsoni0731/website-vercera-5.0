@@ -13,6 +13,10 @@ export const metadata: Metadata = {
   title: 'Vercera 5.0 - Technical Fest',
   description: 'Experience innovation at Vercera 5.0, the premier national-level technical fest featuring hackathons, robotics, gaming, and more.',
   keywords: 'tech fest, hackathon, robotics, gaming, technical events',
+  icons: {
+    icon: '/vercera_logo.png',
+    apple: '/vercera_logo.png',
+  },
   openGraph: {
     title: 'Vercera 5.0',
     description: 'National-level technical fest with multiple events',
@@ -21,7 +25,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#06b6d4',
+  themeColor: '#C1E734',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -35,6 +39,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <link rel="icon" href="/vercera_logo.png" type="image/png" />
+      </head>
       <body className={`${geist.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}>
         <SmoothScrollProvider>
           <AuthProvider>{children}</AuthProvider>

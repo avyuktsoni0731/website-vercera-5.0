@@ -1,7 +1,7 @@
-import { Navbar } from '@/components/navbar'
+import { Navbar } from '@/components/animated-navbar'
 import { Hero } from '@/components/hero'
-import { EventsSection } from '@/components/events-section'
-import { FAQSection } from '@/components/faq-section'
+import { EventsSection } from '@/components/animated-events-section'
+import { FAQSection } from '@/components/animated-faq-section'
 import { Footer } from '@/components/footer'
 
 export default function Page() {

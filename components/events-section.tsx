@@ -43,7 +43,7 @@ export function EventsSection() {
         <div className="text-center pt-8">
           <Link
             href="/events"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-accent to-primary text-accent-foreground rounded-lg font-medium hover:shadow-lg hover:shadow-accent/40 transition-all group"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-accent-foreground rounded-lg font-medium hover:bg-accent/90 transition-all group"
           >
             Explore Complete Events Catalog
             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
@@ -63,15 +63,14 @@ function EventCard({ event }: EventCardProps) {
 
   return (
     <Link href={`/events/${event.id}`}>
-      <div className="bg-card rounded-xl overflow-hidden hover:shadow-2xl hover:shadow-accent/20 transition-all duration-300 border border-border/50 hover:border-accent/50 group cursor-pointer h-full flex flex-col">
+      <div className="bg-card rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-border hover:border-border group cursor-pointer h-full flex flex-col">
         {/* Event Image */}
-        <div className="relative w-full h-48 bg-gradient-to-br from-accent/10 to-primary/10 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div className="relative w-full h-48 bg-secondary overflow-hidden border-b border-border">
           <div className="flex items-center justify-center h-full">
-            <div className="text-5xl opacity-30 group-hover:scale-110 transition-transform">{event.category === 'technical' ? '⚙️' : '🎮'}</div>
+            <div className="text-5xl opacity-20 group-hover:scale-110 transition-transform">{event.category === 'technical' ? '⚙️' : '🎮'}</div>
           </div>
           <div className="absolute top-3 right-3">
-            <span className="px-3 py-1 bg-gradient-to-r from-accent to-primary text-accent-foreground text-xs font-bold rounded-full">
+            <span className="px-3 py-1 bg-accent text-accent-foreground text-xs font-bold rounded-full">
               {event.category === 'technical' ? 'Technical' : 'Non-Tech'}
             </span>
           </div>
@@ -117,7 +116,7 @@ function EventCard({ event }: EventCardProps) {
             </div>
             <div className="w-full bg-secondary rounded-full h-2">
               <div
-                className="bg-gradient-to-r from-accent to-primary h-2 rounded-full transition-all"
+                className="bg-accent h-2 rounded-full transition-all"
                 style={{ width: `${registrationPercentage}%` }}
               ></div>
             </div>

@@ -5,7 +5,7 @@ import Script from 'next/script'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/auth-context'
-import { Navbar } from '@/components/navbar'
+import { Navbar } from '@/components/animated-navbar'
 import { Footer } from '@/components/footer'
 import { events } from '@/lib/events'
 import { ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
@@ -129,7 +129,7 @@ export default function CheckoutPage({ params }: Props) {
           name: profile.fullName,
           email: profile.email,
         },
-        theme: { color: '#d41f3d' },
+        theme: { color: '#C1E734' },
         handler: async (response) => {
           try {
             const verifyRes = await fetch('/api/razorpay/verify-payment', {

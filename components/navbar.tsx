@@ -23,10 +23,10 @@ export function Navbar() {
       <nav className="floating-nav relative w-[calc(100%-2rem)] max-w-3xl px-3 py-2.5 bg-card/80 border border-border/40 shadow-2xl z-50 transition-all duration-300 flex items-center justify-between gap-2">
         {/* Logo - inside nav */}
         <Link href="/" className="flex items-center gap-2 group shrink-0">
-          <div className="w-9 h-9 bg-gradient-to-br from-accent to-primary rounded-[100%] flex items-center justify-center shadow-lg group-hover:shadow-accent/50 transition-all">
-            <span className="text-foreground font-display font-bold text-lg">V</span>
+          <div className="w-18 h-9 flex items-center justify-center">
+            <img src="/vercera_logo_full.png" alt="Vercera" className="w-full h-full object-contain" />
           </div>
-          <span className="font-display font-bold text-xl text-foreground hidden sm:inline">Vercera</span>
+          {/* <span className="font-display font-bold text-xl text-foreground hidden sm:inline">Vercera</span> */}
         </Link>
 
         {/* Desktop - centered links only (Home, Events, Schedule, FAQ) */}
@@ -66,7 +66,7 @@ export function Navbar() {
               </Link>
               <button
                 onClick={handleLogout}
-                className="px-4 py-1.5 bg-gradient-to-r from-accent to-primary text-accent-foreground rounded-full hover:shadow-lg hover:shadow-accent/30 transition-all text-sm font-medium"
+                className="px-4 py-1.5 bg-accent text-accent-foreground rounded-full hover:bg-accent/90 transition-all text-sm font-medium"
               >
                 Logout
               </button>
@@ -76,7 +76,7 @@ export function Navbar() {
               <Link href="/login" className="px-3 py-1.5 text-foreground/70 hover:text-foreground rounded-full transition-all text-sm">
                 Login
               </Link>
-              <Link href="/signup" className="px-4 py-1.5 bg-gradient-to-r from-accent to-primary text-accent-foreground rounded-full hover:shadow-lg hover:shadow-accent/30 transition-all text-sm font-medium">
+              <Link href="/signup" className="px-4 py-1.5 bg-accent text-accent-foreground rounded-full hover:bg-accent/90 transition-all text-sm font-medium">
                 Sign Up
               </Link>
             </>
@@ -132,7 +132,7 @@ export function Navbar() {
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 bg-gradient-to-r from-accent to-primary text-accent-foreground rounded-lg font-medium text-sm"
+                  className="block w-full text-left px-4 py-2 bg-accent text-accent-foreground rounded-lg font-medium text-sm hover:bg-accent/90 transition-colors"
                 >
                   Logout
                 </button>
@@ -142,7 +142,7 @@ export function Navbar() {
                 <Link href="/login" className="block px-4 py-2 text-foreground/70 hover:text-foreground rounded-lg transition-all text-sm" onClick={() => setIsOpen(false)}>
                   Login
                 </Link>
-                <Link href="/signup" className="block px-4 py-2 bg-gradient-to-r from-accent to-primary text-accent-foreground rounded-lg font-medium text-sm" onClick={() => setIsOpen(false)}>
+                <Link href="/signup" className="block px-4 py-2 bg-accent text-accent-foreground rounded-lg font-medium text-sm hover:bg-accent/90 transition-colors" onClick={() => setIsOpen(false)}>
                   Sign Up
                 </Link>
               </>

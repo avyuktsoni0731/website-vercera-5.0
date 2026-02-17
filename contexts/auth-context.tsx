@@ -9,6 +9,7 @@ export interface UserProfile {
   uid: string
   email: string
   fullName: string
+  verceraId: string
   whatsappNumber: string
   facultyNumber: string
   enrollmentNumber: string
