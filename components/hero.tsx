@@ -11,7 +11,7 @@ export function Hero() {
       {/* Faulty terminal CRT-style background */}
       <div className="absolute inset-0 z-0 bg-background">
         <FaultyTerminalJSCSS
-          scale={1.3}
+          scale={1.5}
           gridMul={[2, 1]}
           digitSize={1.2}
           timeScale={0.5}
@@ -27,15 +27,15 @@ export function Hero() {
           mouseReact
           mouseStrength={0.5}
           pageLoadAnimation
-          brightness={0.6}
+          brightness={0.5}
         />
       </div>
 
       {/* Overlay for better text readability */}
       <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/85 via-background/70 to-background/85 pointer-events-none" />
 
-      {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+      {/* Content — pointer-events-none so background gets mouse; interactive elements get pointer-events-auto */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full pointer-events-none">
         <div className="text-center space-y-8">
           {/* Badge */}
           <motion.div
@@ -87,7 +87,7 @@ export function Hero() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4"
           >
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="pointer-events-auto">
               <Link
                 href="/events"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-accent text-accent-foreground rounded-lg font-medium hover:bg-accent/90 transition-all group shadow-lg shadow-accent/20"
@@ -96,7 +96,7 @@ export function Hero() {
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </Link>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="pointer-events-auto">
               <Link
                 href="/signup"
                 className="inline-flex items-center justify-center px-8 py-4 border border-border/50 bg-background/50 backdrop-blur-md text-foreground rounded-lg font-medium hover:bg-secondary/50 transition-all"

@@ -337,7 +337,36 @@ export function FaultyTerminalJSCSS({
       const renderer = rendererRef.current
       const prog = programRef.current
       if (!prog) return
-      renderer.setSize(ctn.offsetWidth, ctn.offsetHeight)
+      
+      const containerWidth = ctn.offsetWidth
+      const containerHeight = ctn.offsetHeight
+      
+      // On mobile, maintain aspect ratio to prevent squishing
+      const isMobile = window.innerWidth <= 768
+      let width = containerWidth
+      let height = containerHeight
+      
+      if (isMobile && containerHeight > 0) {
+        const containerAspect = containerWidth / containerHeight
+        const minAspect = 16 / 9 // Minimum aspect ratio to maintain
+        
+        // If container is too narrow (squished), maintain minimum aspect ratio
+        if (containerAspect < minAspect) {
+          // Maintain height, adjust width (will crop from sides)
+          width = containerHeight * minAspect
+          // Center the canvas horizontally
+          gl.canvas.style.marginLeft = `${(containerWidth - width) / 2}px`
+        } else {
+          // Use container dimensions as-is
+          width = containerWidth
+          height = containerHeight
+          gl.canvas.style.marginLeft = '0px'
+        }
+      } else {
+        gl.canvas.style.marginLeft = '0px'
+      }
+      
+      renderer.setSize(width, height)
       prog.uniforms.iResolution.value = new Color(
         gl.canvas.width,
         gl.canvas.height,
