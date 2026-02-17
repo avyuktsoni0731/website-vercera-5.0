@@ -5,6 +5,15 @@ import { CircularTextJSCSS } from '@/components/CircularText-JS-CSS'
 
 export function CursorCircularText() {
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null)
+  const [hasFinePointer, setHasFinePointer] = useState(false)
+
+  useEffect(() => {
+    const media = window.matchMedia('(pointer: fine)')
+    setHasFinePointer(media.matches)
+    const listener = () => setHasFinePointer(media.matches)
+    media.addEventListener('change', listener)
+    return () => media.removeEventListener('change', listener)
+  }, [])
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     setPosition({ x: e.clientX, y: e.clientY })
@@ -15,15 +24,16 @@ export function CursorCircularText() {
   }, [])
 
   useEffect(() => {
+    if (!hasFinePointer) return
     document.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseleave', handleMouseLeave)
     return () => {
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseleave', handleMouseLeave)
     }
-  }, [handleMouseMove, handleMouseLeave])
+  }, [hasFinePointer, handleMouseMove, handleMouseLeave])
 
-  if (position === null) return null
+  if (!hasFinePointer || position === null) return null
 
   return (
     <div

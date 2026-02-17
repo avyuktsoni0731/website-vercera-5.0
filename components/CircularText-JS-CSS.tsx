@@ -4,13 +4,10 @@ import { useEffect } from 'react'
 import { motion, useAnimation, useMotionValue } from 'framer-motion'
 import './circular-text.css'
 
-const getRotationTransition = (duration: number, from: number, loop = true) => ({
-  from,
-  to: from + 360,
-  ease: 'linear' as const,
+const getRotationTransition = (duration: number, _from: number, loop = true) => ({
   duration,
-  type: 'tween' as const,
   repeat: loop ? Infinity : 0,
+  ease: 'linear' as const,
 })
 
 const getTransition = (duration: number, from: number) => ({
@@ -115,7 +112,8 @@ export function CircularTextJSCSS({
         const x = radius * Math.cos(angle)
         const y = radius * Math.sin(angle)
         const rotationDeg = (360 / letters.length) * i
-        const transform = `rotateZ(${rotationDeg}deg) translate3d(${x}px, ${y}px, 0)`
+        // Translate first to place on circle, then rotate to orient letter (order matters)
+        const transform = `translate3d(${x}px, ${y}px, 0) rotateZ(${rotationDeg}deg)`
         return (
           <span key={i} style={{ transform, WebkitTransform: transform }}>
             {letter}
