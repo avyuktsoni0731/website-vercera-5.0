@@ -66,6 +66,41 @@ export default function DashboardPage() {
     fetchRegistrations()
   }, [user])
 
+  // Handle legacy users without verceraId (generate one if missing)
+  useEffect(() => {
+    const generateMissingVerceraId = async () => {
+      if (user && profile && !profile.verceraId) {
+        try {
+          let verceraId = generateVerceraId()
+          let isUnique = false
+          let attempts = 0
+          const maxAttempts = 10
+
+          while (!isUnique && attempts < maxAttempts) {
+            const checkQuery = query(collection(db, 'vercera_5_participants'), where('verceraId', '==', verceraId))
+            const snapshot = await getDocs(checkQuery)
+            if (snapshot.empty) {
+              isUnique = true
+            } else {
+              verceraId = generateVerceraId()
+              attempts++
+            }
+          }
+
+          if (isUnique) {
+            await setDoc(doc(db, 'vercera_5_participants', user.uid), { verceraId }, { merge: true })
+            // Reload page to show new ID
+            window.location.reload()
+          }
+        } catch (err) {
+          console.error('Failed to generate Vercera ID:', err)
+        }
+      }
+    }
+
+    generateMissingVerceraId()
+  }, [user, profile])
+
   const handleLogout = async () => {
     await signOut()
     router.push('/')
@@ -104,41 +139,6 @@ export default function DashboardPage() {
       </main>
     )
   }
-
-  // Handle legacy users without verceraId (generate one if missing)
-  useEffect(() => {
-    const generateMissingVerceraId = async () => {
-      if (user && profile && !profile.verceraId) {
-        try {
-          let verceraId = generateVerceraId()
-          let isUnique = false
-          let attempts = 0
-          const maxAttempts = 10
-
-          while (!isUnique && attempts < maxAttempts) {
-            const checkQuery = query(collection(db, 'vercera_5_participants'), where('verceraId', '==', verceraId))
-            const snapshot = await getDocs(checkQuery)
-            if (snapshot.empty) {
-              isUnique = true
-            } else {
-              verceraId = generateVerceraId()
-              attempts++
-            }
-          }
-
-          if (isUnique) {
-            await setDoc(doc(db, 'vercera_5_participants', user.uid), { verceraId }, { merge: true })
-            // Reload page to show new ID
-            window.location.reload()
-          }
-        } catch (err) {
-          console.error('Failed to generate Vercera ID:', err)
-        }
-      }
-    }
-
-    generateMissingVerceraId()
-  }, [user, profile])
 
   return (
     <main className="min-h-screen bg-background">
