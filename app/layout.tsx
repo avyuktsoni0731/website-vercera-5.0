@@ -5,6 +5,8 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { SmoothScrollProvider } from '@/components/smooth-scroll-provider'
 import { AuthProvider } from '@/contexts/auth-context'
+import { CursorCircularText } from '@/components/cursor-circular-text'
+import { FloatingSocialNav } from '@/components/floating-social-nav'
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' })
 const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-mono' })
@@ -44,7 +46,11 @@ export default function RootLayout({
       </head>
       <body className={`${geist.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}>
         <SmoothScrollProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            {children}
+            <CursorCircularText />
+            <FloatingSocialNav />
+          </AuthProvider>
         </SmoothScrollProvider>
       </body>
     </html>
