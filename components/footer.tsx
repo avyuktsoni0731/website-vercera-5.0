@@ -14,8 +14,8 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-accent to-primary rounded-[100%] flex items-center justify-center">
-                <span className="text-foreground font-display font-bold">V</span>
+              <div className="w-8 h-8 flex items-center justify-center">
+                <img src="/vercera_logo.png" alt="Vercera" className="w-full h-full object-contain" />
               </div>
               <span className="font-display font-bold text-lg">Vercera</span>
             </div>

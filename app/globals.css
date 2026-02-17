@@ -39,6 +39,14 @@ body {
     backdrop-filter: blur(12px);
     border-radius: 9999px;
   }
+  
+  .glow-green {
+    box-shadow: 0 0 20px rgba(193, 231, 52, 0.3);
+  }
+  
+  .glow-green-lg {
+    box-shadow: 0 0 40px rgba(193, 231, 52, 0.4);
+  }
 }
 
 @layer base {
@@ -71,32 +79,32 @@ body {
     --radius: 0.5rem;
   }
   
-  /* Dark Theme - Maroon/Burgundy */
+  /* Dark Theme - Green Theme (#2f4227, #364326, #C1E734) */
   :root {
-    --background: 340 15% 8%;
+    --background: 100 20% 8%;
     --foreground: 0 0% 97%;
-    --card: 340 15% 12%;
+    --card: 100 22% 12%;
     --card-foreground: 0 0% 97%;
-    --popover: 340 15% 8%;
+    --popover: 100 20% 8%;
     --popover-foreground: 0 0% 97%;
-    --primary: 340 85% 42%;
-    --primary-foreground: 340 15% 8%;
-    --secondary: 340 15% 18%;
+    --primary: 95 28% 21%;
+    --primary-foreground: 72 79% 55%;
+    --secondary: 100 26% 18%;
     --secondary-foreground: 0 0% 97%;
-    --muted: 340 15% 25%;
+    --muted: 100 24% 25%;
     --muted-foreground: 0 0% 65%;
-    --accent: 348 89% 52%;
-    --accent-foreground: 340 15% 8%;
+    --accent: 72 79% 55%;
+    --accent-foreground: 100 26% 21%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 340 15% 20%;
-    --input: 340 15% 14%;
-    --ring: 348 89% 52%;
-    --chart-1: 348 89% 52%;
-    --chart-2: 340 85% 42%;
-    --chart-3: 330 80% 45%;
-    --chart-4: 0 95% 55%;
-    --chart-5: 35 95% 50%;
+    --border: 100 24% 20%;
+    --input: 100 22% 14%;
+    --ring: 72 79% 55%;
+    --chart-1: 72 79% 55%;
+    --chart-2: 95 28% 21%;
+    --chart-3: 100 26% 21%;
+    --chart-4: 72 79% 65%;
+    --chart-5: 95 35% 35%;
   }
 }
 

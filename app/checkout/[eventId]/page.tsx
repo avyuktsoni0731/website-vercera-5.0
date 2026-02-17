@@ -129,7 +129,7 @@ export default function CheckoutPage({ params }: Props) {
           name: profile.fullName,
           email: profile.email,
         },
-        theme: { color: '#d41f3d' },
+        theme: { color: '#C1E734' },
         handler: async (response) => {
           try {
             const verifyRes = await fetch('/api/razorpay/verify-payment', {
