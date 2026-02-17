@@ -53,7 +53,7 @@ export function FAQSection() {
         <div className="text-center mb-12">
           <h2 className="font-display text-4xl sm:text-5xl font-bold text-foreground mb-4">
             Frequently Asked
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-accent to-primary">Questions</span>
+            <span className="block text-accent">Questions</span>
           </h2>
           <p className="text-foreground/70 text-lg">Find answers to common questions about Vercera 5.0</p>
         </div>

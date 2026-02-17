@@ -66,7 +66,7 @@ export function Navbar() {
               </Link>
               <button
                 onClick={handleLogout}
-                className="px-4 py-1.5 bg-gradient-to-r from-accent to-primary text-accent-foreground rounded-full hover:shadow-lg hover:shadow-accent/30 transition-all text-sm font-medium"
+                className="px-4 py-1.5 bg-accent text-accent-foreground rounded-full hover:bg-accent/90 transition-all text-sm font-medium"
               >
                 Logout
               </button>
@@ -76,7 +76,7 @@ export function Navbar() {
               <Link href="/login" className="px-3 py-1.5 text-foreground/70 hover:text-foreground rounded-full transition-all text-sm">
                 Login
               </Link>
-              <Link href="/signup" className="px-4 py-1.5 bg-gradient-to-r from-accent to-primary text-accent-foreground rounded-full hover:shadow-lg hover:shadow-accent/30 transition-all text-sm font-medium">
+              <Link href="/signup" className="px-4 py-1.5 bg-accent text-accent-foreground rounded-full hover:bg-accent/90 transition-all text-sm font-medium">
                 Sign Up
               </Link>
             </>
@@ -132,7 +132,7 @@ export function Navbar() {
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 bg-gradient-to-r from-accent to-primary text-accent-foreground rounded-lg font-medium text-sm"
+                  className="block w-full text-left px-4 py-2 bg-accent text-accent-foreground rounded-lg font-medium text-sm hover:bg-accent/90 transition-colors"
                 >
                   Logout
                 </button>
@@ -142,7 +142,7 @@ export function Navbar() {
                 <Link href="/login" className="block px-4 py-2 text-foreground/70 hover:text-foreground rounded-lg transition-all text-sm" onClick={() => setIsOpen(false)}>
                   Login
                 </Link>
-                <Link href="/signup" className="block px-4 py-2 bg-gradient-to-r from-accent to-primary text-accent-foreground rounded-lg font-medium text-sm" onClick={() => setIsOpen(false)}>
+                <Link href="/signup" className="block px-4 py-2 bg-accent text-accent-foreground rounded-lg font-medium text-sm hover:bg-accent/90 transition-colors" onClick={() => setIsOpen(false)}>
                   Sign Up
                 </Link>
               </>
