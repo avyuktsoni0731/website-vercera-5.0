@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { Navbar } from '@/components/animated-navbar'
 import { Footer } from '@/components/footer'
 import { events } from '@/lib/events'
@@ -91,7 +92,7 @@ export default function EventsPage() {
                 role="button"
                 tabIndex={0}
                 onClick={() => router.push(`/events/${event.id}`)}
-                onKeyDown={(e) => e.key === 'Enter' && router.push(`/events/${event.id}`)}
+                onKeyDown={(e: React.KeyboardEvent) => e.key === 'Enter' && router.push(`/events/${event.id}`)}
                 className="bg-card rounded-xl overflow-hidden border border-border hover:border-border hover:shadow-xl transition-all duration-300 h-full cursor-pointer group"
               >
                   {/* Image */}
