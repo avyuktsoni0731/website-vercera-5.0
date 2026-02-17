@@ -30,7 +30,7 @@ export default function EventDetailPage({ params }: Props) {
             <p className="text-foreground/70 mb-8">The event you're looking for doesn't exist.</p>
             <Link
               href="/events"
-              className="inline-block px-6 py-3 bg-gradient-to-r from-accent to-primary text-accent-foreground rounded-lg font-medium hover:shadow-lg hover:shadow-accent/30 transition-all"
+              className="inline-block px-6 py-3 bg-accent text-accent-foreground rounded-lg font-medium hover:bg-accent/90 transition-all"
             >
               Back to Events
             </Link>
@@ -79,14 +79,14 @@ export default function EventDetailPage({ params }: Props) {
                     </h1>
                     <p className="text-foreground/70 text-lg mt-2">{event.description}</p>
                   </div>
-                  <span className="px-4 py-2 bg-gradient-to-r from-accent/20 to-primary/20 text-accent rounded-full font-semibold text-sm flex-shrink-0 border border-accent/30">
+                  <span className="px-4 py-2 bg-accent/10 text-accent rounded-full font-semibold text-sm flex-shrink-0 border border-accent/30">
                     {event.category === 'technical' ? 'Technical' : 'Non-Technical'}
                   </span>
                 </div>
               </div>
 
               {/* Event Image */}
-              <div className="w-full h-96 bg-gradient-to-br from-accent/8 to-primary/8 rounded-xl flex items-center justify-center text-7xl border border-border/50">
+              <div className="w-full h-96 bg-secondary rounded-xl flex items-center justify-center text-7xl border border-border">
                 {event.category === 'technical' ? '⚙️' : '🎮'}
               </div>
 
@@ -152,7 +152,7 @@ export default function EventDetailPage({ params }: Props) {
                 <h2 className="font-display text-2xl font-bold text-foreground">Prize Breakdown</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {event.prizes.map((prize, index) => (
-                    <div key={index} className="bg-gradient-to-br from-accent/20 to-primary/20 border border-border rounded-lg p-6">
+                    <div key={index} className="bg-secondary border border-border rounded-lg p-6">
                       <p className="text-foreground/60 text-sm mb-2">{prize.position}</p>
                       <p className="font-display text-3xl font-bold text-accent">₹{(prize.amount / 100000).toFixed(1)}L</p>
                     </div>
@@ -178,7 +178,7 @@ export default function EventDetailPage({ params }: Props) {
                   </div>
                   <div className="w-full bg-secondary rounded-full h-3">
                     <div
-                      className="bg-gradient-to-r from-accent to-primary h-3 rounded-full transition-all"
+                      className="bg-accent h-3 rounded-full transition-all"
                       style={{ width: `${registrationPercentage}%` }}
                     ></div>
                   </div>

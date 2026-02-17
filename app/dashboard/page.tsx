@@ -111,7 +111,7 @@ export default function DashboardPage() {
             <div className="lg:col-span-1">
               <div className="bg-card border border-border rounded-xl p-6 space-y-6">
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-accent to-primary rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <div className="w-16 h-16 bg-accent rounded-full mx-auto mb-4 flex items-center justify-center">
                     <span className="text-2xl font-bold text-accent-foreground">{profile.fullName.charAt(0).toUpperCase()}</span>
                   </div>
                   <h2 className="font-display text-2xl font-bold text-foreground">{profile.fullName}</h2>

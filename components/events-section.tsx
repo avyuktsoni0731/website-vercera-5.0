@@ -63,7 +63,7 @@ function EventCard({ event }: EventCardProps) {
 
   return (
     <Link href={`/events/${event.id}`}>
-      <div className="bg-card rounded-xl overflow-hidden hover:shadow-2xl hover:shadow-accent/20 transition-all duration-300 border border-border/50 hover:border-accent/50 group cursor-pointer h-full flex flex-col">
+      <div className="bg-card rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-border hover:border-border group cursor-pointer h-full flex flex-col">
         {/* Event Image */}
         <div className="relative w-full h-48 bg-secondary overflow-hidden border-b border-border">
           <div className="flex items-center justify-center h-full">

@@ -42,8 +42,8 @@ export default function EventsPage() {
               onClick={() => setSelectedCategory('all')}
               className={`px-6 py-2 rounded-full font-semibold transition-all ${
                 selectedCategory === 'all'
-                  ? 'bg-gradient-to-r from-accent to-primary text-accent-foreground shadow-lg shadow-accent/30'
-                  : 'bg-secondary/70 text-foreground hover:bg-secondary/90 border border-border/50'
+                  ? 'bg-accent text-accent-foreground'
+                  : 'bg-secondary text-foreground hover:bg-secondary/80 border border-border'
               }`}
             >
               All Events ({events.length})
@@ -52,8 +52,8 @@ export default function EventsPage() {
               onClick={() => setSelectedCategory('technical')}
               className={`px-6 py-2 rounded-full font-semibold transition-all ${
                 selectedCategory === 'technical'
-                  ? 'bg-gradient-to-r from-accent to-primary text-accent-foreground shadow-lg shadow-accent/30'
-                  : 'bg-secondary/70 text-foreground hover:bg-secondary/90 border border-border/50'
+                  ? 'bg-accent text-accent-foreground'
+                  : 'bg-secondary text-foreground hover:bg-secondary/80 border border-border'
               }`}
             >
               Technical ({events.filter((e) => e.category === 'technical').length})
@@ -62,8 +62,8 @@ export default function EventsPage() {
               onClick={() => setSelectedCategory('non-technical')}
               className={`px-6 py-2 rounded-full font-semibold transition-all ${
                 selectedCategory === 'non-technical'
-                  ? 'bg-gradient-to-r from-accent to-primary text-accent-foreground shadow-lg shadow-accent/30'
-                  : 'bg-secondary/70 text-foreground hover:bg-secondary/90 border border-border/50'
+                  ? 'bg-accent text-accent-foreground'
+                  : 'bg-secondary text-foreground hover:bg-secondary/80 border border-border'
               }`}
             >
               Non-Technical ({events.filter((e) => e.category === 'non-technical').length})
@@ -79,16 +79,15 @@ export default function EventsPage() {
                 tabIndex={0}
                 onClick={() => router.push(`/events/${event.id}`)}
                 onKeyDown={(e) => e.key === 'Enter' && router.push(`/events/${event.id}`)}
-                className="bg-card rounded-xl overflow-hidden border border-border/50 hover:border-accent/50 hover:shadow-2xl hover:shadow-accent/20 transition-all duration-300 h-full cursor-pointer group"
+                className="bg-card rounded-xl overflow-hidden border border-border hover:border-border hover:shadow-xl transition-all duration-300 h-full cursor-pointer group"
               >
                   {/* Image */}
-                  <div className="relative w-full h-48 bg-gradient-to-br from-accent/8 to-primary/8">
-                    <div className="flex items-center justify-center h-full text-5xl opacity-25 group-hover:scale-110 transition-transform">
+                  <div className="relative w-full h-48 bg-secondary border-b border-border">
+                    <div className="flex items-center justify-center h-full text-5xl opacity-15 group-hover:scale-110 transition-transform">
                       {event.category === 'technical' ? '⚙️' : '🎮'}
                     </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <div className="absolute top-4 right-4">
-                      <span className="px-3 py-1 bg-gradient-to-r from-accent to-primary text-accent-foreground text-xs font-bold rounded-full">
+                      <span className="px-3 py-1 bg-accent text-accent-foreground text-xs font-bold rounded-full">
                         {event.category === 'technical' ? 'Technical' : 'Non-Tech'}
                       </span>
                     </div>
@@ -133,7 +132,7 @@ export default function EventsPage() {
                       <Link
                         href={`/checkout/${event.id}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="px-5 py-2 bg-gradient-to-r from-accent to-primary text-accent-foreground rounded-lg font-semibold hover:shadow-lg hover:shadow-accent/30 transition-all text-sm"
+                        className="px-5 py-2 bg-accent text-accent-foreground rounded-lg font-semibold hover:bg-accent/90 transition-all text-sm"
                       >
                         Register
                       </Link>
