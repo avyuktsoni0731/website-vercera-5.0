@@ -8,14 +8,18 @@ import { db } from '@/lib/firebase'
 import { useAuth } from '@/contexts/auth-context'
 import { Navbar } from '@/components/animated-navbar'
 import { Footer } from '@/components/footer'
-import { LogOut, Edit2, Clock, CheckCircle } from 'lucide-react'
+import { LogOut, Edit2, Clock, CheckCircle, QrCode, Copy, Check } from 'lucide-react'
+import { QRCodeSVG } from 'qrcode.react'
+import { motion } from 'framer-motion'
 
 interface Registration {
+  id: string
   eventId: string
   eventName: string
   registrationDate: string
   status: 'registered' | 'paid' | 'completed'
   amount: number
+  attended?: boolean
 }
 
 export default function DashboardPage() {

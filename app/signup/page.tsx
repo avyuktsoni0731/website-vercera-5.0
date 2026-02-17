@@ -4,8 +4,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
-import { doc, setDoc } from 'firebase/firestore'
+import { doc, setDoc, collection, query, where, getDocs } from 'firebase/firestore'
 import { auth, db } from '@/lib/firebase'
+import { generateVerceraId } from '@/lib/vercera-id'
 import { verifyAMURoboclubMember } from '@/lib/verification'
 import { Navbar } from '@/components/animated-navbar'
 import { Footer } from '@/components/footer'
@@ -96,6 +97,30 @@ export default function SignupPage() {
     }
 
     try {
+      // Generate unique Vercera ID
+      let verceraId = generateVerceraId()
+      let isUnique = false
+      let attempts = 0
+      const maxAttempts = 10
+
+      // Ensure Vercera ID is unique
+      while (!isUnique && attempts < maxAttempts) {
+        const checkQuery = query(collection(db, 'vercera_5_participants'), where('verceraId', '==', verceraId))
+        const snapshot = await getDocs(checkQuery)
+        if (snapshot.empty) {
+          isUnique = true
+        } else {
+          verceraId = generateVerceraId()
+          attempts++
+        }
+      }
+
+      if (!isUnique) {
+        setError('Failed to generate unique ID. Please try again.')
+        setIsLoading(false)
+        return
+      }
+
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email.trim(), formData.password)
       const user = userCredential.user
 
@@ -103,6 +128,7 @@ export default function SignupPage() {
         uid: user.uid,
         email: formData.email.trim().toLowerCase(),
         fullName: formData.fullName.trim(),
+        verceraId,
         whatsappNumber: formData.whatsappNumber.trim(),
         facultyNumber: facultyNo,
         enrollmentNumber: enrollNo,
