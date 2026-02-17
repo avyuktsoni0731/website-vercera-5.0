@@ -181,11 +181,11 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="border-t border-border" />
-                <button className="w-full px-6 py-2 bg-secondary text-foreground rounded-lg font-medium hover:bg-secondary/80 transition-colors flex items-center justify-center gap-2" disabled>
+                {/* <div className="border-t border-border" /> */}
+                {/* <button className="w-full px-6 py-2 bg-secondary text-foreground rounded-lg font-medium hover:bg-secondary/80 transition-colors flex items-center justify-center gap-2" disabled>
                   <Edit2 size={18} />
                   Edit Profile (coming soon)
-                </button>
+                </button> */}
               </div>
 
               {/* Vercera ID & QR Code Card */}
@@ -201,7 +201,7 @@ export default function DashboardPage() {
                       <QrCode size={20} className="text-accent" />
                       <h3 className="font-display text-xl font-bold text-foreground">Vercera ID</h3>
                     </div>
-                    
+
                     {/* QR Code */}
                     <div className="flex justify-center p-4 bg-white rounded-lg border-2 border-accent/20">
                       <QRCodeSVG
