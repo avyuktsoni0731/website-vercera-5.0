@@ -53,13 +53,26 @@ export async function POST(request: NextRequest) {
 
     const db = getVerceraFirestore()
 
+    // Get user's verceraId from profile
+    let verceraId = null
+    try {
+      const userDoc = await db.collection('vercera_5_participants').doc(userId).get()
+      if (userDoc.exists) {
+        verceraId = userDoc.data()?.verceraId || null
+      }
+    } catch {
+      // Continue without verceraId if profile fetch fails
+    }
+
     await db.collection('registrations').add({
       userId,
+      verceraId,
       eventId,
       eventName,
       amount: Number(amount),
       registrationDate: new Date().toISOString().split('T')[0],
       status: 'paid',
+      attended: false,
       razorpayOrderId: orderId,
       razorpayPaymentId: paymentId,
       teamName: teamName || null,
