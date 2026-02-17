@@ -6,6 +6,7 @@ import './globals.css'
 import { SmoothScrollProvider } from '@/components/smooth-scroll-provider'
 import { AuthProvider } from '@/contexts/auth-context'
 import { CursorCircularText } from '@/components/cursor-circular-text'
+import { FloatingSocialNav } from '@/components/floating-social-nav'
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' })
 const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-mono' })
@@ -48,6 +49,7 @@ export default function RootLayout({
           <AuthProvider>
             {children}
             <CursorCircularText />
+            <FloatingSocialNav />
           </AuthProvider>
         </SmoothScrollProvider>
       </body>
