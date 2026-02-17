@@ -35,7 +35,7 @@ export function Hero() {
       <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/85 via-background/70 to-background/85 pointer-events-none" />
 
       {/* Content — pointer-events-none so background gets mouse; interactive elements get pointer-events-auto */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full pointer-events-none">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:pt-24 sm:pb-12 md:py-12 w-full pointer-events-none">
         <div className="text-center space-y-8">
           {/* Badge */}
           <motion.div
@@ -106,12 +106,12 @@ export function Hero() {
             </motion.div>
           </motion.div>
 
-          {/* Stats */}
+          {/* Stats — extra bottom padding on mobile so scroll indicator doesn't overlap */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 pt-12 sm:pt-16 md:pt-20"
+            className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 pt-12 sm:pt-16 md:pt-20 pb-16 md:pb-0"
           >
             {[
               { value: '50+', label: 'Events' },
@@ -134,12 +134,12 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Scroll Indicator */}
+      {/* Scroll Indicator — hidden on mobile to avoid overlapping stats */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2 }}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 hidden md:block"
       >
         <motion.div
           animate={{ y: [0, 10, 0] }}
