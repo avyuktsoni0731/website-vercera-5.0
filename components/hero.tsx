@@ -4,31 +4,45 @@ import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { FaultyTerminalJSCSS } from '@/components/FaultyTerminal-JS-CSS'
+import { useBackgroundQuality } from '@/hooks/use-prefer-light-backgrounds'
 
 export function Hero() {
+  const { preferLightBackgrounds: preferLight, enablePostProcessing } = useBackgroundQuality()
+
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Faulty terminal CRT-style background */}
+      {/* Background: WebGL on desktop, lightweight gradient on mobile/slow devices */}
       <div className="absolute inset-0 z-0 bg-background">
-        <FaultyTerminalJSCSS
-          scale={1.5}
-          gridMul={[2, 1]}
-          digitSize={1.2}
-          timeScale={0.5}
-          pause={false}
-          scanlineIntensity={0.5}
-          glitchAmount={1}
-          flickerAmount={1}
-          noiseAmp={1}
-          chromaticAberration={0}
-          dither={0}
-          curvature={0.12}
-          tint="#C1E734"
-          mouseReact
-          mouseStrength={0.5}
-          pageLoadAnimation
-          brightness={0.5}
-        />
+        {preferLight ? (
+          <div
+            className="absolute inset-0 bg-gradient-to-br from-background via-background to-accent/10"
+            style={{
+              backgroundImage: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(193, 231, 52, 0.08) 0%, transparent 50%)',
+            }}
+            aria-hidden
+          />
+        ) : (
+          <FaultyTerminalJSCSS
+            scale={1.5}
+            gridMul={[2, 1]}
+            digitSize={1.2}
+            timeScale={0.5}
+            pause={false}
+            scanlineIntensity={0.5}
+            glitchAmount={1}
+            flickerAmount={1}
+            noiseAmp={1}
+            chromaticAberration={0}
+            dither={0}
+            curvature={0.12}
+            tint="#C1E734"
+            mouseReact
+            mouseStrength={0.5}
+            pageLoadAnimation
+            brightness={0.5}
+            dpr={enablePostProcessing ? 2 : 1}
+          />
+        )}
       </div>
 
       {/* Overlay for better text readability */}
