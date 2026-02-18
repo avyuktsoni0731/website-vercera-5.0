@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { Navbar } from '@/components/animated-navbar'
 import { Footer } from '@/components/footer'
 import { events } from '@/lib/events'
-import { ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
+import { ArrowLeft, AlertCircle, CheckCircle, X } from 'lucide-react'
 
 interface Props {
   params: Promise<{ eventId: string }>
@@ -411,12 +411,25 @@ export default function CheckoutPage({ params }: Props) {
                                   <span className="text-xs text-foreground/50">{profile.verceraId}</span>
                                 </li>
                                 {teamMembers.map((m) => (
-                                  <li key={m.userId} className="flex items-center justify-between text-foreground/80">
-                                    <div>
+                                  <li key={m.userId} className="flex items-center justify-between gap-2 text-foreground/80">
+                                    <div className="flex flex-col">
                                       <span>{m.fullName}</span>
-                                      <span className="ml-2 text-xs text-foreground/50">{m.email}</span>
+                                      <span className="text-xs text-foreground/50 truncate">{m.email}</span>
                                     </div>
-                                    <span className="text-xs text-foreground/50">{m.verceraId}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs text-foreground/50">{m.verceraId}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          setTeamMembers((prev) => prev.filter((member) => member.userId !== m.userId))
+                                        }
+                                        className="p-1 rounded-full hover:bg-destructive/10 text-destructive"
+                                        aria-label={`Remove ${m.fullName} from team`}
+                                        disabled={isLoading}
+                                      >
+                                        <X size={14} />
+                                      </button>
+                                    </div>
                                   </li>
                                 ))}
                               </ul>

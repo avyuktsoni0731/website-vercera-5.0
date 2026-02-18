@@ -106,9 +106,43 @@ export async function POST(request: NextRequest) {
 
     const isTeamEvent = Boolean(team && team.isTeamEvent && team.members && team.members.length > 0)
 
+    const registrationsRef = db.collection('registrations')
+
+    // Guard: prevent duplicate registrations for this event
+    if (!isTeamEvent) {
+      const existingSolo = await registrationsRef
+        .where('userId', '==', userId)
+        .where('eventId', '==', eventId)
+        .limit(1)
+        .get()
+      if (!existingSolo.empty) {
+        return NextResponse.json({ error: 'You are already registered for this event.' }, { status: 400 })
+      }
+    }
+
     if (isTeamEvent && team && team.members) {
-      const verceraTeamId = generateVerceraTeamId()
       const teamSize = team.teamSize ?? team.members.length
+      if (team.members.length === 0 || teamSize <= 0) {
+        return NextResponse.json({ error: 'Invalid team configuration.' }, { status: 400 })
+      }
+
+      // Prevent any team member from having an existing registration for this event
+      const memberIds = team.members.map((m) => m.userId).filter(Boolean)
+      for (const memberId of memberIds) {
+        const existing = await registrationsRef
+          .where('userId', '==', memberId)
+          .where('eventId', '==', eventId)
+          .limit(1)
+          .get()
+        if (!existing.empty) {
+          return NextResponse.json(
+            { error: 'One or more team members are already registered for this event.' },
+            { status: 400 },
+          )
+        }
+      }
+
+      const verceraTeamId = generateVerceraTeamId()
 
       const teamDoc = await db.collection('teams').add({
         verceraTeamId,
@@ -118,6 +152,7 @@ export async function POST(request: NextRequest) {
         leaderUserId: userId,
         leaderVerceraId,
         members: team.members,
+        memberIds,
         size: teamSize,
         isTeamEvent: true,
         amountPaid: Number(amount),
