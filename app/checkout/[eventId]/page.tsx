@@ -340,7 +340,7 @@ export default function CheckoutPage({ params }: Props) {
                     </div>
                     <button
                       onClick={() => setPaymentStatus('idle')}
-                      className="px-6 py-2 bg-accent text-accent-foreground rounded-lg font-medium hover:bg-accent/90 transition-colors"
+                      className="px-6 py-2 bg-accent text-accent-foreground rounded-full font-medium hover:bg-accent/90 transition-colors"
                     >
                       Try Again
                     </button>
@@ -391,7 +391,7 @@ export default function CheckoutPage({ params }: Props) {
                               type="button"
                               onClick={handleAddMember}
                               disabled={isLoading}
-                              className="px-4 py-3 bg-accent text-accent-foreground rounded-lg font-medium hover:bg-accent/90 transition-colors disabled:opacity-50"
+                              className="px-4 py-3 bg-accent text-accent-foreground rounded-full font-medium hover:bg-accent/90 transition-colors disabled:opacity-50"
                             >
                               Add
                             </button>
@@ -473,7 +473,7 @@ export default function CheckoutPage({ params }: Props) {
                     <button
                       type="submit"
                       disabled={isLoading || !razorpayLoaded}
-                      className="w-full px-6 py-4 bg-accent text-accent-foreground rounded-lg font-bold text-lg hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-6 py-4 bg-accent text-accent-foreground rounded-full font-bold text-lg hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isLoading ? 'Opening Payment...' : !razorpayLoaded ? 'Loading...' : `Pay ₹${totalAmount} & Register`}
                     </button>

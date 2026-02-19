@@ -98,28 +98,28 @@ export function Navbar() {
           <div className="bg-card/95 backdrop-blur-md border border-border/40 rounded-2xl shadow-2xl p-4 space-y-2">
             <Link
               href="/"
-              className="block px-4 py-2 text-foreground/70 hover:text-accent hover:bg-secondary/50 rounded-lg transition-all text-sm font-medium"
+              className="block px-4 py-2 text-foreground/70 hover:text-accent hover:bg-secondary/50 rounded-full transition-all text-sm font-medium"
               onClick={() => setIsOpen(false)}
             >
               Home
             </Link>
             <Link
               href="/events"
-              className="block px-4 py-2 text-foreground/70 hover:text-accent hover:bg-secondary/50 rounded-lg transition-all text-sm font-medium"
+              className="block px-4 py-2 text-foreground/70 hover:text-accent hover:bg-secondary/50 rounded-full transition-all text-sm font-medium"
               onClick={() => setIsOpen(false)}
             >
               Events
             </Link>
             <Link
               href="/#schedule"
-              className="block px-4 py-2 text-foreground/70 hover:text-accent hover:bg-secondary/50 rounded-lg transition-all text-sm font-medium"
+              className="block px-4 py-2 text-foreground/70 hover:text-accent hover:bg-secondary/50 rounded-full transition-all text-sm font-medium"
               onClick={() => setIsOpen(false)}
             >
               Schedule
             </Link>
             <Link
               href="/#faq"
-              className="block px-4 py-2 text-foreground/70 hover:text-accent hover:bg-secondary/50 rounded-lg transition-all text-sm font-medium"
+              className="block px-4 py-2 text-foreground/70 hover:text-accent hover:bg-secondary/50 rounded-full transition-all text-sm font-medium"
               onClick={() => setIsOpen(false)}
             >
               FAQ
@@ -127,22 +127,22 @@ export function Navbar() {
             <div className="h-px bg-border/40 my-2"></div>
             {user ? (
               <>
-                <Link href="/dashboard" className="block px-4 py-2 text-foreground/70 hover:text-accent hover:bg-secondary/50 rounded-lg transition-all text-sm font-medium" onClick={() => setIsOpen(false)}>
+                <Link href="/dashboard" className="block px-4 py-2 text-foreground/70 hover:text-accent hover:bg-secondary/50 rounded-full transition-all text-sm font-medium" onClick={() => setIsOpen(false)}>
                   Dashboard
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 bg-accent text-accent-foreground rounded-lg font-medium text-sm hover:bg-accent/90 transition-colors"
+                  className="block w-full text-left px-4 py-2 bg-accent text-accent-foreground rounded-full font-medium text-sm hover:bg-accent/90 transition-colors"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link href="/login" className="block px-4 py-2 text-foreground/70 hover:text-foreground rounded-lg transition-all text-sm" onClick={() => setIsOpen(false)}>
+                <Link href="/login" className="block px-4 py-2 text-foreground/70 hover:text-foreground rounded-full transition-all text-sm" onClick={() => setIsOpen(false)}>
                   Login
                 </Link>
-                <Link href="/signup" className="block px-4 py-2 bg-accent text-accent-foreground rounded-lg font-medium text-sm hover:bg-accent/90 transition-colors" onClick={() => setIsOpen(false)}>
+                <Link href="/signup" className="block px-4 py-2 bg-accent text-accent-foreground rounded-full font-medium text-sm hover:bg-accent/90 transition-colors" onClick={() => setIsOpen(false)}>
                   Sign Up
                 </Link>
               </>

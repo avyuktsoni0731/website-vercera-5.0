@@ -162,7 +162,7 @@ export function Navbar() {
                 >
                   <Link
                     href={item.href}
-                    className="block px-4 py-2 text-foreground/70 hover:text-accent hover:bg-secondary/50 rounded-lg transition-all text-sm font-medium"
+                    className="block px-4 py-2 text-foreground/70 hover:text-accent hover:bg-secondary/50 rounded-full transition-all text-sm font-medium"
                     onClick={() => setIsOpen(false)}
                   >
                     {item.label}
@@ -174,7 +174,7 @@ export function Navbar() {
                 <>
                   <Link
                     href="/dashboard"
-                    className="block px-4 py-2 text-foreground/70 hover:text-accent hover:bg-secondary/50 rounded-lg transition-all text-sm font-medium"
+                    className="block px-4 py-2 text-foreground/70 hover:text-accent hover:bg-secondary/50 rounded-full transition-all text-sm font-medium"
                     onClick={() => setIsOpen(false)}
                   >
                     Dashboard
@@ -182,7 +182,7 @@ export function Navbar() {
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 bg-accent text-accent-foreground rounded-lg font-medium text-sm hover:bg-accent/90 transition-colors"
+                    className="block w-full text-left px-4 py-2 bg-accent text-accent-foreground rounded-full font-medium text-sm hover:bg-accent/90 transition-colors"
                   >
                     Logout
                   </motion.button>
@@ -191,7 +191,7 @@ export function Navbar() {
                 <>
                   <Link
                     href="/login"
-                    className="block px-4 py-2 text-foreground/70 hover:text-foreground rounded-lg transition-all text-sm"
+                    className="block px-4 py-2 text-foreground/70 hover:text-foreground rounded-full transition-all text-sm"
                     onClick={() => setIsOpen(false)}
                   >
                     Login
@@ -199,7 +199,7 @@ export function Navbar() {
                   <motion.div whileTap={{ scale: 0.95 }}>
                     <Link
                       href="/signup"
-                      className="block px-4 py-2 bg-accent text-accent-foreground rounded-lg font-medium text-sm hover:bg-accent/90 transition-colors"
+                      className="block px-4 py-2 bg-accent text-accent-foreground rounded-full font-medium text-sm hover:bg-accent/90 transition-colors"
                       onClick={() => setIsOpen(false)}
                     >
                       Sign Up

@@ -106,7 +106,7 @@ export function EventsSection() {
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Link
               href="/events"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-accent-foreground rounded-lg font-medium hover:bg-accent/90 transition-all group shadow-lg shadow-accent/20"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-accent-foreground rounded-full font-medium hover:bg-accent/90 transition-all group shadow-lg shadow-accent/20"
             >
               Explore Complete Events Catalog
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
@@ -128,7 +128,7 @@ function EventCard({ event }: EventCardProps) {
   return (
     <motion.div variants={itemVariants} whileHover={{ y: -8 }} transition={{ duration: 0.2 }}>
       <Link href={`/events/${event.id}`}>
-        <div className="bg-card rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-border group cursor-pointer h-full flex flex-col">
+        <div className="bg-card rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-border group cursor-pointer h-full flex flex-col">
           {/* Event Image */}
           <div className="relative w-full h-48 bg-secondary overflow-hidden border-b border-border">
             <motion.div
@@ -213,7 +213,7 @@ function EventCard({ event }: EventCardProps) {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full px-4 py-2 bg-accent/10 text-accent border border-accent rounded-lg font-medium hover:bg-accent hover:text-accent-foreground transition-colors text-sm"
+                className="w-full px-4 py-2 bg-accent/10 text-accent border border-accent rounded-full font-medium hover:bg-accent hover:text-accent-foreground transition-colors text-sm"
               >
                 View Details
               </motion.button>
