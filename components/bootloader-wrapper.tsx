@@ -27,6 +27,14 @@ export function BootloaderWrapper({ children }: BootloaderWrapperProps) {
 
   const handleBootloaderComplete = () => {
     setShowBootloader(false)
+    // Ensure page stays at top and prevent scroll jump
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0)
+      // Small delay to ensure smooth transition
+      setTimeout(() => {
+        window.scrollTo(0, 0)
+      }, 100)
+    }
     // Mark as seen (optional)
     // sessionStorage.setItem('hasSeenBootloader', 'true')
   }
@@ -49,6 +57,7 @@ export function BootloaderWrapper({ children }: BootloaderWrapperProps) {
         className={showBootloader ? 'pointer-events-none overflow-hidden' : ''}
         style={{
           filter: showBootloader ? 'blur(8px)' : 'blur(0px)',
+          willChange: showBootloader ? 'filter, opacity, transform' : 'auto',
         }}
       >
         {children}

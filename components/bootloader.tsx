@@ -32,6 +32,73 @@ export function Bootloader({ onComplete }: BootloaderProps) {
   // Use the more reliable mobile state
   const isMobileDevice = isMobileState || (typeof window !== 'undefined' && window.innerWidth < 768)
 
+  // Lock scroll and prevent scroll jump
+  useEffect(() => {
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      // Ensure we start at top
+      window.scrollTo(0, 0)
+      
+      // Lock body scroll completely
+      const originalBodyStyle = {
+        position: document.body.style.position,
+        top: document.body.style.top,
+        width: document.body.style.width,
+        overflow: document.body.style.overflow,
+        height: document.body.style.height,
+      }
+      
+      const originalHtmlStyle = {
+        overflow: document.documentElement.style.overflow,
+        height: document.documentElement.style.height,
+      }
+      
+      document.body.style.position = 'fixed'
+      document.body.style.top = '0'
+      document.body.style.width = '100%'
+      document.body.style.overflow = 'hidden'
+      document.body.style.height = '100%'
+      
+      // Also lock html scroll
+      document.documentElement.style.overflow = 'hidden'
+      document.documentElement.style.height = '100%'
+      
+      return () => {
+        // Restore original styles
+        document.body.style.position = originalBodyStyle.position || ''
+        document.body.style.top = originalBodyStyle.top || ''
+        document.body.style.width = originalBodyStyle.width || ''
+        document.body.style.overflow = originalBodyStyle.overflow || ''
+        document.body.style.height = originalBodyStyle.height || ''
+        document.documentElement.style.overflow = originalHtmlStyle.overflow || ''
+        document.documentElement.style.height = originalHtmlStyle.height || ''
+        
+        // Ensure we're at top when bootloader completes
+        requestAnimationFrame(() => {
+          window.scrollTo(0, 0)
+          requestAnimationFrame(() => {
+            window.scrollTo(0, 0)
+          })
+        })
+      }
+    }
+  }, [])
+
+  // Additional cleanup when bootloader completes
+  useEffect(() => {
+    if (!isPlaying && typeof window !== 'undefined' && typeof document !== 'undefined') {
+      // Restore scroll and ensure we're at top
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+      
+      window.scrollTo(0, 0)
+      requestAnimationFrame(() => {
+        window.scrollTo(0, 0)
+      })
+    }
+  }, [isPlaying])
+
   useEffect(() => {
     // Allow skipping after 1 second
     const skipTimer = setTimeout(() => {
@@ -43,8 +110,16 @@ export function Bootloader({ onComplete }: BootloaderProps) {
 
   const handleVideoEnd = () => {
     setIsExiting(true)
+    // Ensure scroll is at top before completing
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0)
+    }
     setTimeout(() => {
       setIsPlaying(false)
+      // Double check scroll position
+      if (typeof window !== 'undefined') {
+        window.scrollTo(0, 0)
+      }
       onComplete()
     }, 800)
   }
@@ -55,8 +130,16 @@ export function Bootloader({ onComplete }: BootloaderProps) {
       videoRef.current.pause()
     }
     setIsExiting(true)
+    // Ensure scroll is at top before completing
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0)
+    }
     setTimeout(() => {
       setIsPlaying(false)
+      // Double check scroll position
+      if (typeof window !== 'undefined') {
+        window.scrollTo(0, 0)
+      }
       onComplete()
     }, 800)
   }
