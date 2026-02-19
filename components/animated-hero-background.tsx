@@ -30,52 +30,55 @@ export function AnimatedHeroBackground() {
         }}
       />
 
-      {/* Animated grid pattern - more visible */}
+      {/* Animated grid pattern - optimized */}
       <motion.div
         className="absolute inset-0 opacity-[0.08]"
         style={{
           backgroundImage: 'linear-gradient(rgba(193, 231, 52, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(193, 231, 52, 0.3) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
+          willChange: 'background-position',
         }}
         animate={{
           backgroundPosition: ['0% 0%', '40px 40px'],
         }}
         transition={{
-          duration: 20,
+          duration: 30,
           repeat: Infinity,
           ease: 'linear',
         }}
       />
 
-      {/* Floating orbs - more visible */}
-      {[...Array(3)].map((_, i) => (
+      {/* Floating orbs - reduced for performance */}
+      {[...Array(2)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute rounded-full blur-3xl"
+          className="absolute rounded-full"
           style={{
-            width: `${250 + i * 120}px`,
-            height: `${250 + i * 120}px`,
-            background: `radial-gradient(circle, rgba(193, 231, 52, ${0.15 - i * 0.03}) 0%, rgba(193, 231, 52, ${0.05 - i * 0.01}) 50%, transparent 70%)`,
+            width: `${200 + i * 100}px`,
+            height: `${200 + i * 100}px`,
+            background: `radial-gradient(circle, rgba(193, 231, 52, ${0.12 - i * 0.02}) 0%, rgba(193, 231, 52, ${0.04 - i * 0.01}) 50%, transparent 70%)`,
+            filter: 'blur(40px)',
+            willChange: 'transform',
           }}
           animate={{
             x: [
               `${20 + i * 30}%`,
-              `${25 + i * 30}%`,
+              `${24 + i * 30}%`,
               `${20 + i * 30}%`,
             ],
             y: [
               `${30 + i * 20}%`,
-              `${35 + i * 20}%`,
+              `${33 + i * 20}%`,
               `${30 + i * 20}%`,
             ],
-            scale: [1, 1.3, 1],
-            opacity: [0.4, 0.7, 0.4],
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
           }}
           transition={{
-            duration: 8 + i * 2,
+            duration: 12 + i * 3,
             repeat: Infinity,
             ease: 'easeInOut',
-            delay: i * 1.5,
+            delay: i * 2,
           }}
         />
       ))}

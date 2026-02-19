@@ -197,19 +197,20 @@ export function Bootloader({ onComplete }: BootloaderProps) {
           {/* Animated background pattern for blank spaces (mobile) */}
           {isMobileDevice && (
             <div className="fixed inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
-              {/* Animated grid pattern - MUCH MORE VISIBLE */}
+              {/* Animated grid pattern - optimized */}
               <motion.div
                 className="absolute inset-0"
                 style={{
                   backgroundImage: 'linear-gradient(rgba(193, 231, 52, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(193, 231, 52, 0.4) 1px, transparent 1px)',
                   backgroundSize: '20px 20px',
                   opacity: 0.3,
+                  willChange: 'background-position',
                 }}
                 animate={{
                   backgroundPosition: ['0% 0%', '20px 20px'],
                 }}
                 transition={{
-                  duration: 10,
+                  duration: 15,
                   repeat: Infinity,
                   ease: 'linear',
                 }}

@@ -29,6 +29,7 @@ export function Hero() {
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
               className="w-2 h-2 bg-accent rounded-full"
+              style={{ willChange: 'transform' }}
             />
             <span className="text-sm text-foreground/80">National Level Technical Fest 2026</span>
           </motion.div>
