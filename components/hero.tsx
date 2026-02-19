@@ -3,47 +3,14 @@
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import { FaultyTerminalJSCSS } from '@/components/FaultyTerminal-JS-CSS'
-import { useBackgroundQuality } from '@/hooks/use-prefer-light-backgrounds'
+import Image from 'next/image'
+import { AnimatedHeroBackground } from '@/components/animated-hero-background'
 
 export function Hero() {
-  const { preferLightBackgrounds: preferLight, enablePostProcessing } = useBackgroundQuality()
-
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background: WebGL on desktop, lightweight gradient on mobile/slow devices */}
-      <div className="absolute inset-0 z-0 bg-background">
-        {preferLight ? (
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-background via-background to-accent/10"
-            style={{
-              backgroundImage: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(193, 231, 52, 0.08) 0%, transparent 50%)',
-            }}
-            aria-hidden
-          />
-        ) : (
-          <FaultyTerminalJSCSS
-            scale={1.5}
-            gridMul={[2, 1]}
-            digitSize={1.2}
-            timeScale={0.5}
-            pause={false}
-            scanlineIntensity={0.5}
-            glitchAmount={1}
-            flickerAmount={1}
-            noiseAmp={1}
-            chromaticAberration={0}
-            dither={0}
-            curvature={0.12}
-            tint="#C1E734"
-            mouseReact
-            mouseStrength={0.5}
-            pageLoadAnimation
-            brightness={0.5}
-            dpr={enablePostProcessing ? 2 : 1}
-          />
-        )}
-      </div>
+      {/* Lightweight animated background */}
+      <AnimatedHeroBackground />
 
       {/* Overlay for better text readability */}
       <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/85 via-background/70 to-background/85 pointer-events-none" />
@@ -64,6 +31,28 @@ export function Hero() {
               className="w-2 h-2 bg-accent rounded-full"
             />
             <span className="text-sm text-foreground/80">National Level Technical Fest 2026</span>
+          </motion.div>
+
+          {/* Organized By */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex items-center gap-2 text-sm text-foreground/60"
+          >
+            <span>Organized by</span>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center gap-2"
+            >
+              <Image
+                src="/amuroboclub.png"
+                alt="AMURoboclub"
+                width={120}
+                height={32}
+                className="h-6 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
+              />
+            </motion.div>
           </motion.div>
 
           {/* Main Heading */}

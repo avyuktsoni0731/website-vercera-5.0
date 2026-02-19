@@ -4,8 +4,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { events } from '@/lib/events'
 import { ArrowRight, Users, Trophy } from 'lucide-react'
-import { GridScanJSCSS } from '@/components/GridScan-JS-CSS'
-import { useBackgroundQuality } from '@/hooks/use-prefer-light-backgrounds'
+import { AnimatedGridBackground } from '@/components/animated-grid-background'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -31,39 +30,12 @@ const itemVariants = {
 export function EventsSection() {
   const technical = events.filter((e) => e.category === 'technical')
   const nonTechnical = events.filter((e) => e.category === 'non-technical')
-  const { preferLightBackgrounds: preferLight, enablePostProcessing } = useBackgroundQuality()
 
   return (
     <section id="events" className="py-20 bg-secondary/30 relative overflow-hidden">
-      {/* Background: GridScan on desktop, lightweight gradient on mobile/slow devices */}
-      <div className="absolute inset-0 w-full h-full min-h-[600px]">
-        {preferLight ? (
-          <div
-            className="absolute inset-0 w-full h-full min-h-[600px] bg-gradient-to-b from-accent/5 via-secondary/30 to-accent/5"
-            style={{
-              backgroundImage: 'linear-gradient(rgba(42, 61, 42, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(42, 61, 42, 0.15) 1px, transparent 1px)',
-              backgroundSize: '24px 24px',
-            }}
-            aria-hidden
-          />
-        ) : (
-          <div className="absolute inset-0 w-full h-full min-h-[600px]" style={{ position: 'relative' }}>
-            <GridScanJSCSS
-              sensitivity={0.55}
-              lineThickness={1}
-              linesColor="#2a3d2a"
-              gridScale={0.1}
-              scanColor="#C1E734"
-              scanOpacity={0.4}
-              enablePost={enablePostProcessing}
-              bloomIntensity={0.5}
-              chromaticAberration={0.002}
-              noiseIntensity={0.01}
-            />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-secondary/40 pointer-events-none" aria-hidden />
-      </div>
+      {/* Lightweight animated grid background */}
+      <AnimatedGridBackground />
+      <div className="absolute inset-0 bg-secondary/40 pointer-events-none" aria-hidden />
 
       {/* Content — pointer-events-none so GridScan gets mouse; interactive elements get pointer-events-auto */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pointer-events-none">
