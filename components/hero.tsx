@@ -4,17 +4,9 @@ import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { AnimatedHeroBackground } from '@/components/animated-hero-background'
-
 export function Hero() {
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Lightweight animated background */}
-      <AnimatedHeroBackground />
-
-      {/* Overlay for better text readability - reduced opacity to show animations */}
-      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/60 via-background/40 to-background/60 pointer-events-none" />
-
       {/* Content — interactive elements get pointer-events-auto */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:pt-24 sm:pb-12 md:py-12 w-full pointer-events-none">
         <div className="text-center space-y-8">

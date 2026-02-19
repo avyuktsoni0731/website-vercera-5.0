@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-
 const faqs = [
   {
     question: 'When is Vercera 5.0 happening?',
@@ -69,12 +68,7 @@ const itemVariants = {
 
 export function FAQSection() {
   return (
-    <section id="faq" className="py-20 bg-secondary/20 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-1/2 left-0 w-96 h-96 bg-accent rounded-full blur-3xl" />
-      </div>
-
+    <section id="faq" className="py-20 relative overflow-hidden">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <motion.div

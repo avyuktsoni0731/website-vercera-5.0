@@ -4,8 +4,6 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { events } from '@/lib/events'
 import { ArrowRight, Users, Trophy } from 'lucide-react'
-import { AnimatedGridBackground } from '@/components/animated-grid-background'
-
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -32,11 +30,7 @@ export function EventsSection() {
   const nonTechnical = events.filter((e) => e.category === 'non-technical')
 
   return (
-    <section id="events" className="py-20 bg-secondary/30 relative overflow-hidden">
-      {/* Lightweight animated grid background */}
-      <AnimatedGridBackground />
-      <div className="absolute inset-0 bg-secondary/20 pointer-events-none" aria-hidden />
-
+    <section id="events" className="py-20 relative overflow-hidden">
       {/* Content — interactive elements get pointer-events-auto */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pointer-events-none">
         {/* Section Header */}
