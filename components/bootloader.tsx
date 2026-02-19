@@ -214,60 +214,6 @@ export function Bootloader({ onComplete }: BootloaderProps) {
                   ease: 'linear',
                 }}
               />
-              
-              {/* Floating particles - MUCH MORE VISIBLE */}
-              {[...Array(20)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute rounded-full"
-                  style={{
-                    width: '6px',
-                    height: '6px',
-                    background: 'rgba(193, 231, 52, 1)',
-                    boxShadow: '0 0 12px rgba(193, 231, 52, 0.8), 0 0 20px rgba(193, 231, 52, 0.4)',
-                    left: `${2 + (i * 5)}%`,
-                    top: `${5 + (i % 18) * 5}%`,
-                  }}
-                  animate={{
-                    opacity: [0.4, 1, 0.4],
-                    scale: [1, 3, 1],
-                  }}
-                  transition={{
-                    duration: 1.5 + i * 0.1,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                    delay: i * 0.08,
-                  }}
-                />
-              ))}
-              
-              {/* Pulsing circles in blank spaces - MUCH MORE VISIBLE */}
-              {[...Array(8)].map((_, i) => (
-                <motion.div
-                  key={`circle-${i}`}
-                  className="absolute rounded-full border-2"
-                  style={{
-                    width: '100px',
-                    height: '100px',
-                    borderColor: 'rgba(193, 231, 52, 0.7)',
-                    borderWidth: '2px',
-                    boxShadow: '0 0 15px rgba(193, 231, 52, 0.5)',
-                    left: `${10 + (i * 11)}%`,
-                    top: i % 2 === 0 ? '2%' : '98%',
-                    transform: 'translate(-50%, -50%)',
-                  }}
-                  animate={{
-                    scale: [1, 2.5, 1],
-                    opacity: [0.4, 0.9, 0.4],
-                  }}
-                  transition={{
-                    duration: 2 + i * 0.2,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                    delay: i * 0.25,
-                  }}
-                />
-              ))}
             </div>
           )}
 
