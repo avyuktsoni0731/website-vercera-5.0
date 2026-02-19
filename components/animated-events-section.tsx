@@ -35,7 +35,7 @@ export function EventsSection() {
     <section id="events" className="py-20 bg-secondary/30 relative overflow-hidden">
       {/* Lightweight animated grid background */}
       <AnimatedGridBackground />
-      <div className="absolute inset-0 bg-secondary/40 pointer-events-none" aria-hidden />
+      <div className="absolute inset-0 bg-secondary/20 pointer-events-none" aria-hidden />
 
       {/* Content — interactive elements get pointer-events-auto */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pointer-events-none">

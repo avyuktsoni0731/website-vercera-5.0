@@ -13,11 +13,11 @@ export function AnimatedGridBackground() {
       {/* Base gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-secondary/30 to-accent/5" />
       
-      {/* Animated grid pattern */}
+      {/* Animated grid pattern - more visible */}
       <motion.div
-        className="absolute inset-0 opacity-[0.15]"
+        className="absolute inset-0 opacity-[0.25]"
         style={{
-          backgroundImage: 'linear-gradient(rgba(42, 61, 42, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(42, 61, 42, 0.3) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(rgba(193, 231, 52, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(193, 231, 52, 0.4) 1px, transparent 1px)',
           backgroundSize: '24px 24px',
         }}
         animate={{
@@ -30,37 +30,40 @@ export function AnimatedGridBackground() {
         }}
       />
 
-      {/* Subtle scan line effect */}
+      {/* Scan line effect - more visible */}
       <motion.div
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(to bottom, transparent 0%, rgba(193, 231, 52, 0.05) 50%, transparent 100%)',
+          background: 'linear-gradient(to bottom, transparent 0%, rgba(193, 231, 52, 0.15) 50%, transparent 100%)',
+          width: '100%',
+          height: '200px',
         }}
         animate={{
-          y: ['-100%', '200%'],
+          y: ['-200px', 'calc(100% + 200px)'],
         }}
         transition={{
-          duration: 8,
+          duration: 6,
           repeat: Infinity,
           ease: 'linear',
         }}
       />
 
-      {/* Floating accent dots */}
+      {/* Floating accent dots - more visible */}
       {[...Array(5)].map((_, i) => (
         <motion.div
           key={i}
           className="absolute rounded-full"
           style={{
-            width: '4px',
-            height: '4px',
-            background: 'rgba(193, 231, 52, 0.4)',
+            width: '6px',
+            height: '6px',
+            background: 'rgba(193, 231, 52, 0.7)',
+            boxShadow: '0 0 8px rgba(193, 231, 52, 0.5)',
             left: `${10 + i * 20}%`,
             top: `${20 + (i % 2) * 40}%`,
           }}
           animate={{
-            opacity: [0.2, 0.6, 0.2],
-            scale: [1, 1.5, 1],
+            opacity: [0.3, 0.8, 0.3],
+            scale: [1, 2, 1],
           }}
           transition={{
             duration: 3 + i * 0.5,

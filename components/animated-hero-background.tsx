@@ -11,30 +11,30 @@ export function AnimatedHeroBackground() {
   return (
     <div className="absolute inset-0 z-0 bg-background overflow-hidden">
       {/* Base gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-accent/5" />
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-accent/8" />
       
-      {/* Animated radial gradient glow */}
+      {/* Animated radial gradient glow - more visible */}
       <motion.div
         className="absolute inset-0"
         animate={{
           background: [
-            'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(193, 231, 52, 0.12) 0%, transparent 50%)',
-            'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(193, 231, 52, 0.08) 0%, transparent 50%)',
-            'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(193, 231, 52, 0.12) 0%, transparent 50%)',
+            'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(193, 231, 52, 0.25) 0%, rgba(193, 231, 52, 0.1) 30%, transparent 60%)',
+            'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(193, 231, 52, 0.15) 0%, rgba(193, 231, 52, 0.05) 30%, transparent 60%)',
+            'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(193, 231, 52, 0.25) 0%, rgba(193, 231, 52, 0.1) 30%, transparent 60%)',
           ],
         }}
         transition={{
-          duration: 8,
+          duration: 6,
           repeat: Infinity,
           ease: 'easeInOut',
         }}
       />
 
-      {/* Subtle grid pattern */}
+      {/* Animated grid pattern - more visible */}
       <motion.div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.08]"
         style={{
-          backgroundImage: 'linear-gradient(rgba(193, 231, 52, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(193, 231, 52, 0.1) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(rgba(193, 231, 52, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(193, 231, 52, 0.3) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
         }}
         animate={{
@@ -47,15 +47,15 @@ export function AnimatedHeroBackground() {
         }}
       />
 
-      {/* Floating orbs */}
+      {/* Floating orbs - more visible */}
       {[...Array(3)].map((_, i) => (
         <motion.div
           key={i}
           className="absolute rounded-full blur-3xl"
           style={{
-            width: `${200 + i * 100}px`,
-            height: `${200 + i * 100}px`,
-            background: `radial-gradient(circle, rgba(193, 231, 52, ${0.1 - i * 0.02}) 0%, transparent 70%)`,
+            width: `${250 + i * 120}px`,
+            height: `${250 + i * 120}px`,
+            background: `radial-gradient(circle, rgba(193, 231, 52, ${0.15 - i * 0.03}) 0%, rgba(193, 231, 52, ${0.05 - i * 0.01}) 50%, transparent 70%)`,
           }}
           animate={{
             x: [
@@ -68,10 +68,11 @@ export function AnimatedHeroBackground() {
               `${35 + i * 20}%`,
               `${30 + i * 20}%`,
             ],
-            scale: [1, 1.2, 1],
+            scale: [1, 1.3, 1],
+            opacity: [0.4, 0.7, 0.4],
           }}
           transition={{
-            duration: 10 + i * 2,
+            duration: 8 + i * 2,
             repeat: Infinity,
             ease: 'easeInOut',
             delay: i * 1.5,

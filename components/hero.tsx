@@ -12,8 +12,8 @@ export function Hero() {
       {/* Lightweight animated background */}
       <AnimatedHeroBackground />
 
-      {/* Overlay for better text readability */}
-      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/85 via-background/70 to-background/85 pointer-events-none" />
+      {/* Overlay for better text readability - reduced opacity to show animations */}
+      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/60 via-background/40 to-background/60 pointer-events-none" />
 
       {/* Content — interactive elements get pointer-events-auto */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:pt-24 sm:pb-12 md:py-12 w-full pointer-events-none">
