@@ -47,11 +47,11 @@ export default function RootLayout({
       </head>
       <body className={`${geist.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}>
         <CursorCircularText />
+        <FloatingSocialNav />
         <BootloaderWrapper>
           <SmoothScrollProvider>
             <AuthProvider>
               {children}
-              <FloatingSocialNav />
             </AuthProvider>
           </SmoothScrollProvider>
         </BootloaderWrapper>

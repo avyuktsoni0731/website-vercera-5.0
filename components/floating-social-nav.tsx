@@ -11,11 +11,12 @@ const SOCIAL_LINKS = [
 export function FloatingSocialNav() {
   return (
     <nav
-      className="fixed z-50 flex items-center gap-1 px-2.5 py-2 bg-card/80 border border-border/40 shadow-2xl rounded-full backdrop-blur-md transition-all duration-300
+      className="fixed z-[101] flex items-center gap-1 px-2.5 py-2 bg-card/80 border border-border/40 shadow-2xl rounded-full backdrop-blur-md transition-all duration-300
         bottom-6 right-6
         md:bottom-6 md:right-6
         max-md:left-1/2 max-md:right-auto max-md:-translate-x-1/2 max-md:bottom-5"
       aria-label="Social links"
+      style={{ isolation: 'isolate' }}
     >
       {SOCIAL_LINKS.map(({ href, label, icon: Icon }) => (
         <a
