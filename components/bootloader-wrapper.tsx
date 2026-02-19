@@ -36,16 +36,20 @@ export function BootloaderWrapper({ children }: BootloaderWrapperProps) {
       {showBootloader && <Bootloader onComplete={handleBootloaderComplete} />}
       
       <motion.div
-        initial={{ opacity: 0 }}
+        initial={{ opacity: 0, scale: 0.98 }}
         animate={{ 
           opacity: isContentReady && !showBootloader ? 1 : 0,
-          scale: isContentReady && !showBootloader ? 1 : 0.95
+          scale: isContentReady && !showBootloader ? 1 : 0.98
         }}
         transition={{ 
-          duration: 1,
-          ease: [0.16, 1, 0.3, 1] // Custom easing for smooth reveal
+          duration: 1.2,
+          ease: [0.16, 1, 0.3, 1], // Custom easing for smooth reveal
+          delay: showBootloader ? 0 : 0.2
         }}
-        className={showBootloader ? 'pointer-events-none' : ''}
+        className={showBootloader ? 'pointer-events-none overflow-hidden' : ''}
+        style={{
+          filter: showBootloader ? 'blur(8px)' : 'blur(0px)',
+        }}
       >
         {children}
       </motion.div>

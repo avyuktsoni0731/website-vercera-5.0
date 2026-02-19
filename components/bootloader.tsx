@@ -45,13 +45,28 @@ export function Bootloader({ onComplete }: BootloaderProps) {
 
   const handleVideoLoaded = () => {
     if (videoRef.current) {
+      // Try to play with sound first
       videoRef.current.play().catch((err) => {
-        console.error('Video play failed:', err)
-        // If autoplay fails, allow manual play or skip
-        setCanSkip(true)
+        console.log('Video play with sound failed, trying muted:', err)
+        // If autoplay with sound fails, try muted
+        if (videoRef.current) {
+          videoRef.current.muted = true
+          videoRef.current.play().catch((err2) => {
+            console.error('Video play failed:', err2)
+            // If autoplay fails completely, allow manual play or skip
+            setCanSkip(true)
+          })
+        }
       })
     }
   }
+
+  useEffect(() => {
+    // Try to play video when component mounts
+    if (videoRef.current) {
+      handleVideoLoaded()
+    }
+  }, [])
 
   return (
     <AnimatePresence>
@@ -76,9 +91,11 @@ export function Bootloader({ onComplete }: BootloaderProps) {
               className="w-full h-full object-contain"
               onEnded={handleVideoEnd}
               onLoadedData={handleVideoLoaded}
+              onCanPlay={handleVideoLoaded}
               playsInline
               muted={false}
               autoPlay
+              preload="auto"
             />
           </motion.div>
 
