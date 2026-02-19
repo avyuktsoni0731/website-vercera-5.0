@@ -195,7 +195,7 @@ export default function DashboardPage() {
             </div>
             <button
               onClick={handleLogout}
-              className="px-6 py-2 bg-destructive text-destructive-foreground rounded-lg font-medium hover:bg-destructive/90 transition-colors flex items-center gap-2"
+              className="px-6 py-2 bg-destructive text-destructive-foreground rounded-full font-medium hover:bg-destructive/90 transition-colors flex items-center gap-2"
             >
               <LogOut size={18} />
               Logout
@@ -276,7 +276,7 @@ export default function DashboardPage() {
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
                           onClick={copyVerceraId}
-                          className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                          className="p-2 hover:bg-secondary rounded-full transition-colors"
                           title="Copy Vercera ID"
                         >
                           {copied ? (
@@ -349,7 +349,7 @@ export default function DashboardPage() {
                           </div>
                         </div>
                         <div className="mt-4 flex gap-3">
-                          <Link href={`/events/${reg.eventId}`} className="px-4 py-2 bg-secondary text-foreground rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors">
+                          <Link href={`/events/${reg.eventId}`} className="px-4 py-2 bg-secondary text-foreground rounded-full text-sm font-medium hover:bg-secondary/80 transition-colors">
                             View Event
                           </Link>
                         </div>
@@ -359,7 +359,7 @@ export default function DashboardPage() {
                 ) : (
                   <div className="p-6 text-center">
                     <p className="text-foreground/60 mb-6">You haven&apos;t registered for any events yet.</p>
-                    <Link href="/events" className="inline-block px-6 py-2 bg-accent text-accent-foreground rounded-lg font-medium hover:bg-accent/90 transition-colors">
+                    <Link href="/events" className="inline-block px-6 py-2 bg-accent text-accent-foreground rounded-full font-medium hover:bg-accent/90 transition-colors">
                       Browse Events
                     </Link>
                   </div>
@@ -401,7 +401,7 @@ export default function DashboardPage() {
                             </ul>
                             <Link
                               href={`/events/${team.eventId}`}
-                              className="inline-block px-4 py-2 bg-secondary text-foreground rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors"
+                              className="inline-block px-4 py-2 bg-secondary text-foreground rounded-full text-sm font-medium hover:bg-secondary/80 transition-colors"
                             >
                               View Event
                             </Link>

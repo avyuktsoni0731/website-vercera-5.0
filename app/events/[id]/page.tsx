@@ -63,7 +63,7 @@ export default function EventDetailPage({ params }: Props) {
             <p className="text-foreground/70 mb-8">The event you're looking for doesn't exist.</p>
             <Link
               href="/events"
-              className="inline-block px-6 py-3 bg-accent text-accent-foreground rounded-lg font-medium hover:bg-accent/90 transition-all"
+              className="inline-block px-6 py-3 bg-accent text-accent-foreground rounded-full font-medium hover:bg-accent/90 transition-all"
             >
               Back to Events
             </Link>
@@ -317,7 +317,7 @@ export default function EventDetailPage({ params }: Props) {
                 {registration ? (
                   <button
                     disabled
-                    className="w-full px-6 py-3 bg-accent/20 text-accent rounded-lg font-bold cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full px-6 py-3 bg-accent/20 text-accent rounded-full font-bold cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     <BadgeCheck size={18} />
                     Registered
@@ -326,12 +326,12 @@ export default function EventDetailPage({ params }: Props) {
                   <button
                     onClick={handleRegisterClick}
                     disabled={isRegistering}
-                    className="w-full px-6 py-3 bg-accent text-accent-foreground rounded-lg font-bold hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-6 py-3 bg-accent text-accent-foreground rounded-full font-bold hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isRegistering ? 'Processing...' : 'Register Now'}
                   </button>
                 ) : (
-                  <button disabled className="w-full px-6 py-3 bg-muted text-muted-foreground rounded-lg font-bold cursor-not-allowed">
+                  <button disabled className="w-full px-6 py-3 bg-muted text-muted-foreground rounded-full font-bold cursor-not-allowed">
                     Registration Closed
                   </button>
                 )}

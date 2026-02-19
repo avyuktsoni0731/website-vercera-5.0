@@ -288,7 +288,7 @@ export default function SignupPage() {
                 </label>
               </div>
 
-              <button type="submit" disabled={isLoading} className="w-full px-6 py-3 bg-accent text-accent-foreground rounded-lg font-bold hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6">
+              <button type="submit" disabled={isLoading} className="w-full px-6 py-3 bg-accent text-accent-foreground rounded-full font-bold hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6">
                 {isLoading ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>
@@ -298,7 +298,7 @@ export default function SignupPage() {
               <div className="relative flex justify-center text-sm"><span className="px-2 bg-card text-foreground/60">Already have an account?</span></div>
             </div>
 
-            <Link href="/login" className="block w-full px-6 py-3 border border-border text-foreground rounded-lg font-medium hover:bg-secondary transition-colors text-center">
+            <Link href="/login" className="block w-full px-6 py-3 border border-border text-foreground rounded-full font-medium hover:bg-secondary transition-colors text-center">
               Sign In
             </Link>
           </div>

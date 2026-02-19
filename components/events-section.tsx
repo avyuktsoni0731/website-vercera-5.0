@@ -43,7 +43,7 @@ export function EventsSection() {
         <div className="text-center pt-8">
           <Link
             href="/events"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-accent-foreground rounded-lg font-medium hover:bg-accent/90 transition-all group"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-accent-foreground rounded-full font-medium hover:bg-accent/90 transition-all group"
           >
             Explore Complete Events Catalog
             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
@@ -124,7 +124,7 @@ function EventCard({ event }: EventCardProps) {
 
           {/* CTA Button */}
           <div className="pt-4 mt-auto">
-            <button className="w-full px-4 py-2 bg-accent/10 text-accent border border-accent rounded-lg font-medium hover:bg-accent hover:text-accent-foreground transition-colors text-sm">
+            <button className="w-full px-4 py-2 bg-accent/10 text-accent border border-accent rounded-full font-medium hover:bg-accent hover:text-accent-foreground transition-colors text-sm">
               View Details
             </button>
           </div>

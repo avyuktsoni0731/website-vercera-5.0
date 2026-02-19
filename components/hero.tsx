@@ -40,7 +40,7 @@ export function Hero() {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-100 opacity-80 relative z-10"
+              className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-100 opacity-90 relative z-10"
             >
               <Image
                 src="/amuroboclub.png"
@@ -92,7 +92,7 @@ export function Hero() {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="pointer-events-auto">
               <Link
                 href="/events"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-accent text-accent-foreground rounded-lg font-medium hover:bg-accent/90 transition-all group shadow-lg shadow-accent/20"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-accent text-accent-foreground rounded-full font-medium hover:bg-accent/90 transition-all group shadow-lg shadow-accent/20"
               >
                 Explore All Events
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
@@ -101,7 +101,7 @@ export function Hero() {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="pointer-events-auto">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center px-8 py-4 border border-border/50 bg-background/50 backdrop-blur-md text-foreground rounded-lg font-medium hover:bg-secondary/50 transition-all"
+                className="inline-flex items-center justify-center px-8 py-4 border border-border/50 bg-background/50 backdrop-blur-md text-foreground rounded-full font-medium hover:bg-secondary/50 transition-all"
               >
                 Register Now
               </Link>
