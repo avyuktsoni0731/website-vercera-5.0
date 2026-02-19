@@ -13,7 +13,7 @@ const geist = Geist({ subsets: ['latin'], variable: '--font-sans' })
 const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-mono' })
 
 export const metadata: Metadata = {
-  title: 'Vercera 5.0 - Technical Fest',
+  title: 'Vercera 5.0',
   description: 'Experience innovation at Vercera 5.0, the premier national-level technical fest featuring hackathons, robotics, gaming, and more.',
   keywords: 'tech fest, hackathon, robotics, gaming, technical events',
   icons: {
