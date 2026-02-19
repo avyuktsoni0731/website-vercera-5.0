@@ -3,14 +3,20 @@ import { Hero } from '@/components/hero'
 import { EventsSection } from '@/components/animated-events-section'
 import { FAQSection } from '@/components/animated-faq-section'
 import { Footer } from '@/components/footer'
+import { AnimatedHeroBackground } from '@/components/animated-hero-background'
 
 export default function Page() {
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
-      <Hero />
-      <EventsSection />
-      <FAQSection />
+      {/* Single continuous background for hero + events + FAQ — no seams */}
+      <div className="relative">
+        <AnimatedHeroBackground />
+        <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/60 via-background/40 to-background/60 pointer-events-none" aria-hidden />
+        <Hero />
+        <EventsSection />
+        <FAQSection />
+      </div>
       <Footer />
     </main>
   )

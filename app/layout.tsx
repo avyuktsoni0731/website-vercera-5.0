@@ -7,12 +7,13 @@ import { SmoothScrollProvider } from '@/components/smooth-scroll-provider'
 import { AuthProvider } from '@/contexts/auth-context'
 import { CursorCircularText } from '@/components/cursor-circular-text'
 import { FloatingSocialNav } from '@/components/floating-social-nav'
+import { BootloaderWrapper } from '@/components/bootloader-wrapper'
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' })
 const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-mono' })
 
 export const metadata: Metadata = {
-  title: 'Vercera 5.0 - Technical Fest',
+  title: 'Vercera 5.0',
   description: 'Experience innovation at Vercera 5.0, the premier national-level technical fest featuring hackathons, robotics, gaming, and more.',
   keywords: 'tech fest, hackathon, robotics, gaming, technical events',
   icons: {
@@ -45,13 +46,15 @@ export default function RootLayout({
         <link rel="icon" href="/vercera_logo.png" type="image/png" />
       </head>
       <body className={`${geist.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}>
-        <SmoothScrollProvider>
-          <AuthProvider>
-            {children}
-            <CursorCircularText />
-            <FloatingSocialNav />
-          </AuthProvider>
-        </SmoothScrollProvider>
+        <CursorCircularText />
+        <FloatingSocialNav />
+        <BootloaderWrapper>
+          <SmoothScrollProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </SmoothScrollProvider>
+        </BootloaderWrapper>
       </body>
     </html>
   )

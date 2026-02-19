@@ -3,52 +3,11 @@
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import { FaultyTerminalJSCSS } from '@/components/FaultyTerminal-JS-CSS'
-import { useBackgroundQuality } from '@/hooks/use-prefer-light-backgrounds'
-
+import Image from 'next/image'
 export function Hero() {
-  const { preferLightBackgrounds: preferLight, enablePostProcessing } = useBackgroundQuality()
-
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background: WebGL on desktop, lightweight gradient on mobile/slow devices */}
-      <div className="absolute inset-0 z-0 bg-background">
-        {preferLight ? (
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-background via-background to-accent/10"
-            style={{
-              backgroundImage: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(193, 231, 52, 0.08) 0%, transparent 50%)',
-            }}
-            aria-hidden
-          />
-        ) : (
-          <FaultyTerminalJSCSS
-            scale={1.5}
-            gridMul={[2, 1]}
-            digitSize={1.2}
-            timeScale={0.5}
-            pause={false}
-            scanlineIntensity={0.5}
-            glitchAmount={1}
-            flickerAmount={1}
-            noiseAmp={1}
-            chromaticAberration={0}
-            dither={0}
-            curvature={0.12}
-            tint="#C1E734"
-            mouseReact
-            mouseStrength={0.5}
-            pageLoadAnimation
-            brightness={0.5}
-            dpr={enablePostProcessing ? 2 : 1}
-          />
-        )}
-      </div>
-
-      {/* Overlay for better text readability */}
-      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/85 via-background/70 to-background/85 pointer-events-none" />
-
-      {/* Content — pointer-events-none so background gets mouse; interactive elements get pointer-events-auto */}
+      {/* Content — interactive elements get pointer-events-auto */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:pt-24 sm:pb-12 md:py-12 w-full pointer-events-none">
         <div className="text-center space-y-8">
           {/* Badge */}
@@ -62,8 +21,37 @@ export function Hero() {
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
               className="w-2 h-2 bg-accent rounded-full"
+              style={{ willChange: 'transform' }}
             />
             <span className="text-sm text-foreground/80">National Level Technical Fest 2026</span>
+          </motion.div>
+
+          {/* Organized By */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col items-center justify-center gap-2 text-sm text-foreground/60 pointer-events-auto"
+          >
+            <span className="font-mono">Organized by</span>
+            <motion.a
+              href="https://amuroboclub.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-100 opacity-80 relative z-10"
+            >
+              <Image
+                src="/amuroboclub.png"
+                alt="AMURoboclub"
+                width={200}
+                height={60}
+                quality={100}
+                priority
+                className="h-8 w-auto object-contain"
+              />
+            </motion.a>
           </motion.div>
 
           {/* Main Heading */}

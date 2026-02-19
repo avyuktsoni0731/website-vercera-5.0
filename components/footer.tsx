@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Mail, Phone, MapPin } from 'lucide-react'
 
 const MAP_EMBED_URL =
@@ -22,6 +23,24 @@ export function Footer() {
             <p className="text-foreground/60 text-sm">
               National-level technical fest bringing together innovators and builders from across the country.
             </p>
+            <div className="pt-2">
+              <p className="text-foreground/50 text-xs mb-2">Organized by</p>
+              <a
+                href="https://amuroboclub.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block transition-transform hover:scale-105"
+              >
+              <Image
+                src="/amuroboclub.png"
+                alt="AMURoboclub"
+                width={200}
+                height={60}
+                quality={100}
+                className="h-8 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity"
+              />
+              </a>
+            </div>
           </div>
 
           {/* Quick Links */}
