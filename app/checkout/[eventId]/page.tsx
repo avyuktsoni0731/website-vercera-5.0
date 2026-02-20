@@ -1,7 +1,6 @@
 'use client'
 
 import { use, useEffect, useState } from 'react'
-import Script from 'next/script'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/auth-context'
@@ -12,29 +11,6 @@ import { ArrowLeft, AlertCircle, CheckCircle, X } from 'lucide-react'
 
 interface Props {
   params: Promise<{ eventId: string }>
-}
-
-declare global {
-  interface Window {
-    Razorpay: new (options: RazorpayOptions) => RazorpayInstance
-  }
-}
-
-interface RazorpayOptions {
-  key: string
-  amount: number
-  currency: string
-  name: string
-  description: string
-  order_id: string
-  handler: (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => void
-  prefill?: { name?: string; email?: string }
-  theme?: { color: string }
-  modal?: { ondismiss?: () => void }
-}
-
-interface RazorpayInstance {
-  open: () => void
 }
 
 type TeamMember = {
@@ -51,8 +27,7 @@ export default function CheckoutPage({ params }: Props) {
   const { user, profile, loading } = useAuth()
 
   const [isLoading, setIsLoading] = useState(false)
-  const [razorpayLoaded, setRazorpayLoaded] = useState(false)
-  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle')
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'success' | 'failed'>('idle')
   const [formData, setFormData] = useState({
     additionalInfo: '',
   })
@@ -172,7 +147,7 @@ export default function CheckoutPage({ params }: Props) {
     }
 
     const baseUrl = (process.env.NEXT_PUBLIC_EV_CHECKOUT_URL || 'https://www.continuumworks.app').replace(/\/$/, '')
-    const returnUrl = typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : 'https://www.vercera.in/dashboard'
+    const returnUrl = typeof window !== 'undefined' ? `${window.location.origin}/dashboard?payment=success` : 'https://www.vercera.in/dashboard?payment=success'
 
     const teamPayload =
       isTeamEvent && profile
@@ -227,11 +202,6 @@ export default function CheckoutPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-background">
-      <Script
-        src="https://checkout.razorpay.com/v1/checkout.js"
-        strategy="lazyOnload"
-        onLoad={() => setRazorpayLoaded(true)}
-      />
       <Navbar />
 
       <div className="pt-24 pb-20">
@@ -403,10 +373,10 @@ export default function CheckoutPage({ params }: Props) {
 
                     <button
                       type="submit"
-                      disabled={isLoading || !razorpayLoaded}
+                      disabled={isLoading}
                       className="w-full px-6 py-4 bg-accent text-accent-foreground rounded-full font-bold text-lg hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isLoading ? 'Opening Payment...' : !razorpayLoaded ? 'Loading...' : `Pay ₹${totalAmount} & Register`}
+                      {isLoading ? 'Redirecting to payment…' : `Pay ₹${totalAmount} & Register`}
                     </button>
                   </form>
                 )}
