@@ -1,7 +1,6 @@
 'use client'
 
 import { use, useEffect, useState } from 'react'
-import Script from 'next/script'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/auth-context'
@@ -12,29 +11,6 @@ import { ArrowLeft, AlertCircle, CheckCircle, X } from 'lucide-react'
 
 interface Props {
   params: Promise<{ eventId: string }>
-}
-
-declare global {
-  interface Window {
-    Razorpay: new (options: RazorpayOptions) => RazorpayInstance
-  }
-}
-
-interface RazorpayOptions {
-  key: string
-  amount: number
-  currency: string
-  name: string
-  description: string
-  order_id: string
-  handler: (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => void
-  prefill?: { name?: string; email?: string }
-  theme?: { color: string }
-  modal?: { ondismiss?: () => void }
-}
-
-interface RazorpayInstance {
-  open: () => void
 }
 
 type TeamMember = {
@@ -51,8 +27,7 @@ export default function CheckoutPage({ params }: Props) {
   const { user, profile, loading } = useAuth()
 
   const [isLoading, setIsLoading] = useState(false)
-  const [razorpayLoaded, setRazorpayLoaded] = useState(false)
-  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle')
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'success' | 'failed'>('idle')
   const [formData, setFormData] = useState({
     additionalInfo: '',
   })
@@ -157,7 +132,7 @@ export default function CheckoutPage({ params }: Props) {
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || !profile || !event || !razorpayLoaded) return
+    if (!user || !profile || !event) return
 
     if (isTeamEvent) {
       const size = currentTeamSize
@@ -171,115 +146,46 @@ export default function CheckoutPage({ params }: Props) {
       }
     }
 
-    const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
-    if (!keyId) {
-      setPaymentStatus('failed')
-      return
+    const baseUrl = (process.env.NEXT_PUBLIC_EV_CHECKOUT_URL || 'https://www.continuumworks.app').replace(/\/$/, '')
+    const returnUrl = typeof window !== 'undefined' ? `${window.location.origin}/dashboard?payment=success` : 'https://www.vercera.in/dashboard?payment=success'
+
+    const teamPayload =
+      isTeamEvent && profile
+        ? {
+            isTeamEvent: true,
+            teamName: teamName.trim(),
+            teamSize: currentTeamSize,
+            members: [
+              {
+                userId: user.uid,
+                verceraId: profile.verceraId,
+                fullName: profile.fullName,
+                email: profile.email,
+                isLeader: true,
+              },
+              ...teamMembers.map((m) => ({ ...m, isLeader: false })),
+            ],
+          }
+        : null
+
+    const params = new URLSearchParams({
+      eventId: event.id,
+      eventName: event.name,
+      amount: String(totalAmount),
+      userId: user.uid,
+      email: profile.email,
+      userName: profile.fullName || '',
+      returnUrl,
+    })
+    if (teamPayload) {
+      params.set('team', btoa(JSON.stringify(teamPayload)))
+    }
+    if (formData.additionalInfo?.trim()) {
+      params.set('additionalInfo', formData.additionalInfo.trim())
     }
 
     setIsLoading(true)
-    setPaymentStatus('processing')
-
-    try {
-      const createRes = await fetch('/api/razorpay/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: totalAmount,
-          eventId: event.id,
-          eventName: event.name,
-          email: profile.email,
-          userId: user.uid,
-        }),
-      })
-
-      if (!createRes.ok) {
-        const err = await createRes.json()
-        throw new Error(err.error || 'Failed to create order')
-      }
-
-      const order = await createRes.json()
-
-      const options: RazorpayOptions = {
-        key: keyId,
-        amount: order.amount,
-        currency: order.currency,
-        name: 'Vercera 5.0',
-        description: `Registration for ${event.name}`,
-        order_id: order.id,
-        prefill: {
-          name: profile.fullName,
-          email: profile.email,
-        },
-        theme: { color: '#C1E734' },
-        handler: async (response) => {
-          try {
-            const teamPayload =
-              isTeamEvent && profile
-                ? {
-                    isTeamEvent: true,
-                    teamName: teamName.trim(),
-                    teamSize: currentTeamSize,
-                    members: [
-                      {
-                        userId: user.uid,
-                        verceraId: profile.verceraId,
-                        fullName: profile.fullName,
-                        email: profile.email,
-                        isLeader: true,
-                      },
-                      ...teamMembers.map((m) => ({
-                        ...m,
-                        isLeader: false,
-                      })),
-                    ],
-                  }
-                : null
-
-            const verifyRes = await fetch('/api/razorpay/verify-payment', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                orderId: response.razorpay_order_id,
-                paymentId: response.razorpay_payment_id,
-                signature: response.razorpay_signature,
-                eventId: event.id,
-                eventName: event.name,
-                amount: totalAmount,
-                userId: user.uid,
-                team: teamPayload,
-                additionalInfo: formData.additionalInfo || null,
-              }),
-            })
-
-            if (verifyRes.ok) {
-              setPaymentStatus('success')
-              setTimeout(() => router.push('/dashboard'), 2000)
-            } else {
-              setPaymentStatus('failed')
-              setIsLoading(false)
-            }
-          } catch {
-            setPaymentStatus('failed')
-            setIsLoading(false)
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setIsLoading(false)
-            setPaymentStatus('idle')
-          },
-        },
-      }
-
-      const rzp = new window.Razorpay(options)
-      rzp.open()
-    } catch (err) {
-      console.error('Payment error:', err)
-      setPaymentStatus('failed')
-    } finally {
-      setIsLoading(false)
-    }
+    window.location.href = `${baseUrl}/ev/checkout?${params.toString()}`
   }
 
   if (!user || !profile) {
@@ -296,11 +202,6 @@ export default function CheckoutPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-background">
-      <Script
-        src="https://checkout.razorpay.com/v1/checkout.js"
-        strategy="lazyOnload"
-        onLoad={() => setRazorpayLoaded(true)}
-      />
       <Navbar />
 
       <div className="pt-24 pb-20">
@@ -472,10 +373,10 @@ export default function CheckoutPage({ params }: Props) {
 
                     <button
                       type="submit"
-                      disabled={isLoading || !razorpayLoaded}
+                      disabled={isLoading}
                       className="w-full px-6 py-4 bg-accent text-accent-foreground rounded-full font-bold text-lg hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isLoading ? 'Opening Payment...' : !razorpayLoaded ? 'Loading...' : `Pay ₹${totalAmount} & Register`}
+                      {isLoading ? 'Redirecting to payment…' : `Pay ₹${totalAmount} & Register`}
                     </button>
                   </form>
                 )}
