@@ -157,7 +157,7 @@ export default function CheckoutPage({ params }: Props) {
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || !profile || !event || !razorpayLoaded) return
+    if (!user || !profile || !event) return
 
     if (isTeamEvent) {
       const size = currentTeamSize
@@ -171,115 +171,46 @@ export default function CheckoutPage({ params }: Props) {
       }
     }
 
-    const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
-    if (!keyId) {
-      setPaymentStatus('failed')
-      return
+    const baseUrl = (process.env.NEXT_PUBLIC_EV_CHECKOUT_URL || 'https://www.continuumworks.app').replace(/\/$/, '')
+    const returnUrl = typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : 'https://www.vercera.in/dashboard'
+
+    const teamPayload =
+      isTeamEvent && profile
+        ? {
+            isTeamEvent: true,
+            teamName: teamName.trim(),
+            teamSize: currentTeamSize,
+            members: [
+              {
+                userId: user.uid,
+                verceraId: profile.verceraId,
+                fullName: profile.fullName,
+                email: profile.email,
+                isLeader: true,
+              },
+              ...teamMembers.map((m) => ({ ...m, isLeader: false })),
+            ],
+          }
+        : null
+
+    const params = new URLSearchParams({
+      eventId: event.id,
+      eventName: event.name,
+      amount: String(totalAmount),
+      userId: user.uid,
+      email: profile.email,
+      userName: profile.fullName || '',
+      returnUrl,
+    })
+    if (teamPayload) {
+      params.set('team', btoa(JSON.stringify(teamPayload)))
+    }
+    if (formData.additionalInfo?.trim()) {
+      params.set('additionalInfo', formData.additionalInfo.trim())
     }
 
     setIsLoading(true)
-    setPaymentStatus('processing')
-
-    try {
-      const createRes = await fetch('/api/razorpay/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: totalAmount,
-          eventId: event.id,
-          eventName: event.name,
-          email: profile.email,
-          userId: user.uid,
-        }),
-      })
-
-      if (!createRes.ok) {
-        const err = await createRes.json()
-        throw new Error(err.error || 'Failed to create order')
-      }
-
-      const order = await createRes.json()
-
-      const options: RazorpayOptions = {
-        key: keyId,
-        amount: order.amount,
-        currency: order.currency,
-        name: 'Vercera 5.0',
-        description: `Registration for ${event.name}`,
-        order_id: order.id,
-        prefill: {
-          name: profile.fullName,
-          email: profile.email,
-        },
-        theme: { color: '#C1E734' },
-        handler: async (response) => {
-          try {
-            const teamPayload =
-              isTeamEvent && profile
-                ? {
-                    isTeamEvent: true,
-                    teamName: teamName.trim(),
-                    teamSize: currentTeamSize,
-                    members: [
-                      {
-                        userId: user.uid,
-                        verceraId: profile.verceraId,
-                        fullName: profile.fullName,
-                        email: profile.email,
-                        isLeader: true,
-                      },
-                      ...teamMembers.map((m) => ({
-                        ...m,
-                        isLeader: false,
-                      })),
-                    ],
-                  }
-                : null
-
-            const verifyRes = await fetch('/api/razorpay/verify-payment', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                orderId: response.razorpay_order_id,
-                paymentId: response.razorpay_payment_id,
-                signature: response.razorpay_signature,
-                eventId: event.id,
-                eventName: event.name,
-                amount: totalAmount,
-                userId: user.uid,
-                team: teamPayload,
-                additionalInfo: formData.additionalInfo || null,
-              }),
-            })
-
-            if (verifyRes.ok) {
-              setPaymentStatus('success')
-              setTimeout(() => router.push('/dashboard'), 2000)
-            } else {
-              setPaymentStatus('failed')
-              setIsLoading(false)
-            }
-          } catch {
-            setPaymentStatus('failed')
-            setIsLoading(false)
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setIsLoading(false)
-            setPaymentStatus('idle')
-          },
-        },
-      }
-
-      const rzp = new window.Razorpay(options)
-      rzp.open()
-    } catch (err) {
-      console.error('Payment error:', err)
-      setPaymentStatus('failed')
-    } finally {
-      setIsLoading(false)
-    }
+    window.location.href = `${baseUrl}/ev/checkout?${params.toString()}`
   }
 
   if (!user || !profile) {
