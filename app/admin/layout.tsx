@@ -1,0 +1,101 @@
+'use client'
+
+import { useEffect } from 'react'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { useAdmin } from '@/hooks/use-admin'
+import {
+  LayoutDashboard,
+  ListChecks,
+  Calendar,
+  Receipt,
+  QrCode,
+  Users,
+  LogOut,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+const nav = [
+  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/registrations', label: 'Registrations', icon: ListChecks },
+  { href: '/admin/events', label: 'Events', icon: Calendar },
+  { href: '/admin/transactions', label: 'Transactions', icon: Receipt },
+  { href: '/admin/scan', label: 'Ticket Scan', icon: QrCode },
+  { href: '/admin/participants', label: 'Participants', icon: Users },
+]
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const { isAdmin, adminChecked, loading } = useAdmin()
+
+  useEffect(() => {
+    if (!adminChecked) return
+    if (!loading && !isAdmin) {
+      router.replace('/')
+      return
+    }
+  }, [adminChecked, isAdmin, loading, router])
+
+  const handleSignOut = () => {
+    router.push('/')
+  }
+
+  if (loading || !adminChecked) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground/70">Loading...</div>
+      </div>
+    )
+  }
+
+  if (!isAdmin) {
+    return null
+  }
+
+  return (
+    <div className="min-h-screen bg-background flex">
+      <aside className="w-56 border-r border-border bg-card/30 flex flex-col">
+        <div className="p-4 border-b border-border">
+          <Link href="/admin" className="font-display font-bold text-lg text-foreground">
+            Vercera Admin
+          </Link>
+        </div>
+        <nav className="flex-1 p-2 space-y-0.5">
+          {nav.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                pathname === item.href
+                  ? 'bg-accent/20 text-accent'
+                  : 'text-foreground/70 hover:bg-secondary hover:text-foreground'
+              )}
+            >
+              <item.icon className="h-4 w-4" />
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="p-2 border-t border-border">
+          <Link
+            href="/"
+            onClick={handleSignOut}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground/70 hover:bg-secondary hover:text-foreground"
+          >
+            <LogOut className="h-4 w-4" />
+            Back to site
+          </Link>
+        </div>
+      </aside>
+      <main className="flex-1 overflow-auto p-6 md:p-8">
+        {children}
+      </main>
+    </div>
+  )
+}
