@@ -29,12 +29,15 @@ export default function AdminManageAdminsPage() {
   const { level } = useAdmin()
   const [participants, setParticipants] = useState<Participant[]>([])
   const [admins, setAdmins] = useState<AdminRole[]>([])
+  const [ownerUid, setOwnerUid] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
   const isOwner = level === 'owner'
-  // Don't show the current user in the list (owner/super-admin manages others, not themselves)
-  const participantsFiltered = participants.filter((p) => p.id !== user?.uid)
+  // Hide current user and owner from the list (owner is set in env and cannot be assigned a role here)
+  const participantsFiltered = participants.filter(
+    (p) => p.id !== user?.uid && p.id !== ownerUid
+  )
 
   const loadAdmins = useCallback(() => {
     fetchWithAuth('/api/admin/admins')
@@ -42,8 +45,12 @@ export default function AdminManageAdminsPage() {
       .then((data) => {
         if (data.error) throw new Error(data.error)
         setAdmins(data.admins || [])
+        setOwnerUid(data.ownerUid ?? null)
       })
-      .catch(() => setAdmins([]))
+      .catch(() => {
+        setAdmins([])
+        setOwnerUid(null)
+      })
   }, [fetchWithAuth])
 
   const loadParticipants = useCallback(() => {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getVerceraFirestore } from "@/lib/firebase-admin";
+import { getVerceraFirestore, getOwnerUid } from "@/lib/firebase-admin";
 import { requireAdminLevel } from "@/lib/admin-auth";
 import type { AdminLevel } from "@/lib/admin-auth";
 
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     if (auth.level === "super_admin") {
       list = list.filter((a) => a.role === "event_admin");
     }
-    return NextResponse.json({ admins: list });
+    return NextResponse.json({ admins: list, ownerUid: getOwnerUid() });
   } catch (err) {
     console.error("Admin list error:", err);
     return NextResponse.json(
