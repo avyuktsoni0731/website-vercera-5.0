@@ -24,10 +24,8 @@ export function getVerceraFirestore() {
   return getFirestore(getApps().find((a) => a.name === APP_NAME)!)
 }
 
-export function getAdminUids(): string[] {
-  const uids = process.env.ADMIN_UIDS || ''
-  return uids
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean)
+/** Single owner UID from env. Only this user can manage super-admins. */
+export function getOwnerUid(): string | null {
+  const uid = process.env.OWNER_UID?.trim()
+  return uid || null
 }

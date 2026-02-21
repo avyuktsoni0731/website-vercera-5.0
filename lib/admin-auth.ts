@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuth } from 'firebase-admin/auth'
 import { initializeApp, getApps, cert, type ServiceAccount } from 'firebase-admin/app'
-import { getAdminUids } from '@/lib/firebase-admin'
+import { getVerceraFirestore, getOwnerUid } from '@/lib/firebase-admin'
+
+export type AdminLevel = 'owner' | 'super_admin' | 'event_admin'
 
 function getFirebaseAdminAuth() {
   const appName = 'vercera-admin-auth'
@@ -22,20 +24,38 @@ function getFirebaseAdminAuth() {
   return getAuth(getApps().find((a) => a.name === appName)!)
 }
 
-/** Returns decoded uid if request has valid admin token; otherwise returns null. */
-export async function verifyAdminToken(request: NextRequest): Promise<string | null> {
+/** Resolve admin level for a verified uid: owner from env, else from Firestore admin_roles. */
+export async function getAdminLevel(uid: string): Promise<AdminLevel | null> {
+  if (getOwnerUid() === uid) return 'owner'
+  const db = getVerceraFirestore()
+  const doc = await db.collection('admin_roles').doc(uid).get()
+  const role = doc.data()?.role
+  if (role === 'super_admin' || role === 'event_admin') return role
+  return null
+}
+
+/** Returns { uid, level } if request has valid admin token; otherwise null. */
+export async function verifyAdminWithLevel(
+  request: NextRequest
+): Promise<{ uid: string; level: AdminLevel } | null> {
   try {
     const authHeader = request.headers.get('Authorization')
     const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
     if (!token) return null
     const auth = getFirebaseAdminAuth()
     const decoded = await auth.verifyIdToken(token)
-    const uids = getAdminUids()
-    if (!uids.length || !uids.includes(decoded.uid)) return null
-    return decoded.uid
+    const level = await getAdminLevel(decoded.uid)
+    if (!level) return null
+    return { uid: decoded.uid, level }
   } catch {
     return null
   }
+}
+
+/** Returns decoded uid if request has valid admin token (any level); otherwise null. */
+export async function verifyAdminToken(request: NextRequest): Promise<string | null> {
+  const result = await verifyAdminWithLevel(request)
+  return result ? result.uid : null
 }
 
 export function unauthorizedResponse() {
