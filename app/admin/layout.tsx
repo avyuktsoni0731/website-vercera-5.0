@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/auth-context'
 import { useAdmin } from '@/hooks/use-admin'
 import {
   LayoutDashboard,
@@ -31,15 +32,20 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname()
   const router = useRouter()
+  const { user } = useAuth()
   const { isAdmin, adminChecked, loading } = useAdmin()
 
   useEffect(() => {
     if (!adminChecked) return
-    if (!loading && !isAdmin) {
+    if (!user && !loading) {
+      router.replace('/login?redirect=/admin')
+      return
+    }
+    if (user && !loading && !isAdmin) {
       router.replace('/')
       return
     }
-  }, [adminChecked, isAdmin, loading, router])
+  }, [adminChecked, isAdmin, loading, user, router])
 
   const handleSignOut = () => {
     router.push('/')

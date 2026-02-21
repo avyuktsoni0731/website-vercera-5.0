@@ -16,12 +16,13 @@ interface Participant {
 }
 
 export default function AdminParticipantsPage() {
+  const fetchWithAuth = useAdminFetch()
   const [participants, setParticipants] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    fetch('/api/admin/participants?limit=300')
+    fetchWithAuth('/api/admin/participants?limit=300')
       .then((res) => res.json())
       .then((data) => {
         if (data.error) throw new Error(data.error)

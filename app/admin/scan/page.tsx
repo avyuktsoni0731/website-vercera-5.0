@@ -67,7 +67,7 @@ export default function AdminScanPage() {
 
   const markAttendance = async (registrationId: string, eventId: string, attended: boolean) => {
     try {
-      const res = await fetch('/api/admin/mark-attendance', {
+      const res = await fetchWithAuth('/api/admin/mark-attendance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

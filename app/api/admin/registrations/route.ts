@@ -12,17 +12,16 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
     const limit = Math.min(Number(searchParams.get('limit')) || 100, 500)
 
-    const snapshot = await db
-      .collection('registrations')
-      .orderBy('createdAt', 'desc')
-      .limit(limit)
-      .get()
+    const snapshot = await db.collection('registrations').limit(limit).get()
 
     let registrations = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
-    })) as Array<Record<string, unknown> & { id: string; eventId?: string; status?: string }>
+    })) as Array<Record<string, unknown> & { id: string; eventId?: string; status?: string; createdAt?: string }>
 
+    registrations.sort((a, b) =>
+      (b.createdAt || '').localeCompare(a.createdAt || '')
+    )
     if (eventId) registrations = registrations.filter((r) => r.eventId === eventId)
     if (status) registrations = registrations.filter((r) => r.status === status)
 
