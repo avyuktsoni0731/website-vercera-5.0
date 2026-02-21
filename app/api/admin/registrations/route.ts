@@ -17,7 +17,17 @@ export async function GET(request: NextRequest) {
     let registrations = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
-    })) as Array<Record<string, unknown> & { id: string; eventId?: string; status?: string; createdAt?: string }>
+    })) as Array<
+      Record<string, unknown> & {
+        id: string
+        userId?: string
+        eventId?: string
+        status?: string
+        createdAt?: string
+        verceraTeamId?: string
+        teamId?: string
+      }
+    >
 
     registrations.sort((a, b) =>
       (b.createdAt || '').localeCompare(a.createdAt || '')
@@ -25,7 +35,28 @@ export async function GET(request: NextRequest) {
     if (eventId) registrations = registrations.filter((r) => r.eventId === eventId)
     if (status) registrations = registrations.filter((r) => r.status === status)
 
-    return NextResponse.json({ registrations })
+    const userIds = [...new Set(registrations.map((r) => r.userId).filter(Boolean))] as string[]
+    const participantMap: Record<string, { fullName: string; email?: string }> = {}
+    if (userIds.length > 0) {
+      await Promise.all(
+        userIds.map(async (uid) => {
+          const snap = await db.collection('vercera_5_participants').doc(uid).get()
+          const d = snap.data()
+          participantMap[uid] = {
+            fullName: (d?.fullName as string) || '—',
+            email: d?.email as string | undefined,
+          }
+        })
+      )
+    }
+
+    const enriched = registrations.map((r) => ({
+      ...r,
+      participantName: r.userId ? participantMap[r.userId]?.fullName ?? '—' : '—',
+      participantEmail: r.userId ? participantMap[r.userId]?.email ?? null : null,
+    }))
+
+    return NextResponse.json({ registrations: enriched })
   } catch (err) {
     console.error('Admin registrations list error:', err)
     return NextResponse.json({ error: 'Failed to fetch registrations' }, { status: 500 })
