@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getVerceraFirestore } from '@/lib/firebase-admin'
 import { isValidVerceraId } from '@/lib/vercera-id'
+import { verifyAdminToken, unauthorizedResponse } from '@/lib/admin-auth'
 
 export async function POST(request: NextRequest) {
+  const uid = await verifyAdminToken(request)
+  if (!uid) return unauthorizedResponse()
   try {
     const body = await request.json()
     const { verceraId } = body

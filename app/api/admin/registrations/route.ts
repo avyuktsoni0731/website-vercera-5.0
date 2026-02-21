@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getVerceraFirestore } from '@/lib/firebase-admin'
+import { verifyAdminToken, unauthorizedResponse } from '@/lib/admin-auth'
 
 export async function GET(request: NextRequest) {
+  const uid = await verifyAdminToken(request)
+  if (!uid) return unauthorizedResponse()
   try {
     const db = getVerceraFirestore()
     const { searchParams } = new URL(request.url)
