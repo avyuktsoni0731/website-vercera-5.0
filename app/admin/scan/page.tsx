@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { QrCode, Search, CheckCircle } from 'lucide-react'
+import { QrCode, Search, CheckCircle, Users } from 'lucide-react'
 import { useAdminFetch } from '@/hooks/use-admin-fetch'
 
 interface Participant {
@@ -20,43 +20,77 @@ interface Registration {
   attended?: boolean
 }
 
+type ScanResult =
+  | { mode: 'participant'; participant: Participant; registrations: Registration[] }
+  | {
+      mode: 'team'
+      team: {
+        id: string
+        verceraTeamId: string
+        teamName: string | null
+        eventId: string
+        eventName: string
+        members: Array<{ userId: string; verceraId: string; fullName: string; email: string; isLeader?: boolean }>
+        size: number
+      }
+      registrations: Array<Registration & { verceraId?: string; isTeamLeader?: boolean }>
+    }
+
+const isTeamId = (id: string) => /^VT_/i.test(id.trim())
+
 export default function AdminScanPage() {
   const fetchWithAuth = useAdminFetch()
-  const [verceraId, setVerceraId] = useState('')
+  const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<{
-    participant: Participant
-    registrations: Registration[]
-  } | null>(null)
+  const [result, setResult] = useState<ScanResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleScan = async (e: React.FormEvent) => {
     e.preventDefault()
-    const id = verceraId.trim().toUpperCase()
+    const id = input.trim().toUpperCase()
     if (!id) {
-      setError('Enter a Vercera ID')
+      setError('Enter a Vercera ID or Team ID (e.g. VT_XXXXXXXX)')
       return
     }
     setLoading(true)
     setError(null)
     setResult(null)
     try {
-      const res = await fetchWithAuth('/api/admin/scan-participant', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ verceraId: id }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.error || 'Scan failed')
-        return
+      if (isTeamId(id)) {
+        const res = await fetchWithAuth('/api/admin/scan-team', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ verceraTeamId: id }),
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          setError(data.error || 'Team lookup failed')
+          return
+        }
+        setResult({
+          mode: 'team',
+          team: data.team,
+          registrations: data.registrations || [],
+        })
+      } else {
+        const res = await fetchWithAuth('/api/admin/scan-participant', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ verceraId: id }),
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          setError(data.error || 'Scan failed')
+          return
+        }
+        setResult({
+          mode: 'participant',
+          participant: data.participant,
+          registrations: data.registrations || [],
+        })
       }
-      setResult({
-        participant: data.participant,
-        registrations: data.registrations || [],
-      })
-      setVerceraId('')
+      setInput('')
       inputRef.current?.focus()
     } catch {
       setError('Network error')
@@ -93,6 +127,28 @@ export default function AdminScanPage() {
     }
   }
 
+  const markTeamAttendance = async (verceraTeamId: string) => {
+    try {
+      const res = await fetchWithAuth('/api/admin/mark-team-attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ verceraTeamId }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setResult((prev) =>
+        prev && prev.mode === 'team'
+          ? {
+              ...prev,
+              registrations: prev.registrations.map((r) => ({ ...r, attended: true })),
+            }
+          : prev
+      )
+    } catch (err) {
+      alert((err as Error).message || 'Failed to mark team attendance')
+    }
+  }
+
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       <div>
@@ -101,7 +157,7 @@ export default function AdminScanPage() {
           Ticket scanning
         </h1>
         <p className="text-foreground/60 mt-1">
-          Enter or scan Vercera ID to look up participant and mark attendance.
+          Enter or scan Vercera ID (participant) or Team ID (VT_…) to look up and mark attendance.
         </p>
       </div>
 
@@ -111,9 +167,9 @@ export default function AdminScanPage() {
           <input
             ref={inputRef}
             type="text"
-            placeholder="Vercera ID (e.g. VEC00001)"
-            value={verceraId}
-            onChange={(e) => setVerceraId(e.target.value.toUpperCase())}
+            placeholder="Vercera ID (e.g. VEC00001) or Team ID (VT_XXXXXXXX)"
+            value={input}
+            onChange={(e) => setInput(e.target.value.toUpperCase())}
             className="w-full pl-10 pr-4 py-3 rounded-full border border-border bg-background text-foreground placeholder:text-foreground/40 font-mono focus:outline-none focus:ring-2 focus:ring-accent"
             autoFocus
           />
@@ -133,7 +189,7 @@ export default function AdminScanPage() {
         </div>
       )}
 
-      {result && (
+      {result && result.mode === 'participant' && (
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="p-4 border-b border-border bg-secondary/30">
             <h2 className="font-semibold text-foreground">{result.participant.fullName}</h2>
@@ -197,6 +253,63 @@ export default function AdminScanPage() {
                 ))}
               </ul>
             )}
+          </div>
+        </div>
+      )}
+
+      {result && result.mode === 'team' && (
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
+          <div className="p-4 border-b border-border bg-secondary/30 flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h2 className="font-semibold text-foreground flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                {result.team.teamName || 'Team'}
+              </h2>
+              <p className="text-sm text-foreground/70 mt-0.5 font-mono">
+                {result.team.verceraTeamId} · {result.team.eventName}
+              </p>
+            </div>
+            {result.registrations.some((r) => !r.attended) ? (
+              <button
+                onClick={() => markTeamAttendance(result.team.verceraTeamId)}
+                className="px-4 py-2 rounded-full bg-accent text-accent-foreground font-medium hover:bg-accent/90 transition-colors"
+              >
+                Mark whole team attended
+              </button>
+            ) : (
+              <span className="text-accent text-sm flex items-center gap-1">
+                <CheckCircle className="h-4 w-4" /> All attended
+              </span>
+            )}
+          </div>
+          <div className="p-4">
+            <h3 className="text-sm font-medium text-foreground/80 mb-3">
+              Team members ({result.team.size})
+            </h3>
+            <ul className="space-y-2">
+              {result.registrations.map((reg) => (
+                <li
+                  key={reg.id}
+                  className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
+                >
+                  <div>
+                    <p className="font-medium text-foreground">
+                      {result.team.members.find((m) => m.verceraId === reg.verceraId)?.fullName ?? reg.verceraId ?? '—'}
+                    </p>
+                    <p className="text-xs text-foreground/50 font-mono">
+                      {reg.verceraId} · {reg.status} · ₹{reg.amount?.toLocaleString('en-IN')}
+                    </p>
+                  </div>
+                  {reg.attended ? (
+                    <span className="text-accent text-sm flex items-center gap-1">
+                      <CheckCircle className="h-4 w-4" /> Attended
+                    </span>
+                  ) : (
+                    <span className="text-foreground/50 text-sm">Not marked</span>
+                  )}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       )}
