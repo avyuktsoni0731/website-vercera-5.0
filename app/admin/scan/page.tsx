@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { QrCode, Search, CheckCircle, XCircle } from 'lucide-react'
+import { QrCode, Search, CheckCircle } from 'lucide-react'
+import { useAdminFetch } from '@/hooks/use-admin-fetch'
 
 interface Participant {
   verceraId: string
@@ -20,6 +21,7 @@ interface Registration {
 }
 
 export default function AdminScanPage() {
+  const fetchWithAuth = useAdminFetch()
   const [verceraId, setVerceraId] = useState('')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{
@@ -40,7 +42,7 @@ export default function AdminScanPage() {
     setError(null)
     setResult(null)
     try {
-      const res = await fetch('/api/admin/scan-participant', {
+      const res = await fetchWithAuth('/api/admin/scan-participant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ verceraId: id }),

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Users, Search } from 'lucide-react'
+import { useAdminFetch } from '@/hooks/use-admin-fetch'
 
 interface Participant {
   id: string
@@ -28,7 +29,7 @@ export default function AdminParticipantsPage() {
       })
       .catch(() => setParticipants([]))
       .finally(() => setLoading(false))
-  }, [])
+  }, [fetchWithAuth])
 
   const filtered = participants.filter((p) => {
     if (!search) return true

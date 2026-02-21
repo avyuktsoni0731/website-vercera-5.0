@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Receipt, Download } from 'lucide-react'
+import { Receipt } from 'lucide-react'
+import { useAdminFetch } from '@/hooks/use-admin-fetch'
 import {
   BarChart,
   Bar,
@@ -30,11 +31,12 @@ interface Stats {
 const CHART_COLORS = ['#C1E734', '#9BC420', '#7AA319', '#5C7D12', '#3D540C']
 
 export default function AdminTransactionsPage() {
+  const fetchWithAuth = useAdminFetch()
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/admin/stats')
+    fetchWithAuth('/api/admin/stats')
       .then((res) => res.json())
       .then((data) => {
         if (data.error) throw new Error(data.error)
@@ -42,7 +44,7 @@ export default function AdminTransactionsPage() {
       })
       .catch(() => setStats(null))
       .finally(() => setLoading(false))
-  }, [])
+  }, [fetchWithAuth])
 
   if (loading) {
     return (

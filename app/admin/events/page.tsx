@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Calendar, ExternalLink } from 'lucide-react'
 import { events } from '@/lib/events'
+import { useAdminFetch } from '@/hooks/use-admin-fetch'
 
 interface EventStats {
   count: number
@@ -12,17 +13,18 @@ interface EventStats {
 }
 
 export default function AdminEventsPage() {
+  const fetchWithAuth = useAdminFetch()
   const [eventWise, setEventWise] = useState<Record<string, EventStats>>({})
 
   useEffect(() => {
-    fetch('/api/admin/stats')
+    fetchWithAuth('/api/admin/stats')
       .then((res) => res.json())
       .then((data) => {
         if (data.error) throw new Error(data.error)
         setEventWise(data.eventWise || {})
       })
       .catch(() => setEventWise({}))
-  }, [])
+  }, [fetchWithAuth])
 
   return (
     <div className="space-y-6">

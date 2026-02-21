@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useAdminFetch } from '@/hooks/use-admin-fetch'
 import {
   Users,
   ListChecks,
@@ -30,11 +31,12 @@ interface Stats {
 }
 
 export default function AdminDashboardPage() {
+  const fetchWithAuth = useAdminFetch()
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/admin/stats')
+    fetchWithAuth('/api/admin/stats')
       .then((res) => res.json())
       .then((data) => {
         if (data.error) throw new Error(data.error)
@@ -42,7 +44,7 @@ export default function AdminDashboardPage() {
       })
       .catch(() => setStats(null))
       .finally(() => setLoading(false))
-  }, [])
+  }, [fetchWithAuth])
 
   if (loading) {
     return (

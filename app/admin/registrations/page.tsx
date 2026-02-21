@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useAdminFetch } from '@/hooks/use-admin-fetch'
 import {
   ListChecks,
   Search,
@@ -23,6 +24,7 @@ interface Reg {
 }
 
 export default function AdminRegistrationsPage() {
+  const fetchWithAuth = useAdminFetch()
   const searchParams = useSearchParams()
   const [registrations, setRegistrations] = useState<Reg[]>([])
   const [loading, setLoading] = useState(true)
@@ -35,7 +37,7 @@ export default function AdminRegistrationsPage() {
     if (eventFilter) params.set('eventId', eventFilter)
     if (statusFilter) params.set('status', statusFilter)
     params.set('limit', '300')
-    fetch(`/api/admin/registrations?${params}`)
+    fetchWithAuth(`/api/admin/registrations?${params}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.error) throw new Error(data.error)
@@ -43,7 +45,7 @@ export default function AdminRegistrationsPage() {
       })
       .catch(() => setRegistrations([]))
       .finally(() => setLoading(false))
-  }, [eventFilter, statusFilter])
+  }, [eventFilter, statusFilter, fetchWithAuth])
 
   const filtered = registrations.filter((r) => {
     if (!search) return true
