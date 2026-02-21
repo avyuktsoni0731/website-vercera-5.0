@@ -121,9 +121,9 @@ export default function AdminLayout({
   )
 
   return (
-    <div className="min-h-screen bg-background flex flex-col md:flex-row min-h-[100dvh]">
+    <div className="min-h-[100dvh] bg-background flex flex-col md:flex-row">
       {/* Mobile header */}
-      <header className="md:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3 border-b border-border bg-card/50 backdrop-blur-sm safe-area-inset-top">
+      <header className="md:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3 border-b border-border bg-card/50 backdrop-blur-sm pt-[env(safe-area-inset-top)]">
         <Link href="/admin" className="font-display font-bold text-lg text-foreground" onClick={() => setMenuOpen(false)}>
           Vercera Admin
         </Link>
