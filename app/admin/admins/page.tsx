@@ -99,35 +99,35 @@ export default function AdminManageAdminsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground flex items-center gap-2">
-          <ShieldCheck className="h-7 w-7" />
+        <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
+          <ShieldCheck className="h-6 w-6 sm:h-7 sm:w-7 shrink-0" />
           Manage admins
         </h1>
-        <p className="text-foreground/60 mt-1">
+        <p className="text-foreground/60 mt-1 text-sm">
           Assign Owner, Super Admin, or Event Admin. Only the primary owner (set in env) can assign new Owners.
           Event Admins can only access Ticket Scan; Super Admins have full access except managing Owners.
         </p>
       </div>
 
-      <div className="relative max-w-md">
+      <div className="relative w-full max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/50" />
         <input
           type="text"
           placeholder="Search by name, email, or Vercera ID..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2 rounded-full border border-border bg-background text-foreground placeholder:text-foreground/40 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+          className="w-full pl-9 pr-4 py-2.5 rounded-full border border-border bg-background text-foreground placeholder:text-foreground/40 text-sm focus:outline-none focus:ring-2 focus:ring-accent touch-manipulation"
         />
       </div>
 
       {loading ? (
         <div className="py-12 text-center text-foreground/60">Loading participants...</div>
       ) : (
-        <div className="rounded-xl border border-border bg-card overflow-hidden">
-          <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
-            <table className="w-full text-sm">
+        <div className="rounded-xl border border-border bg-card overflow-hidden -mx-4 sm:mx-0">
+          <div className="overflow-x-auto overflow-y-auto max-h-[65vh]">
+            <table className="w-full text-sm min-w-[500px]">
               <thead className="sticky top-0 bg-card border-b border-border z-10">
                 <tr>
                   <th className="text-left py-3 px-4 font-medium text-foreground/80">Participant</th>
