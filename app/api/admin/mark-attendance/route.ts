@@ -1,30 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { initializeApp, getApps, cert, type ServiceAccount } from 'firebase-admin/app'
-import { getFirestore } from 'firebase-admin/firestore'
+import { getVerceraFirestore } from '@/lib/firebase-admin'
+import { requireAdminLevel } from '@/lib/admin-auth'
 
-function getVerceraFirestore() {
-  const appName = 'vercera-firestore'
-  if (getApps().some((app) => app.name === appName)) {
-    return getFirestore(getApps().find((a) => a.name === appName)!)
-  }
-
-  const json = process.env.FIREBASE_SERVICE_ACCOUNT
-  const path = process.env.FIREBASE_SERVICE_ACCOUNT_PATH
-
-  let serviceAccount: ServiceAccount
-  if (path) {
-    serviceAccount = require(path) as ServiceAccount
-  } else if (json) {
-    serviceAccount = JSON.parse(json) as ServiceAccount
-  } else {
-    throw new Error('FIREBASE_SERVICE_ACCOUNT or FIREBASE_SERVICE_ACCOUNT_PATH not configured')
-  }
-
-  initializeApp({ credential: cert(serviceAccount) }, appName)
-  return getFirestore(getApps().find((a) => a.name === appName)!)
-}
+const ALLOWED_LEVELS = ['owner', 'super_admin', 'event_admin'] as const
 
 export async function POST(request: NextRequest) {
+  const auth = await requireAdminLevel(request, [...ALLOWED_LEVELS])
+  if (auth instanceof NextResponse) return auth
+  const uid = auth.uid
   try {
     const body = await request.json()
     const { registrationId, eventId, attended } = body
@@ -38,7 +21,7 @@ export async function POST(request: NextRequest) {
     await db.collection('registrations').doc(registrationId).update({
       attended: Boolean(attended),
       attendanceMarkedAt: new Date().toISOString(),
-      attendanceMarkedBy: body.adminId || 'admin', // You can add admin authentication later
+      attendanceMarkedBy: body.adminId || uid,
     })
 
     return NextResponse.json({ success: true, message: `Attendance ${attended ? 'marked' : 'unmarked'} successfully` })
