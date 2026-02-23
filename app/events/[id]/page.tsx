@@ -53,47 +53,14 @@ export default function EventDetailPage({ params }: Props) {
   const [teamLoading, setTeamLoading] = useState(false)
   const [team, setTeam] = useState<TeamDoc | null>(null)
 
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-background">
-        <Navbar />
-        <div className="pt-32 pb-20 text-center text-foreground/60">Loading event…</div>
-        <Footer />
-      </main>
-    )
-  }
-
-  if (!event) {
-    return (
-      <main className="min-h-screen bg-background">
-        <Navbar />
-        <div className="pt-32 pb-20">
-          <div className="max-w-4xl mx-auto px-4 text-center">
-            <h1 className="font-display text-4xl font-bold text-foreground mb-4">Event Not Found</h1>
-            <p className="text-foreground/70 mb-8">The event you're looking for doesn't exist.</p>
-            <Link
-              href="/events"
-              className="inline-block px-6 py-3 bg-accent text-accent-foreground rounded-full font-medium hover:bg-accent/90 transition-all"
-            >
-              Back to Events
-            </Link>
-          </div>
-        </div>
-        <Footer />
-      </main>
-    )
-  }
-
-  const registeredCount = event.registeredCount ?? 0
-  const registrationPercentage = event.maxParticipants > 0 ? (registeredCount / event.maxParticipants) * 100 : 0
-  const spotsAvailable = event.maxParticipants - registeredCount
-  const isTeamEvent = event.isTeamEvent ?? false
   const teamSizeText = useMemo(() => {
-    if (!isTeamEvent) return 'Solo'
+    if (!event) return 'Solo'
+    const isTeam = event.isTeamEvent ?? false
+    if (!isTeam) return 'Solo'
     const min = event.teamSizeMin ?? 1
     const max = event.teamSizeMax ?? min
     return min === max ? `${min}` : `${min}-${max}`
-  }, [event.teamSizeMin, event.teamSizeMax, isTeamEvent])
+  }, [event])
 
   useEffect(() => {
     if (!user || !event) {
@@ -155,6 +122,42 @@ export default function EventDetailPage({ params }: Props) {
 
     run()
   }, [user, event])
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-background">
+        <Navbar />
+        <div className="pt-32 pb-20 text-center text-foreground/60">Loading event…</div>
+        <Footer />
+      </main>
+    )
+  }
+
+  if (!event) {
+    return (
+      <main className="min-h-screen bg-background">
+        <Navbar />
+        <div className="pt-32 pb-20">
+          <div className="max-w-4xl mx-auto px-4 text-center">
+            <h1 className="font-display text-4xl font-bold text-foreground mb-4">Event Not Found</h1>
+            <p className="text-foreground/70 mb-8">The event you're looking for doesn't exist.</p>
+            <Link
+              href="/events"
+              className="inline-block px-6 py-3 bg-accent text-accent-foreground rounded-full font-medium hover:bg-accent/90 transition-all"
+            >
+              Back to Events
+            </Link>
+          </div>
+        </div>
+        <Footer />
+      </main>
+    )
+  }
+
+  const registeredCount = event.registeredCount ?? 0
+  const registrationPercentage = event.maxParticipants > 0 ? (registeredCount / event.maxParticipants) * 100 : 0
+  const spotsAvailable = event.maxParticipants - registeredCount
+  const isTeamEvent = event.isTeamEvent ?? false
 
   const handleRegisterClick = () => {
     if (!user) {
