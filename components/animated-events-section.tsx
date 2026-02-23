@@ -145,7 +145,8 @@ interface EventCardProps {
 }
 
 function EventCard({ event }: EventCardProps) {
-  const registrationPercentage = (event.registeredCount / event.maxParticipants) * 100
+  const count = event.registeredCount ?? 0
+  const registrationPercentage = event.maxParticipants > 0 ? (count / event.maxParticipants) * 100 : 0
 
   return (
     <motion.div variants={itemVariants} whileHover={{ y: -8 }} transition={{ duration: 0.2 }}>
@@ -215,7 +216,7 @@ function EventCard({ event }: EventCardProps) {
             <div className="pt-2">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs text-foreground/60 flex items-center gap-1">
-                  <Users size={14} /> {event.registeredCount}/{event.maxParticipants}
+                  <Users size={14} /> {count}/{event.maxParticipants}
                 </span>
                 <span className="text-xs font-medium text-foreground/60">{Math.round(registrationPercentage)}%</span>
               </div>
