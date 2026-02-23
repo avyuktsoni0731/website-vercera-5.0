@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useEvents } from '@/hooks/use-events'
 import { EventsComingSoon } from '@/components/events-coming-soon'
 import { ArrowRight, Users, Trophy } from 'lucide-react'
+import { formatPrizeAmount } from '@/lib/format-prize'
 import type { EventRecord } from '@/lib/events-types'
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -158,15 +159,21 @@ function EventCard({ event }: EventCardProps) {
         <div className="bg-card rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-border group cursor-pointer h-full flex flex-col">
           {/* Event Image */}
           <div className="relative w-full h-48 bg-secondary overflow-hidden border-b border-border">
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.3 }}
-              className="flex items-center justify-center h-full"
-            >
-              <div className="text-5xl opacity-20 group-hover:opacity-30 transition-opacity">
+            {event.image ? (
+              <img
+                src={event.image}
+                alt={event.name}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            ) : (
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.3 }}
+                className="flex items-center justify-center h-full text-5xl opacity-20 group-hover:opacity-30"
+              >
                 {event.category === 'technical' ? '⚙️' : '🎮'}
-              </div>
-            </motion.div>
+              </motion.div>
+            )}
             <div className="absolute top-3 right-3">
               <motion.span
                 whileHover={{ scale: 1.1 }}
@@ -205,7 +212,7 @@ function EventCard({ event }: EventCardProps) {
                 className="bg-secondary rounded-lg p-3"
               >
                 <p className="text-xs text-foreground/60 mb-1">Prize Pool</p>
-                <p className="font-bold text-accent">₹{(event.prizePool / 100000).toFixed(1)}L</p>
+                <p className="font-bold text-accent">{formatPrizeAmount(event.prizePool)}</p>
               </motion.div>
               <motion.div
                 whileHover={{ scale: 1.05 }}

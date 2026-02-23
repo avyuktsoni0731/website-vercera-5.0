@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEvents } from '@/hooks/use-events'
 import { EventsComingSoon } from '@/components/events-coming-soon'
 import { ArrowRight, Users, Trophy } from 'lucide-react'
+import { formatPrizeAmount } from '@/lib/format-prize'
 import type { EventRecord } from '@/lib/events-types'
 
 export function EventsSection() {
@@ -73,9 +74,17 @@ function EventCard({ event }: EventCardProps) {
       <div className="bg-card rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-border hover:border-border group cursor-pointer h-full flex flex-col">
         {/* Event Image */}
         <div className="relative w-full h-48 bg-secondary overflow-hidden border-b border-border">
-          <div className="flex items-center justify-center h-full">
-            <div className="text-5xl opacity-20 group-hover:scale-110 transition-transform">{event.category === 'technical' ? '⚙️' : '🎮'}</div>
-          </div>
+          {event.image ? (
+            <img
+              src={event.image}
+              alt={event.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-5xl opacity-20 group-hover:scale-110 transition-transform">{event.category === 'technical' ? '⚙️' : '🎮'}</div>
+            </div>
+          )}
           <div className="absolute top-3 right-3">
             <span className="px-3 py-1 bg-accent text-accent-foreground text-xs font-bold rounded-full">
               {event.category === 'technical' ? 'Technical' : 'Non-Tech'}
@@ -105,7 +114,7 @@ function EventCard({ event }: EventCardProps) {
           <div className="grid grid-cols-2 gap-3 pt-2">
             <div className="bg-secondary rounded-lg p-3">
               <p className="text-xs text-foreground/60 mb-1">Prize Pool</p>
-              <p className="font-bold text-accent">₹{(event.prizePool / 100000).toFixed(1)}L</p>
+              <p className="font-bold text-accent">{formatPrizeAmount(event.prizePool)}</p>
             </div>
             <div className="bg-secondary rounded-lg p-3">
               <p className="text-xs text-foreground/60 mb-1">Fee</p>

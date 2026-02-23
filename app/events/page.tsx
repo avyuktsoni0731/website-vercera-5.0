@@ -9,6 +9,7 @@ import { Footer } from '@/components/footer'
 import { useEvents } from '@/hooks/use-events'
 import { EventsComingSoon } from '@/components/events-coming-soon'
 import { ArrowLeft, Users, Trophy, Clock, MapPin } from 'lucide-react'
+import { formatPrizeAmount } from '@/lib/format-prize'
 
 export default function EventsPage() {
   const router = useRouter()
@@ -129,10 +130,18 @@ export default function EventsPage() {
                 className="bg-card rounded-xl overflow-hidden border border-border hover:border-border hover:shadow-xl transition-all duration-300 h-full cursor-pointer group"
               >
                   {/* Image */}
-                  <div className="relative w-full h-48 bg-secondary border-b border-border">
-                    <div className="flex items-center justify-center h-full text-5xl opacity-15 group-hover:scale-110 transition-transform">
-                      {event.category === 'technical' ? '⚙️' : '🎮'}
-                    </div>
+                  <div className="relative w-full h-48 bg-secondary border-b border-border overflow-hidden">
+                    {event.image ? (
+                      <img
+                        src={event.image}
+                        alt={event.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-5xl opacity-15 group-hover:scale-110 transition-transform">
+                        {event.category === 'technical' ? '⚙️' : '🎮'}
+                      </div>
+                    )}
                     <div className="absolute top-4 right-4">
                       <span className="px-3 py-1 bg-accent text-accent-foreground text-xs font-bold rounded-full">
                         {event.category === 'technical' ? 'Technical' : 'Non-Tech'}
@@ -160,7 +169,7 @@ export default function EventsPage() {
                       </div>
                       <div className="flex items-center gap-2 text-foreground/70">
                         <Trophy size={16} className="text-accent flex-shrink-0" />
-                        <span className="text-xs">₹{(event.prizePool / 100000).toFixed(1)}L Prize</span>
+                        <span className="text-xs">{formatPrizeAmount(event.prizePool)} Prize</span>
                       </div>
                       <div className="flex items-center gap-2 text-foreground/70">
                         <Users size={16} className="text-accent flex-shrink-0" />

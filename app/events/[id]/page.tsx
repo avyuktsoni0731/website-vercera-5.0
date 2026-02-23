@@ -7,7 +7,8 @@ import { useAuth } from '@/contexts/auth-context'
 import { Navbar } from '@/components/animated-navbar'
 import { Footer } from '@/components/footer'
 import { useEvent } from '@/hooks/use-events'
-import { ArrowLeft, Clock, MapPin, Users, Trophy, Check, BadgeCheck, QrCode, FileText } from 'lucide-react'
+import { ArrowLeft, Clock, MapPin, Users, Trophy, Check, BadgeCheck, QrCode, FileText, Cpu, Gamepad2 } from 'lucide-react'
+import { formatPrizeAmount } from '@/lib/format-prize'
 import { collection, doc, getDoc, getDocs, limit, query, where } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { QRCodeSVG } from 'qrcode.react'
@@ -201,8 +202,18 @@ export default function EventDetailPage({ params }: Props) {
               </div>
 
               {/* Event Image */}
-              <div className="w-full h-96 bg-secondary rounded-xl flex items-center justify-center text-7xl border border-border">
-                {event.category === 'technical' ? '⚙️' : '🎮'}
+              <div className="w-full h-96 bg-secondary rounded-xl overflow-hidden border border-border flex items-center justify-center">
+                {event.image ? (
+                  <img
+                    src={event.image}
+                    alt={event.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-foreground/30">
+                    {event.category === 'technical' ? <Cpu className="w-24 h-24" strokeWidth={1} /> : <Gamepad2 className="w-24 h-24" strokeWidth={1} />}
+                  </span>
+                )}
               </div>
 
               {/* Details Grid */}
@@ -229,7 +240,7 @@ export default function EventDetailPage({ params }: Props) {
                     <Trophy size={20} className="text-accent" />
                     <span className="text-foreground/60 text-sm">Prize Pool</span>
                   </div>
-                  <p className="font-semibold text-foreground">₹{(event.prizePool / 100000).toFixed(1)}L</p>
+                  <p className="font-semibold text-foreground">{formatPrizeAmount(event.prizePool)}</p>
                 </div>
 
                 <div className="bg-card/50 border border-border/50 rounded-lg p-4 hover:bg-card hover:border-accent/30 transition-all">
@@ -269,7 +280,7 @@ export default function EventDetailPage({ params }: Props) {
                   {event.prizes.map((prize, index) => (
                     <div key={index} className="bg-secondary border border-border rounded-lg p-6">
                       <p className="text-foreground/60 text-sm mb-2">{prize.position}</p>
-                      <p className="font-display text-3xl font-bold text-accent">₹{(prize.amount / 100000).toFixed(1)}L</p>
+                      <p className="font-display text-3xl font-bold text-accent">{formatPrizeAmount(prize.amount)}</p>
                     </div>
                   ))}
                 </div>
