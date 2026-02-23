@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/auth-context'
 import { Navbar } from '@/components/animated-navbar'
 import { Footer } from '@/components/footer'
-import { events } from '@/lib/events'
-import { ArrowLeft, Clock, MapPin, Users, Trophy, Check, BadgeCheck, QrCode } from 'lucide-react'
+import { useEvent } from '@/hooks/use-events'
+import { ArrowLeft, Clock, MapPin, Users, Trophy, Check, BadgeCheck, QrCode, FileText } from 'lucide-react'
 import { collection, doc, getDoc, getDocs, limit, query, where } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { QRCodeSVG } from 'qrcode.react'
@@ -46,12 +46,22 @@ export default function EventDetailPage({ params }: Props) {
   const router = useRouter()
   const { user, profile } = useAuth()
   const { id } = use(params)
-  const event = events.find((e) => e.id === id)
+  const { event, loading } = useEvent(id)
   const [isRegistering, setIsRegistering] = useState(false)
   const [regLoading, setRegLoading] = useState(false)
   const [registration, setRegistration] = useState<RegistrationDoc | null>(null)
   const [teamLoading, setTeamLoading] = useState(false)
   const [team, setTeam] = useState<TeamDoc | null>(null)
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-background">
+        <Navbar />
+        <div className="pt-32 pb-20 text-center text-foreground/60">Loading event…</div>
+        <Footer />
+      </main>
+    )
+  }
 
   if (!event) {
     return (
@@ -74,8 +84,9 @@ export default function EventDetailPage({ params }: Props) {
     )
   }
 
-  const registrationPercentage = (event.registeredCount / event.maxParticipants) * 100
-  const spotsAvailable = event.maxParticipants - event.registeredCount
+  const registeredCount = event.registeredCount ?? 0
+  const registrationPercentage = event.maxParticipants > 0 ? (registeredCount / event.maxParticipants) * 100 : 0
+  const spotsAvailable = event.maxParticipants - registeredCount
   const isTeamEvent = event.isTeamEvent ?? false
   const teamSizeText = useMemo(() => {
     if (!isTeamEvent) return 'Solo'
@@ -260,6 +271,24 @@ export default function EventDetailPage({ params }: Props) {
                   ))}
                 </div>
               </div>
+
+              {/* Rulebook (optional) */}
+              {event.rulebookUrl && (
+                <div className="space-y-4">
+                  <h2 className="font-display text-2xl font-bold text-foreground">Rulebook</h2>
+                  <div className="bg-secondary border border-border rounded-xl p-6">
+                    <a
+                      href={event.rulebookUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-3 bg-accent text-accent-foreground rounded-lg font-medium hover:bg-accent/90 transition-colors"
+                    >
+                      <FileText size={20} />
+                      View / Download Rulebook
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Sidebar - Registration Card */}
