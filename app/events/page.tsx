@@ -6,15 +6,26 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Navbar } from '@/components/animated-navbar'
 import { Footer } from '@/components/footer'
-import { events } from '@/lib/events'
+import { useEvents } from '@/hooks/use-events'
 import { ArrowLeft, Users, Trophy, Clock, MapPin } from 'lucide-react'
 
 export default function EventsPage() {
   const router = useRouter()
+  const { events, loading, error } = useEvents()
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'technical' | 'non-technical'>('all')
 
   const filteredEvents =
     selectedCategory === 'all' ? events : events.filter((e) => e.category === selectedCategory)
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-background">
+        <Navbar />
+        <div className="pt-32 pb-20 text-center text-foreground/60">Loading events…</div>
+        <Footer />
+      </main>
+    )
+  }
 
   return (
     <main className="min-h-screen bg-background">

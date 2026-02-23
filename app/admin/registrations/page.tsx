@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useAdminFetch } from '@/hooks/use-admin-fetch'
 import { ListChecks, Search } from 'lucide-react'
-import { events } from '@/lib/events'
+import type { EventRecord } from '@/lib/events-types'
 
 interface Reg {
   id: string
@@ -27,10 +27,21 @@ export default function AdminRegistrationsPage() {
   const fetchWithAuth = useAdminFetch()
   const searchParams = useSearchParams()
   const [registrations, setRegistrations] = useState<Reg[]>([])
+  const [events, setEvents] = useState<EventRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [eventFilter, setEventFilter] = useState(searchParams.get('eventId') || '')
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '')
   const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    fetchWithAuth('/api/admin/events')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.error) throw new Error(data.error)
+        setEvents(data.events || [])
+      })
+      .catch(() => setEvents([]))
+  }, [fetchWithAuth])
 
   useEffect(() => {
     const params = new URLSearchParams()

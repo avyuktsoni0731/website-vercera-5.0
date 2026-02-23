@@ -2,8 +2,9 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { events } from '@/lib/events'
+import { useEvents } from '@/hooks/use-events'
 import { ArrowRight, Users, Trophy } from 'lucide-react'
+import type { EventRecord } from '@/lib/events-types'
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -26,8 +27,29 @@ const itemVariants = {
 }
 
 export function EventsSection() {
+  const { events, loading, error } = useEvents()
   const technical = events.filter((e) => e.category === 'technical')
   const nonTechnical = events.filter((e) => e.category === 'non-technical')
+
+  if (loading) {
+    return (
+      <section id="events" className="py-20 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-foreground/60">
+          Loading events…
+        </div>
+      </section>
+    )
+  }
+  if (error || events.length === 0) {
+    return (
+      <section id="events" className="py-20 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-foreground/70">{error || 'No events at the moment.'}</p>
+          <Link href="/events" className="inline-block mt-4 text-accent hover:underline">View events</Link>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section id="events" className="py-20 relative overflow-hidden">
@@ -119,11 +141,12 @@ export function EventsSection() {
 }
 
 interface EventCardProps {
-  event: (typeof events)[0]
+  event: EventRecord
 }
 
 function EventCard({ event }: EventCardProps) {
-  const registrationPercentage = (event.registeredCount / event.maxParticipants) * 100
+  const count = event.registeredCount ?? 0
+  const registrationPercentage = event.maxParticipants > 0 ? (count / event.maxParticipants) * 100 : 0
 
   return (
     <motion.div variants={itemVariants} whileHover={{ y: -8 }} transition={{ duration: 0.2 }}>
@@ -193,7 +216,7 @@ function EventCard({ event }: EventCardProps) {
             <div className="pt-2">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs text-foreground/60 flex items-center gap-1">
-                  <Users size={14} /> {event.registeredCount}/{event.maxParticipants}
+                  <Users size={14} /> {count}/{event.maxParticipants}
                 </span>
                 <span className="text-xs font-medium text-foreground/60">{Math.round(registrationPercentage)}%</span>
               </div>

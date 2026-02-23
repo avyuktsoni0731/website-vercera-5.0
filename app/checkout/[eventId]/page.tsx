@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/auth-context'
 import { Navbar } from '@/components/animated-navbar'
 import { Footer } from '@/components/footer'
-import { events } from '@/lib/events'
+import { useEvent } from '@/hooks/use-events'
 import { ArrowLeft, AlertCircle, CheckCircle, X } from 'lucide-react'
 
 interface Props {
@@ -23,7 +23,7 @@ type TeamMember = {
 export default function CheckoutPage({ params }: Props) {
   const router = useRouter()
   const { eventId } = use(params)
-  const event = events.find((e) => e.id === eventId)
+  const { event, loading: eventLoading } = useEvent(eventId)
   const { user, profile, loading } = useAuth()
 
   const [isLoading, setIsLoading] = useState(false)
@@ -41,6 +41,16 @@ export default function CheckoutPage({ params }: Props) {
       router.push(`/login?redirect=/checkout/${eventId}`)
     }
   }, [user, loading, router, eventId])
+
+  if (eventLoading) {
+    return (
+      <main className="min-h-screen bg-background">
+        <Navbar />
+        <div className="pt-32 pb-20 text-center text-foreground/60">Loading event…</div>
+        <Footer />
+      </main>
+    )
+  }
 
   if (!event) {
     return (

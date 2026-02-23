@@ -22,6 +22,7 @@ interface Stats {
   eventWise: Record<string, { count: number; revenue: number; attended: number }>
   recentRegistrations: Array<{
     id: string
+    eventId?: string
     eventName?: string
     status?: string
     amount?: number
