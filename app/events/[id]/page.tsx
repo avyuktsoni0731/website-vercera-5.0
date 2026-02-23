@@ -235,7 +235,7 @@ export default function EventDetailPage({ params }: Props) {
                     <span className="text-foreground/60 text-sm">Registrations</span>
                   </div>
                   <p className="font-semibold text-foreground">
-                    {event.registeredCount}/{event.maxParticipants}
+                    {registeredCount}/{event.maxParticipants}
                   </p>
                 </div>
               </div>
@@ -338,7 +338,7 @@ export default function EventDetailPage({ params }: Props) {
                     ></div>
                   </div>
                   <p className="text-foreground/60 text-xs">
-                    {event.registeredCount}/{event.maxParticipants} registered
+                    {registeredCount}/{event.maxParticipants} registered
                   </p>
                 </div>
 
