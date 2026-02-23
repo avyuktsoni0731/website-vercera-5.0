@@ -5,6 +5,7 @@ export interface EventRecord {
   category: 'technical' | 'non-technical'
   description: string
   longDescription: string
+  /** Primary image URL (first of eventImages, or legacy single image). */
   image: string
   date: string
   time: string
@@ -18,8 +19,14 @@ export interface EventRecord {
   isTeamEvent?: boolean
   teamSizeMin?: number
   teamSizeMax?: number
-  /** Optional rulebook URL (e.g. PDF). If set, event page shows a rulebook section. */
+  /** Optional rulebook URL – legacy single URL; prefer rulebookUrls. */
   rulebookUrl?: string
+  /** Image URLs from Firebase Storage (event images). */
+  eventImages?: string[]
+  /** Rulebook / PDF file URLs from Firebase Storage. */
+  rulebookUrls?: string[]
+  /** Other attachment URLs (docs, etc.) from Firebase Storage. */
+  attachmentUrls?: string[]
   /** Display order (lower first). */
   order?: number
   createdAt?: string
