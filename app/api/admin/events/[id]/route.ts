@@ -49,6 +49,7 @@ export async function PUT(
       description,
       longDescription,
       image,
+      eventImages,
       date,
       time,
       venue,
@@ -60,7 +61,8 @@ export async function PUT(
       isTeamEvent,
       teamSizeMin,
       teamSizeMax,
-      rulebookUrl,
+      rulebookUrls,
+      attachmentUrls,
       order,
     } = body
 
@@ -79,7 +81,15 @@ export async function PUT(
     if (category !== undefined) data.category = category === 'non-technical' ? 'non-technical' : 'technical'
     if (description !== undefined) data.description = String(description)
     if (longDescription !== undefined) data.longDescription = String(longDescription)
-    if (image !== undefined) data.image = String(image)
+    if (eventImages !== undefined) {
+      const images = Array.isArray(eventImages) ? eventImages : (image !== undefined ? [String(image)] : undefined)
+      if (images?.length) {
+        data.eventImages = images
+        data.image = images[0]
+      }
+    } else if (image !== undefined) {
+      data.image = String(image)
+    }
     if (date !== undefined) data.date = String(date)
     if (time !== undefined) data.time = String(time)
     if (venue !== undefined) data.venue = String(venue)
@@ -91,7 +101,8 @@ export async function PUT(
     if (isTeamEvent !== undefined) data.isTeamEvent = Boolean(isTeamEvent)
     if (teamSizeMin !== undefined) data.teamSizeMin = teamSizeMin == null ? null : Number(teamSizeMin)
     if (teamSizeMax !== undefined) data.teamSizeMax = teamSizeMax == null ? null : Number(teamSizeMax)
-    if (rulebookUrl !== undefined) data.rulebookUrl = rulebookUrl && String(rulebookUrl).trim() ? String(rulebookUrl).trim() : null
+    if (rulebookUrls !== undefined) data.rulebookUrls = Array.isArray(rulebookUrls) && rulebookUrls.length ? rulebookUrls : null
+    if (attachmentUrls !== undefined) data.attachmentUrls = Array.isArray(attachmentUrls) && attachmentUrls.length ? attachmentUrls : null
     if (order !== undefined) data.order = order == null ? 0 : Number(order)
 
     await ref.update(data)

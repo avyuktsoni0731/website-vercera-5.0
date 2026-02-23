@@ -21,6 +21,10 @@ export async function GET(
 
     const regsSnap = await db.collection('registrations').where('eventId', '==', id).get()
     const d = doc.data()!
+    const eventImages = Array.isArray(d.eventImages) ? d.eventImages : []
+    const image = eventImages[0] ?? d.image ?? ''
+    const rulebookUrls = Array.isArray(d.rulebookUrls) ? d.rulebookUrls : []
+    const rulebookUrl = rulebookUrls[0] ?? (typeof d.rulebookUrl === 'string' ? d.rulebookUrl : undefined)
 
     const event: EventRecord = {
       id: doc.id,
@@ -28,7 +32,7 @@ export async function GET(
       category: (d.category as EventRecord['category']) ?? 'technical',
       description: d.description ?? '',
       longDescription: d.longDescription ?? '',
-      image: d.image ?? '',
+      image,
       date: d.date ?? '',
       time: d.time ?? '',
       venue: d.venue ?? '',
@@ -41,7 +45,10 @@ export async function GET(
       isTeamEvent: Boolean(d.isTeamEvent),
       teamSizeMin: d.teamSizeMin != null ? Number(d.teamSizeMin) : undefined,
       teamSizeMax: d.teamSizeMax != null ? Number(d.teamSizeMax) : undefined,
-      rulebookUrl: typeof d.rulebookUrl === 'string' ? d.rulebookUrl : undefined,
+      rulebookUrl,
+      eventImages: eventImages.length ? eventImages : undefined,
+      rulebookUrls: rulebookUrls.length ? rulebookUrls : undefined,
+      attachmentUrls: Array.isArray(d.attachmentUrls) && d.attachmentUrls.length ? d.attachmentUrls : undefined,
       order: d.order != null ? Number(d.order) : undefined,
       createdAt: d.createdAt,
       updatedAt: d.updatedAt,

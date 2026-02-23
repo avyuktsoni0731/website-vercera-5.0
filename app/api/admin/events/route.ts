@@ -22,13 +22,17 @@ export async function GET(request: NextRequest) {
     });
     const eventsList: EventRecord[] = eventsSnap.docs.map((doc) => {
       const d = doc.data();
+      const eventImages = Array.isArray(d.eventImages) ? d.eventImages : [];
+      const image = eventImages[0] ?? d.image ?? "";
+      const rulebookUrls = Array.isArray(d.rulebookUrls) ? d.rulebookUrls : [];
+      const rulebookUrl = rulebookUrls[0] ?? (typeof d.rulebookUrl === "string" ? d.rulebookUrl : undefined);
       return {
         id: doc.id,
         name: d.name ?? "",
         category: (d.category as EventRecord["category"]) ?? "technical",
         description: d.description ?? "",
         longDescription: d.longDescription ?? "",
-        image: d.image ?? "",
+        image,
         date: d.date ?? "",
         time: d.time ?? "",
         venue: d.venue ?? "",
@@ -41,8 +45,10 @@ export async function GET(request: NextRequest) {
         isTeamEvent: Boolean(d.isTeamEvent),
         teamSizeMin: d.teamSizeMin != null ? Number(d.teamSizeMin) : undefined,
         teamSizeMax: d.teamSizeMax != null ? Number(d.teamSizeMax) : undefined,
-        rulebookUrl:
-          typeof d.rulebookUrl === "string" ? d.rulebookUrl : undefined,
+        rulebookUrl,
+        eventImages: eventImages.length ? eventImages : undefined,
+        rulebookUrls: rulebookUrls.length ? rulebookUrls : undefined,
+        attachmentUrls: Array.isArray(d.attachmentUrls) && d.attachmentUrls.length ? d.attachmentUrls : undefined,
         order: d.order != null ? Number(d.order) : undefined,
         createdAt: d.createdAt,
         updatedAt: d.updatedAt,
@@ -76,6 +82,7 @@ export async function POST(request: NextRequest) {
       description,
       longDescription,
       image,
+      eventImages,
       date,
       time,
       venue,
@@ -87,7 +94,8 @@ export async function POST(request: NextRequest) {
       isTeamEvent,
       teamSizeMin,
       teamSizeMax,
-      rulebookUrl,
+      rulebookUrls,
+      attachmentUrls,
       order,
     } = body;
 
@@ -98,13 +106,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const images = Array.isArray(eventImages) && eventImages.length > 0 ? eventImages : (image ? [image] : []);
+    const primaryImage = images[0] ?? "";
+
     const now = new Date().toISOString();
-    const data = {
+    const data: Record<string, unknown> = {
       name: String(name),
       category: category === "non-technical" ? "non-technical" : "technical",
       description: String(description ?? ""),
       longDescription: String(longDescription ?? ""),
-      image: String(image ?? ""),
+      image: primaryImage,
       date: String(date ?? ""),
       time: String(time ?? ""),
       venue: String(venue ?? ""),
@@ -116,14 +127,13 @@ export async function POST(request: NextRequest) {
       isTeamEvent: Boolean(isTeamEvent),
       teamSizeMin: teamSizeMin != null ? Number(teamSizeMin) : undefined,
       teamSizeMax: teamSizeMax != null ? Number(teamSizeMax) : undefined,
-      rulebookUrl:
-        rulebookUrl && String(rulebookUrl).trim()
-          ? String(rulebookUrl).trim()
-          : null,
       order: order != null ? Number(order) : 0,
       createdAt: now,
       updatedAt: now,
     };
+    if (images.length) data.eventImages = images;
+    if (Array.isArray(rulebookUrls) && rulebookUrls.length) data.rulebookUrls = rulebookUrls;
+    if (Array.isArray(attachmentUrls) && attachmentUrls.length) data.attachmentUrls = attachmentUrls;
 
     const db = getVerceraFirestore();
     const ref = await db.collection("events").add(data);
