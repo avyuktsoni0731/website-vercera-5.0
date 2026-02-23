@@ -2,8 +2,9 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { events } from '@/lib/events'
+import { useEvents } from '@/hooks/use-events'
 import { ArrowRight, Users, Trophy } from 'lucide-react'
+import type { EventRecord } from '@/lib/events-types'
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -26,8 +27,29 @@ const itemVariants = {
 }
 
 export function EventsSection() {
+  const { events, loading, error } = useEvents()
   const technical = events.filter((e) => e.category === 'technical')
   const nonTechnical = events.filter((e) => e.category === 'non-technical')
+
+  if (loading) {
+    return (
+      <section id="events" className="py-20 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-foreground/60">
+          Loading events…
+        </div>
+      </section>
+    )
+  }
+  if (error || events.length === 0) {
+    return (
+      <section id="events" className="py-20 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-foreground/70">{error || 'No events at the moment.'}</p>
+          <Link href="/events" className="inline-block mt-4 text-accent hover:underline">View events</Link>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section id="events" className="py-20 relative overflow-hidden">
@@ -119,7 +141,7 @@ export function EventsSection() {
 }
 
 interface EventCardProps {
-  event: (typeof events)[0]
+  event: EventRecord
 }
 
 function EventCard({ event }: EventCardProps) {
