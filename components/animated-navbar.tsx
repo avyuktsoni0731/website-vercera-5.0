@@ -22,14 +22,13 @@ export function Navbar() {
     { href: '/', label: 'Home' },
     { href: '/events', label: 'Events' },
     { href: '/gallery', label: 'Gallery' },
-    { href: '/#schedule', label: 'Schedule' },
     { href: '/#faq', label: 'FAQ' },
   ]
 
   return (
     <>
       {/* Floating Pill Navbar */}
-      <div className="sticky top-0 left-0 right-0 z-50 flex justify-center px-4 pt-4">
+      <div className="absolute top-4 left-0 right-0 z-50 flex justify-center px-4">
         <motion.nav
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
