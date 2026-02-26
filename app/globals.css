@@ -110,7 +110,3 @@ body {
     @apply font-display font-bold;
   }
 }
-
-::-webkit-scrollbar-thumb {
-  background-color: brown;
-}
