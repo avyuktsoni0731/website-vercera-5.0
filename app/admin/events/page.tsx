@@ -684,6 +684,27 @@ export default function AdminEventsPage() {
                   )}
                 </div>
 
+                <div className="flex flex-wrap gap-6">
+                  <label className="flex items-center gap-2 text-sm text-foreground/80">
+                    <input
+                      type="checkbox"
+                      checked={form.excludedFromTechnicalBundle ?? false}
+                      onChange={(e) => updateForm('excludedFromTechnicalBundle', e.target.checked)}
+                      className="rounded border-border"
+                    />
+                    Excluded from technical bundle (e.g. Sumo Bots, Robowars — sold separately)
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-foreground/80">
+                    <input
+                      type="checkbox"
+                      checked={form.includedInNonTechnicalBundle ?? false}
+                      onChange={(e) => updateForm('includedInNonTechnicalBundle', e.target.checked)}
+                      className="rounded border-border"
+                    />
+                    Included in non-technical bundle
+                  </label>
+                </div>
+
                 {/* Rulebook — upload */}
                 <div>
                   <label className="block text-sm font-medium text-foreground/80 mb-1">

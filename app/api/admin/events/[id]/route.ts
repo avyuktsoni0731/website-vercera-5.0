@@ -64,6 +64,8 @@ export async function PUT(
       rulebookUrls,
       attachmentUrls,
       order,
+      excludedFromTechnicalBundle,
+      includedInNonTechnicalBundle,
     } = body
 
     const db = getVerceraFirestore()
