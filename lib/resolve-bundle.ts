@@ -14,10 +14,10 @@ export async function resolveBundleToEvents(bundleId: string): Promise<ResolvedB
   const eventIds = (Array.isArray(b.eventIds) ? b.eventIds : []) as string[]
 
   const eventsSnap = await db.collection('events').get()
-  const events = eventsSnap.docs.map((doc) => ({
-    id: doc.id,
-    ...(doc.data() as { name?: string; category?: string; excludedFromTechnicalBundle?: boolean; includedInNonTechnicalBundle?: boolean }),
-  }))
+  const events = eventsSnap.docs.map((doc) => {
+    const d = doc.data() as { name?: string; category?: string; excludedFromTechnicalBundle?: boolean; includedInNonTechnicalBundle?: boolean; order?: number }
+    return { id: doc.id, ...d }
+  })
 
   if (type === 'all_events' || type === 'all_in_one') {
     return events
