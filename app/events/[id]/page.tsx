@@ -53,6 +53,11 @@ export default function EventDetailPage({ params }: Props) {
   const [registration, setRegistration] = useState<RegistrationDoc | null>(null)
   const [teamLoading, setTeamLoading] = useState(false)
   const [team, setTeam] = useState<TeamDoc | null>(null)
+  const [teamFormMode, setTeamFormMode] = useState<'idle' | 'form' | 'join'>('idle')
+  const [teamNameInput, setTeamNameInput] = useState('')
+  const [teamCodeInput, setTeamCodeInput] = useState('')
+  const [teamActionLoading, setTeamActionLoading] = useState(false)
+  const [teamActionError, setTeamActionError] = useState<string | null>(null)
 
   const teamSizeText = useMemo(() => {
     if (!event) return 'Solo'
