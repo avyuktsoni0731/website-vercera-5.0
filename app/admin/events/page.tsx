@@ -46,6 +46,8 @@ const defaultEvent: Partial<EventRecord> = {
   rulebookUrls: [],
   attachmentUrls: [],
   order: 0,
+  excludedFromTechnicalBundle: false,
+  includedInNonTechnicalBundle: false,
 }
 
 export default function AdminEventsPage() {
@@ -156,6 +158,8 @@ export default function AdminEventsPage() {
       rulebookUrls: data.rulebookUrls || [],
       attachmentUrls: data.attachmentUrls || [],
       order: data.order ?? 0,
+      excludedFromTechnicalBundle: data.excludedFromTechnicalBundle ?? false,
+      includedInNonTechnicalBundle: data.includedInNonTechnicalBundle ?? false,
     })
     setRuleInput('')
     setImageFiles([])
