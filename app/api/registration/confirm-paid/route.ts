@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { initializeApp, getApps, cert, type ServiceAccount } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 import { generateVerceraTeamId } from '@/lib/vercera-team-id'
+import { resolveBundleToEvents } from '@/lib/resolve-bundle'
 
 function getVerceraFirestore() {
   const appName = 'vercera-firestore'
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
       eventName,
       amount,
       userId,
+      bundleId,
       team,
       teamName,
       memberEmails,
@@ -57,6 +59,7 @@ export async function POST(request: NextRequest) {
       eventName?: string
       amount?: number
       userId?: string
+      bundleId?: string
       team?: {
         isTeamEvent?: boolean
         teamName?: string
@@ -74,9 +77,15 @@ export async function POST(request: NextRequest) {
       additionalInfo?: string | null
     }
 
-    if (!orderId || !paymentId || !eventId || !eventName || amount == null || !userId) {
+    if (!orderId || !paymentId || amount == null || !userId) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+    if (!bundleId && (!eventId || !eventName)) {
+      return NextResponse.json(
+        { error: 'eventId and eventName required when not using bundleId' },
         { status: 400 }
       )
     }
