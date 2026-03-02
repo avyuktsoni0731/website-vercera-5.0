@@ -11,8 +11,9 @@ export async function GET(request: NextRequest) {
   if (auth instanceof NextResponse) return auth
   try {
     const db = getVerceraFirestore()
-    const snap = await db.collection('bundles').orderBy('order', 'asc').get()
-    const bundles: BundleRecord[] = snap.docs.map((doc) => {
+    const snap = await db.collection('bundles').get()
+    const bundles: BundleRecord[] = snap.docs
+      .map((doc) => {
       const d = doc.data()
       return {
         id: doc.id,
@@ -27,6 +28,7 @@ export async function GET(request: NextRequest) {
         updatedAt: d.updatedAt,
       }
     })
+    .sort((a, b) => (a.order ?? 999) - (b.order ?? 999))
     return NextResponse.json({ bundles })
   } catch (err) {
     console.error('Admin bundles list error:', err)

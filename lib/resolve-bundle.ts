@@ -15,8 +15,8 @@ export async function resolveBundleToEvents(bundleId: string): Promise<ResolvedB
 
   const eventsSnap = await db.collection('events').get()
   const events = eventsSnap.docs.map((doc) => {
-    const d = doc.data() as { name?: string; category?: string; excludedFromTechnicalBundle?: boolean; includedInNonTechnicalBundle?: boolean; order?: number }
-    return { id: doc.id, ...d }
+    const d = doc.data() as { name?: string; category?: string; excludedFromTechnicalBundle?: boolean; order?: number }
+    return { id: doc.id, name: d.name ?? '', category: d.category, excludedFromTechnicalBundle: Boolean(d.excludedFromTechnicalBundle), order: d.order ?? 999 }
   })
 
   if (type === 'all_events' || type === 'all_in_one') {
