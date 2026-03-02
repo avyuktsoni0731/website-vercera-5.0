@@ -6,7 +6,8 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "optimize-gallery": "node scripts/optimize-gallery.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -77,6 +78,7 @@
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "postcss": "^8.5",
+    "sharp": "^0.33.5",
     "tailwindcss": "^3.4.17",
     "typescript": "5.7.3"
   },

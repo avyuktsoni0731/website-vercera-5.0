@@ -12,6 +12,8 @@ import {
   Upload,
   FileText,
   Image as ImageIcon,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import { useAdminFetch } from '@/hooks/use-admin-fetch'
 import { uploadFile } from '@/lib/storage'
@@ -62,6 +64,8 @@ export default function AdminEventsPage() {
   const imageInputRef = useRef<HTMLInputElement>(null)
   const rulebookInputRef = useRef<HTMLInputElement>(null)
   const attachmentInputRef = useRef<HTMLInputElement>(null)
+  const [eventsVisible, setEventsVisible] = useState<boolean>(false)
+  const [visibilityLoading, setVisibilityLoading] = useState(false)
 
   const loadEvents = useCallback(() => {
     setLoading(true)
@@ -81,6 +85,37 @@ export default function AdminEventsPage() {
   useEffect(() => {
     loadEvents()
   }, [loadEvents])
+
+  const loadSettings = useCallback(() => {
+    fetchWithAuth('/api/admin/settings')
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.error) setEventsVisible(data.eventsVisible === true)
+      })
+      .catch(() => {})
+  }, [fetchWithAuth])
+
+  useEffect(() => {
+    loadSettings()
+  }, [loadSettings])
+
+  const setEventsVisibleToPublic = async (visible: boolean) => {
+    setVisibilityLoading(true)
+    try {
+      const res = await fetchWithAuth('/api/admin/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventsVisible: visible }),
+      })
+      const data = await res.json()
+      if (data.error) throw new Error(data.error)
+      setEventsVisible(data.eventsVisible === true)
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Failed to update visibility')
+    } finally {
+      setVisibilityLoading(false)
+    }
+  }
 
   const openCreate = () => {
     setEditingId(null)
@@ -318,24 +353,43 @@ export default function AdminEventsPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
-            <Calendar className="h-6 w-6 sm:h-7 sm:w-7 shrink-0" />
-            Event management
-          </h1>
-          <p className="text-foreground/60 mt-1 text-sm">
-            Create, edit, and delete events. Events are stored in Firestore and shown on the website.
-          </p>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
+              <Calendar className="h-6 w-6 sm:h-7 sm:w-7 shrink-0" />
+              Event management
+            </h1>
+            <p className="text-foreground/60 mt-1 text-sm">
+              Create, edit, and delete events. Events are stored in Firestore and shown on the website when visible.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={openCreate}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-accent text-accent-foreground font-medium hover:bg-accent/90 transition-colors touch-manipulation"
+          >
+            <Plus className="h-4 w-4" />
+            Add event
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-accent text-accent-foreground font-medium hover:bg-accent/90 transition-colors touch-manipulation"
-        >
-          <Plus className="h-4 w-4" />
-          Add event
-        </button>
+
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card/50 px-4 py-3">
+          <span className="text-sm font-medium text-foreground">Events on site</span>
+          <button
+            type="button"
+            disabled={visibilityLoading}
+            onClick={() => setEventsVisibleToPublic(!eventsVisible)}
+            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors touch-manipulation disabled:opacity-50 ${
+              eventsVisible
+                ? 'bg-accent/20 text-accent border border-accent/50'
+                : 'bg-secondary text-foreground/70 border border-border'
+            }`}
+          >
+            {eventsVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+            {eventsVisible ? 'Visible (public sees events)' : 'Revealing soon (public sees “Revealing soon”)'}
+          </button>
+        </div>
       </div>
 
       {loading ? (

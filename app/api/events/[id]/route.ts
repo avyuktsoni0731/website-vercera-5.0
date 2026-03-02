@@ -14,8 +14,14 @@ export async function GET(
     if (!id) return NextResponse.json({ error: 'Event ID required' }, { status: 400 })
 
     const db = getVerceraFirestore()
-    const doc = await db.collection('events').doc(id).get()
+    const [settingsSnap, doc] = await Promise.all([
+      db.collection('settings').doc('site').get(),
+      db.collection('events').doc(id).get(),
+    ])
     if (!doc.exists) {
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    }
+    if (settingsSnap.data()?.eventsVisible !== true) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
     }
 

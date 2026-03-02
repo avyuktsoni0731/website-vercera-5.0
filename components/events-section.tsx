@@ -8,12 +8,12 @@ import { formatPrizeAmount } from '@/lib/format-prize'
 import type { EventRecord } from '@/lib/events-types'
 
 export function EventsSection() {
-  const { events, loading } = useEvents()
+  const { events, loading, showComingSoon } = useEvents()
   const technical = events.filter((e) => e.category === 'technical')
   const nonTechnical = events.filter((e) => e.category === 'non-technical')
 
   if (loading) return <section id="events" className="py-20 bg-secondary/30"><div className="max-w-7xl mx-auto px-4 text-center text-foreground/60">Loading events…</div></section>
-  if (events.length === 0) return <EventsComingSoon variant="section" />
+  if (showComingSoon) return <EventsComingSoon variant="section" />
 
   return (
     <section id="events" className="py-20 bg-secondary/30">
