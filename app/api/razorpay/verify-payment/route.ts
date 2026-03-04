@@ -116,7 +116,14 @@ export async function POST(request: NextRequest) {
 
     // Bundle purchase: create one registration per event in the bundle (no team — user can form/join later).
     // Split amount so sum of per-event amounts equals total (avoids 299/14 → 21.36 each summing to 299.04).
+    // Store bundleType and hasAccommodation so admin can see who chose accommodation (all_in_one pack).
     if (bundleId) {
+      const bundleSnap = await db.collection('bundles').doc(bundleId).get()
+      const bundleData = bundleSnap.exists ? (bundleSnap.data() as { type?: string; name?: string }) : null
+      const bundleType = bundleData?.type ?? 'all_events'
+      const bundleName = bundleData?.name ?? null
+      const hasAccommodation = bundleType === 'all_in_one'
+
       const events = await resolveBundleToEvents(bundleId)
       if (events.length === 0) {
         return NextResponse.json({ error: 'Bundle has no events or not found.' }, { status: 400 })
@@ -146,6 +153,9 @@ export async function POST(request: NextRequest) {
           razorpayOrderId: orderId,
           razorpayPaymentId: paymentId,
           bundleId,
+          bundleType,
+          bundleName,
+          hasAccommodation,
           isTeamEvent,
           additionalInfo: additionalInfo || null,
           createdAt: nowIso,

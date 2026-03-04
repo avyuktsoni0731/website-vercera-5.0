@@ -107,6 +107,12 @@ export async function POST(request: NextRequest) {
     const registrationDate = nowIso.split('T')[0]
 
     if (bundleId) {
+      const bundleSnap = await db.collection('bundles').doc(bundleId).get()
+      const bundleData = bundleSnap.exists ? (bundleSnap.data() as { type?: string; name?: string }) : null
+      const bundleType = bundleData?.type ?? 'all_events'
+      const bundleName = bundleData?.name ?? null
+      const hasAccommodation = bundleType === 'all_in_one'
+
       const events = await resolveBundleToEvents(bundleId)
       if (events.length === 0) {
         return NextResponse.json({ error: 'Bundle has no events or not found.' }, { status: 400 })
@@ -136,6 +142,9 @@ export async function POST(request: NextRequest) {
           razorpayOrderId: orderId,
           razorpayPaymentId: paymentId,
           bundleId,
+          bundleType,
+          bundleName,
+          hasAccommodation,
           isTeamEvent,
           additionalInfo: additionalInfo || null,
           createdAt: nowIso,
