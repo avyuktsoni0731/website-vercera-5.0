@@ -4,6 +4,7 @@ import { getFirestore } from 'firebase-admin/firestore'
 import { generateVerceraTeamId } from '@/lib/vercera-team-id'
 import { resolveBundleToEvents } from '@/lib/resolve-bundle'
 import { splitAmountExactly } from '@/lib/bundle-amount-split'
+import { sendPaymentReceipt } from '@/lib/mail'
 
 function getVerceraFirestore() {
   const appName = 'vercera-firestore'
@@ -166,6 +167,19 @@ export async function POST(request: NextRequest) {
           createdAt: nowIso,
         })
       }
+      const userSnap = await db.collection('vercera_5_participants').doc(userId).get()
+      const profileData = userSnap.exists ? (userSnap.data() as { email?: string; fullName?: string }) : null
+      if (profileData?.email) {
+        const receiptDate = new Date(nowIso).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+        sendPaymentReceipt({
+          to: profileData.email,
+          fullName: profileData.fullName || 'Participant',
+          orderId,
+          date: receiptDate,
+          items: events.map((e, i) => ({ name: e.eventName, amount: amounts[i] })),
+          totalAmount: Number(amount),
+        }).catch((e) => console.error('[confirm-paid] Receipt email failed', e))
+      }
       return NextResponse.json({ success: true, message: 'Payment verified and bundle registrations saved' })
     }
 
@@ -266,6 +280,21 @@ export async function POST(request: NextRequest) {
         additionalInfo: additionalInfo || null,
         createdAt: nowIso,
       })
+    }
+
+    const userSnap = await db.collection('vercera_5_participants').doc(userId).get()
+    const profileData = userSnap.exists ? (userSnap.data() as { email?: string; fullName?: string }) : null
+    if (profileData?.email) {
+      const receiptDate = new Date(nowIso).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+      const amt = Number(amount)
+      sendPaymentReceipt({
+        to: profileData.email,
+        fullName: profileData.fullName || 'Participant',
+        orderId,
+        date: receiptDate,
+        items: [{ name: eventName ?? 'Event', amount: amt }],
+        totalAmount: amt,
+      }).catch((e) => console.error('[confirm-paid] Receipt email failed', e))
     }
 
     return NextResponse.json({ success: true, message: 'Payment verified and registration saved' })

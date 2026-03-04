@@ -46,3 +46,24 @@ export async function sendMail(options: SendMailOptions): Promise<boolean> {
     return false
   }
 }
+
+export interface PaymentReceiptParams {
+  to: string
+  fullName: string
+  orderId: string
+  date: string
+  items: { name: string; amount: number }[]
+  totalAmount: number
+}
+
+/** Send payment receipt email. Fire-and-forget; does not throw. */
+export async function sendPaymentReceipt(params: PaymentReceiptParams): Promise<boolean> {
+  const { paymentReceiptEmailHtml } = await import('@/lib/email-templates')
+  const html = paymentReceiptEmailHtml(params)
+  const sent = await sendMail({
+    to: params.to,
+    subject: `Payment Receipt — Order ${params.orderId} — Vercera 5.0`,
+    html,
+  })
+  return sent
+}
