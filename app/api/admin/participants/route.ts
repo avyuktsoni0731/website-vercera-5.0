@@ -31,7 +31,21 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    return NextResponse.json({ participants })
+    // Participants who have any registration with hasAccommodation === true
+    const accomSnap = await db
+      .collection('registrations')
+      .where('hasAccommodation', '==', true)
+      .get()
+    const userIdsWithAccommodation = new Set(
+      accomSnap.docs.map((d) => (d.data() as { userId?: string }).userId).filter(Boolean)
+    )
+
+    const withAccommodation = participants.map((p) => ({
+      ...p,
+      hasAccommodation: userIdsWithAccommodation.has(p.id),
+    }))
+
+    return NextResponse.json({ participants: withAccommodation })
   } catch (err) {
     console.error('Admin participants list error:', err)
     return NextResponse.json({ error: 'Failed to fetch participants' }, { status: 500 })

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { collection, query, where, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
@@ -22,6 +22,9 @@ interface Registration {
   attended?: boolean
   isTeamEvent?: boolean
   teamId?: string
+  bundleId?: string
+  bundleName?: string | null
+  hasAccommodation?: boolean
 }
 
 type TeamMember = {
@@ -45,12 +48,14 @@ interface TeamDoc {
 
 export default function DashboardPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, profile, loading, signOut } = useAuth()
   const [registrations, setRegistrations] = useState<Registration[]>([])
   const [regsLoading, setRegsLoading] = useState(true)
   const [teams, setTeams] = useState<TeamDoc[]>([])
   const [teamsLoading, setTeamsLoading] = useState(true)
   const [copied, setCopied] = useState(false)
+  const [showPaymentHint, setShowPaymentHint] = useState(false)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -58,6 +63,13 @@ export default function DashboardPage() {
       return
     }
   }, [user, loading, router])
+
+  useEffect(() => {
+    const payment = searchParams.get('payment')
+    if (payment === 'success') {
+      setShowPaymentHint(true)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     if (!user) return
@@ -78,6 +90,9 @@ export default function DashboardPage() {
             attended: d.attended || false,
             isTeamEvent: d.isTeamEvent || false,
             teamId: d.teamId,
+            bundleId: d.bundleId,
+            bundleName: d.bundleName ?? null,
+            hasAccommodation: d.hasAccommodation || false,
           }
         })
         setRegistrations(regs)
@@ -205,6 +220,24 @@ export default function DashboardPage() {
               Logout
             </button>
           </div>
+
+          {showPaymentHint && (
+            <div className="mb-6 rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-start gap-2">
+                <CheckCircle size={18} className="text-accent mt-0.5" />
+                <p className="text-sm text-foreground/80">
+                  Payment successful. For team events, open the event page from &quot;My Registrations&quot; to form or join a team.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPaymentHint(false)}
+                className="self-end sm:self-auto text-xs text-foreground/60 hover:text-foreground"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1 space-y-6">
@@ -339,6 +372,13 @@ export default function DashboardPage() {
                               <div>
                                 Status: <span className="text-accent font-semibold capitalize">{reg.status === 'paid' ? 'Payment Completed' : 'Registered'}</span>
                               </div>
+                              {(reg.bundleName || reg.hasAccommodation) && (
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-foreground/50 text-xs">
+                                    From pack: {reg.hasAccommodation ? 'All-in-one (accommodation)' : (reg.bundleName || 'Pack')}
+                                  </span>
+                                </div>
+                              )}
                               {reg.attended && (
                                 <div className="flex items-center gap-2 text-accent">
                                   <CheckCircle size={16} />

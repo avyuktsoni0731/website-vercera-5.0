@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useWheelScroll } from '@/hooks/use-wheel-scroll'
 import { useAdminFetch } from '@/hooks/use-admin-fetch'
-import { ListChecks, Search } from 'lucide-react'
+import { ListChecks, Search, Download, RefreshCw } from 'lucide-react'
 import type { EventRecord } from '@/lib/events-types'
 
 interface Reg {
@@ -39,6 +39,7 @@ export default function AdminRegistrationsPage() {
   const [accommodationFilter, setAccommodationFilter] = useState(searchParams.get('accommodation') || '')
   const [search, setSearch] = useState('')
   const tableScrollRef = useRef<HTMLDivElement>(null)
+  const [backfilling, setBackfilling] = useState(false)
   useWheelScroll(tableScrollRef, !loading)
 
   useEffect(() => {
@@ -81,16 +82,118 @@ export default function AdminRegistrationsPage() {
     )
   })
 
+  const handleExportCsv = () => {
+    if (filtered.length === 0) {
+      alert('No registrations to export for the current filters.')
+      return
+    }
+
+    const escape = (value: unknown) => {
+      const str = value == null ? '' : String(value)
+      if (/[",\n]/.test(str)) {
+        return `"${str.replace(/"/g, '""')}"`
+      }
+      return str
+    }
+
+    const header = [
+      'Participant',
+      'Vercera ID',
+      'Email',
+      'Event',
+      'Pack',
+      'Accommodation',
+      'Status',
+      'Amount',
+      'Attended',
+      'Order ID',
+      'Created At',
+    ]
+
+    const lines = [
+      header.join(','),
+      ...filtered.map((r) =>
+        [
+          r.participantName ?? '',
+          r.verceraId ?? '',
+          r.participantEmail ?? '',
+          r.eventName || r.eventId || '',
+          r.bundleName ?? '',
+          r.hasAccommodation ? 'Yes' : 'No',
+          r.status ?? '',
+          r.amount != null ? String(r.amount) : '',
+          r.attended ? 'Yes' : 'No',
+          r.razorpayOrderId ?? '',
+          r.createdAt ?? '',
+        ]
+          .map(escape)
+          .join(',')
+      ),
+    ]
+
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'registrations.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleBackfillBundleFields = async () => {
+    if (backfilling) return
+    setBackfilling(true)
+    try {
+      const res = await fetchWithAuth('/api/admin/backfill-bundle-fields', { method: 'POST' })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        alert(data.error ?? 'Backfill failed')
+        return
+      }
+      alert(data.message ?? `Updated ${data.updated ?? 0} registration(s).`)
+      if ((data.updated ?? 0) > 0) {
+        window.location.reload()
+      }
+    } catch {
+      alert('Request failed')
+    } finally {
+      setBackfilling(false)
+    }
+  }
+
   return (
     <div className="space-y-4 sm:space-y-6">
-      <div>
-        <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
-          <ListChecks className="h-6 w-6 sm:h-7 sm:w-7 shrink-0" />
-          Registrations
-        </h1>
-        <p className="text-foreground/60 mt-1 text-sm">
-          All event applications. Filter and search below.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
+            <ListChecks className="h-6 w-6 sm:h-7 sm:w-7 shrink-0" />
+            Registrations
+          </h1>
+          <p className="text-foreground/60 mt-1 text-sm">
+            All event applications. Filter and search below.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full border border-border bg-secondary text-foreground text-sm font-medium hover:bg-secondary/80 transition-colors"
+          >
+            <Download size={16} />
+            Export CSV
+          </button>
+          <button
+            type="button"
+            onClick={handleBackfillBundleFields}
+            disabled={backfilling}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full border border-border bg-secondary text-foreground text-sm font-medium hover:bg-secondary/80 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={backfilling ? 'animate-spin' : ''} />
+            {backfilling ? 'Backfilling…' : 'Backfill bundle fields'}
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
@@ -137,6 +240,15 @@ export default function AdminRegistrationsPage() {
           </select>
         </div>
       </div>
+
+      {!loading && accommodationFilter === 'yes' && filtered.length > 0 && (
+        <p className="text-sm text-foreground/70">
+          <span className="font-semibold text-foreground">
+            {new Set(filtered.map((r) => r.userId).filter(Boolean)).size}
+          </span>{' '}
+          participant{new Set(filtered.map((r) => r.userId).filter(Boolean)).size === 1 ? '' : 's'} with accommodation
+        </p>
+      )}
 
       {loading ? (
         <div className="py-12 text-center text-foreground/60">Loading...</div>

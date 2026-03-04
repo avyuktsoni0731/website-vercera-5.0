@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import QRCode from 'qrcode'
 import { initializeApp, getApps, cert, type ServiceAccount } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 import { generateVerceraId } from '@/lib/vercera-id'
+import { sendMail } from '@/lib/mail'
+import { registrationEmailHtml } from '@/lib/email-templates'
 
 function getVerceraFirestore() {
   const appName = 'vercera-firestore'
@@ -72,6 +75,28 @@ export async function POST(request: NextRequest) {
       verceraId,
       verceraIdGeneratedAt: new Date().toISOString(),
     })
+
+    // Send registration email with Vercera ID and QR code (inline + PNG attachment)
+    const email = (userData?.email as string)?.trim()
+    const fullName = (userData?.fullName as string)?.trim() || 'Participant'
+    if (email) {
+      try {
+        const qrBuffer = await QRCode.toBuffer(verceraId, { type: 'png', width: 280, margin: 2 })
+        const html = registrationEmailHtml({ fullName, verceraId })
+        await sendMail({
+          to: email,
+          subject: 'Your Vercera 5.0 Registration — Vercera ID & QR Code',
+          html,
+          text: `Welcome to Vercera 5.0. Your Vercera ID: ${verceraId}. Present this ID (or the attached QR code) at the venue for check-in.`,
+          attachments: [
+            { filename: 'qrcode.png', content: qrBuffer, cid: 'vercera-qr' },
+            { filename: 'Vercera-QR-Code.png', content: qrBuffer },
+          ],
+        })
+      } catch (e) {
+        console.error('Generate Vercera ID: send registration email failed', e)
+      }
+    }
 
     return NextResponse.json({ success: true, verceraId })
   } catch (err) {
