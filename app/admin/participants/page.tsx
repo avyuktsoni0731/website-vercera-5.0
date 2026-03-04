@@ -13,6 +13,7 @@ interface Participant {
   courseOfStudy?: string
   department?: string
   yearOfStudy?: string
+  hasAccommodation?: boolean
 }
 
 export default function AdminParticipantsPage() {
@@ -20,6 +21,7 @@ export default function AdminParticipantsPage() {
   const [participants, setParticipants] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [accommodationFilter, setAccommodationFilter] = useState<'all' | 'yes'>('all')
 
   useEffect(() => {
     fetchWithAuth('/api/admin/participants?limit=300')

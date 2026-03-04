@@ -22,6 +22,9 @@ interface Registration {
   attended?: boolean
   isTeamEvent?: boolean
   teamId?: string
+  bundleId?: string
+  bundleName?: string | null
+  hasAccommodation?: boolean
 }
 
 type TeamMember = {
@@ -78,6 +81,9 @@ export default function DashboardPage() {
             attended: d.attended || false,
             isTeamEvent: d.isTeamEvent || false,
             teamId: d.teamId,
+            bundleId: d.bundleId,
+            bundleName: d.bundleName ?? null,
+            hasAccommodation: d.hasAccommodation || false,
           }
         })
         setRegistrations(regs)
@@ -339,6 +345,13 @@ export default function DashboardPage() {
                               <div>
                                 Status: <span className="text-accent font-semibold capitalize">{reg.status === 'paid' ? 'Payment Completed' : 'Registered'}</span>
                               </div>
+                              {(reg.bundleName || reg.hasAccommodation) && (
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-foreground/50 text-xs">
+                                    From pack: {reg.hasAccommodation ? 'All-in-one (accommodation)' : (reg.bundleName || 'Pack')}
+                                  </span>
+                                </div>
+                              )}
                               {reg.attended && (
                                 <div className="flex items-center gap-2 text-accent">
                                   <CheckCircle size={16} />

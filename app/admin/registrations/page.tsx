@@ -138,6 +138,15 @@ export default function AdminRegistrationsPage() {
         </div>
       </div>
 
+      {!loading && accommodationFilter === 'yes' && filtered.length > 0 && (
+        <p className="text-sm text-foreground/70">
+          <span className="font-semibold text-foreground">
+            {new Set(filtered.map((r) => r.userId).filter(Boolean)).size}
+          </span>{' '}
+          participant{new Set(filtered.map((r) => r.userId).filter(Boolean)).size === 1 ? '' : 's'} with accommodation
+        </p>
+      )}
+
       {loading ? (
         <div className="py-12 text-center text-foreground/60">Loading...</div>
       ) : (
