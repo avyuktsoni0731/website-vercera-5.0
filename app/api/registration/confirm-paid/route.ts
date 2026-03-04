@@ -3,6 +3,7 @@ import { initializeApp, getApps, cert, type ServiceAccount } from 'firebase-admi
 import { getFirestore } from 'firebase-admin/firestore'
 import { generateVerceraTeamId } from '@/lib/vercera-team-id'
 import { resolveBundleToEvents } from '@/lib/resolve-bundle'
+import { splitAmountExactly } from '@/lib/bundle-amount-split'
 
 function getVerceraFirestore() {
   const appName = 'vercera-firestore'
@@ -106,14 +107,21 @@ export async function POST(request: NextRequest) {
     const registrationDate = nowIso.split('T')[0]
 
     if (bundleId) {
+      const bundleSnap = await db.collection('bundles').doc(bundleId).get()
+      const bundleData = bundleSnap.exists ? (bundleSnap.data() as { type?: string; name?: string }) : null
+      const bundleType = bundleData?.type ?? 'all_events'
+      const bundleName = bundleData?.name ?? null
+      const hasAccommodation = bundleType === 'all_in_one'
+
       const events = await resolveBundleToEvents(bundleId)
       if (events.length === 0) {
         return NextResponse.json({ error: 'Bundle has no events or not found.' }, { status: 400 })
       }
       const totalAmount = Number(amount)
-      const perRegistration = totalAmount / events.length
+      const amounts = splitAmountExactly(totalAmount, events.length)
       const registrationsRef = db.collection('registrations')
-      for (const { eventId: eid, eventName: ename } of events) {
+      for (let i = 0; i < events.length; i++) {
+        const { eventId: eid, eventName: ename } = events[i]
         const existing = await registrationsRef
           .where('userId', '==', userId)
           .where('eventId', '==', eid)
@@ -127,13 +135,16 @@ export async function POST(request: NextRequest) {
           verceraId: leaderVerceraId,
           eventId: eid,
           eventName: ename,
-          amount: Math.round(perRegistration * 100) / 100,
+          amount: amounts[i],
           registrationDate,
           status: 'paid',
           attended: false,
           razorpayOrderId: orderId,
           razorpayPaymentId: paymentId,
           bundleId,
+          bundleType,
+          bundleName,
+          hasAccommodation,
           isTeamEvent,
           additionalInfo: additionalInfo || null,
           createdAt: nowIso,

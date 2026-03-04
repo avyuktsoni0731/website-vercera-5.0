@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useWheelScroll } from '@/hooks/use-wheel-scroll'
 import { useAdminFetch } from '@/hooks/use-admin-fetch'
 import { ListChecks, Search } from 'lucide-react'
 import type { EventRecord } from '@/lib/events-types'
@@ -21,6 +22,10 @@ interface Reg {
   teamId?: string
   createdAt?: string
   razorpayOrderId?: string
+  bundleId?: string
+  bundleType?: string
+  bundleName?: string | null
+  hasAccommodation?: boolean
 }
 
 export default function AdminRegistrationsPage() {
@@ -31,7 +36,10 @@ export default function AdminRegistrationsPage() {
   const [loading, setLoading] = useState(true)
   const [eventFilter, setEventFilter] = useState(searchParams.get('eventId') || '')
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '')
+  const [accommodationFilter, setAccommodationFilter] = useState(searchParams.get('accommodation') || '')
   const [search, setSearch] = useState('')
+  const tableScrollRef = useRef<HTMLDivElement>(null)
+  useWheelScroll(tableScrollRef, !loading)
 
   useEffect(() => {
     fetchWithAuth('/api/admin/events')
@@ -59,6 +67,7 @@ export default function AdminRegistrationsPage() {
   }, [eventFilter, statusFilter, fetchWithAuth])
 
   const filtered = registrations.filter((r) => {
+    if (accommodationFilter === 'yes' && !r.hasAccommodation) return false
     if (!search) return true
     const q = search.toLowerCase()
     return (
@@ -67,7 +76,8 @@ export default function AdminRegistrationsPage() {
       (r.verceraId || '').toLowerCase().includes(q) ||
       (r.participantName || '').toLowerCase().includes(q) ||
       (r.verceraTeamId || '').toLowerCase().includes(q) ||
-      (r.status || '').toLowerCase().includes(q)
+      (r.status || '').toLowerCase().includes(q) ||
+      (r.bundleName || '').toLowerCase().includes(q)
     )
   })
 
@@ -117,15 +127,28 @@ export default function AdminRegistrationsPage() {
             <option value="paid">Paid</option>
             <option value="completed">Completed</option>
           </select>
+          <select
+            value={accommodationFilter}
+            onChange={(e) => setAccommodationFilter(e.target.value)}
+            className="flex-1 min-w-[140px] px-4 py-2.5 rounded-full border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent touch-manipulation"
+          >
+            <option value="">All packs</option>
+            <option value="yes">Accommodation only</option>
+          </select>
         </div>
       </div>
 
       {loading ? (
         <div className="py-12 text-center text-foreground/60">Loading...</div>
       ) : (
-        <div className="rounded-xl border border-border bg-card overflow-hidden -mx-4 sm:mx-0">
-          <div className="overflow-x-auto overflow-y-auto max-h-[70vh]">
-            <table className="w-full text-sm min-w-[700px]">
+        <div className="rounded-xl border border-border bg-card overflow-hidden -mx-4 sm:mx-0 flex flex-col max-h-[70vh] min-h-0">
+          <div
+            ref={tableScrollRef}
+            className="scroll-area-touch flex-1 min-h-0 overflow-x-auto overflow-y-auto"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+            tabIndex={0}
+          >
+            <table className="w-full text-sm min-w-[800px]">
               <thead className="sticky top-0 bg-card z-10">
                 <tr className="border-b border-border bg-secondary/30">
                   <th className="text-left py-3 px-3 sm:px-4 font-medium text-foreground/80 text-xs sm:text-sm">
@@ -133,6 +156,7 @@ export default function AdminRegistrationsPage() {
                   </th>
                   <th className="text-left py-3 px-3 sm:px-4 font-medium text-foreground/80 text-xs sm:text-sm">Vercera ID</th>
                   <th className="text-left py-3 px-3 sm:px-4 font-medium text-foreground/80 text-xs sm:text-sm">Event</th>
+                  <th className="text-left py-3 px-3 sm:px-4 font-medium text-foreground/80 text-xs sm:text-sm">Pack</th>
                   <th className="text-left py-3 px-3 sm:px-4 font-medium text-foreground/80 text-xs sm:text-sm">Team</th>
                   <th className="text-left py-3 px-3 sm:px-4 font-medium text-foreground/80 text-xs sm:text-sm">Status</th>
                   <th className="text-right py-3 px-3 sm:px-4 font-medium text-foreground/80 text-xs sm:text-sm">Amount</th>
@@ -143,7 +167,7 @@ export default function AdminRegistrationsPage() {
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-8 text-center text-foreground/50">
+                    <td colSpan={9} className="py-8 text-center text-foreground/50">
                       No registrations match your filters.
                     </td>
                   </tr>
@@ -161,6 +185,17 @@ export default function AdminRegistrationsPage() {
                       </td>
                       <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm">
                         {r.eventName || r.eventId || '—'}
+                      </td>
+                      <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm">
+                        {r.hasAccommodation ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent/20 text-accent font-medium" title="All-in-one (accommodation + all events)">
+                            Accommodation
+                          </span>
+                        ) : r.bundleName ? (
+                          <span className="text-foreground/80">{r.bundleName}</span>
+                        ) : (
+                          '—'
+                        )}
                       </td>
                       <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-xs text-foreground/70">
                         {r.verceraTeamId || '—'}

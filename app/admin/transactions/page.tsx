@@ -18,6 +18,7 @@ import {
 interface Stats {
   totalRevenue: number
   eventWise: Record<string, { count: number; revenue: number; attended: number }>
+  eventNames?: Record<string, string>
   recentRegistrations: Array<{
     id: string
     eventId?: string
@@ -67,17 +68,25 @@ export default function AdminTransactionsPage() {
     (r) => r.status === 'paid' || r.status === 'completed'
   )
 
-  const eventChartData = Object.entries(stats.eventWise).map(([name, d]) => ({
-    name: name.length > 12 ? name.slice(0, 12) + '…' : name,
-    revenue: d.revenue,
-    fullName: name,
-  }))
+  const eventChartData = Object.entries(stats.eventWise).map(([eventId, d]) => {
+    const name = stats.eventNames?.[eventId] ?? eventId
+    const shortName = name.length > 12 ? name.slice(0, 12) + '…' : name
+    return {
+      name: shortName,
+      revenue: d.revenue,
+      fullName: name,
+    }
+  })
 
-  const pieData = Object.entries(stats.eventWise).map(([name, d], i) => ({
-    name: name.length > 15 ? name.slice(0, 15) + '…' : name,
-    value: d.revenue,
-    color: CHART_COLORS[i % CHART_COLORS.length],
-  }))
+  const pieData = Object.entries(stats.eventWise).map(([eventId, d], i) => {
+    const name = stats.eventNames?.[eventId] ?? eventId
+    const shortName = name.length > 15 ? name.slice(0, 15) + '…' : name
+    return {
+      name: shortName,
+      value: d.revenue,
+      color: CHART_COLORS[i % CHART_COLORS.length],
+    }
+  })
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -179,7 +188,7 @@ export default function AdminTransactionsPage() {
         <h2 className="font-semibold text-foreground text-sm sm:text-base p-3 sm:p-4 border-b border-border">
           Recent paid transactions
         </h2>
-        <div className="overflow-x-auto overflow-y-auto max-h-[50vh] sm:max-h-96">
+        <div className="scroll-area-touch overflow-x-auto overflow-y-auto max-h-[50vh] sm:max-h-96">
           <table className="w-full text-sm min-w-[500px]">
             <thead>
               <tr className="border-b border-border bg-secondary/30">
