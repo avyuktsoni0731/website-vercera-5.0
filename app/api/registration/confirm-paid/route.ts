@@ -107,6 +107,16 @@ export async function POST(request: NextRequest) {
     const registrationDate = nowIso.split('T')[0]
 
     if (bundleId) {
+      const alreadyBought = await db
+        .collection('registrations')
+        .where('userId', '==', userId)
+        .where('bundleId', '==', bundleId)
+        .limit(1)
+        .get()
+      if (!alreadyBought.empty) {
+        return NextResponse.json({ success: true, message: 'Bundle already registered for this user' })
+      }
+
       const bundleSnap = await db.collection('bundles').doc(bundleId).get()
       const bundleData = bundleSnap.exists ? (bundleSnap.data() as { type?: string; name?: string }) : null
       const bundleType = bundleData?.type ?? 'all_events'

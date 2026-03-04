@@ -118,6 +118,16 @@ export async function POST(request: NextRequest) {
     // Split amount so sum of per-event amounts equals total (avoids 299/14 → 21.36 each summing to 299.04).
     // Store bundleType and hasAccommodation so admin can see who chose accommodation (all_in_one pack).
     if (bundleId) {
+      const alreadyBought = await db
+        .collection('registrations')
+        .where('userId', '==', userId)
+        .where('bundleId', '==', bundleId)
+        .limit(1)
+        .get()
+      if (!alreadyBought.empty) {
+        return NextResponse.json({ success: true, message: 'Bundle already registered for this user' })
+      }
+
       const bundleSnap = await db.collection('bundles').doc(bundleId).get()
       const bundleData = bundleSnap.exists ? (bundleSnap.data() as { type?: string; name?: string }) : null
       const bundleType = bundleData?.type ?? 'all_events'
