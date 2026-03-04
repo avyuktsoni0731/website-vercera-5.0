@@ -27,9 +27,10 @@ export async function GET(request: NextRequest) {
       createdAt?: string
     }>
 
-    const totalRevenue = registrations
+    const totalRevenueRaw = registrations
       .filter((r) => r.status === 'paid' || r.status === 'completed')
       .reduce((sum, r) => sum + (Number(r.amount) || 0), 0)
+    const totalRevenue = Math.round(totalRevenueRaw * 100) / 100
 
     const totalRegistrations = registrations.length
     const paidCount = registrations.filter((r) => r.status === 'paid' || r.status === 'completed').length
@@ -50,6 +51,13 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
       .slice(0, 10)
 
+    const eventsSnap = await db.collection('events').get()
+    const eventNames: Record<string, string> = {}
+    eventsSnap.docs.forEach((doc) => {
+      const name = (doc.data() as { name?: string }).name
+      eventNames[doc.id] = name ?? doc.id
+    })
+
     return NextResponse.json({
       totalParticipants: participantsSnap.size,
       totalTeams: teamsSnap.size,
@@ -58,6 +66,7 @@ export async function GET(request: NextRequest) {
       attendedCount,
       totalRevenue,
       eventWise,
+      eventNames,
       recentRegistrations,
     })
   } catch (err) {
