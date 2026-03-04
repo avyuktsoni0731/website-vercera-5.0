@@ -100,6 +100,12 @@ export async function POST(request: NextRequest) {
 
     const db = getVerceraFirestore()
 
+    // Idempotency: if this order was already processed, return success without creating duplicates
+    const existingByOrder = await db.collection('registrations').where('razorpayOrderId', '==', orderId).limit(1).get()
+    if (!existingByOrder.empty) {
+      return NextResponse.json({ success: true, message: 'Payment already processed' })
+    }
+
     // Get leader's verceraId from profile
     let leaderVerceraId: string | null = null
     try {

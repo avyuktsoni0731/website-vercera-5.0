@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useWheelScroll } from '@/hooks/use-wheel-scroll'
 import { useAdminFetch } from '@/hooks/use-admin-fetch'
-import { ListChecks, Search } from 'lucide-react'
+import { ListChecks, Search, Download, RefreshCw } from 'lucide-react'
 import type { EventRecord } from '@/lib/events-types'
 
 interface Reg {
@@ -39,6 +39,7 @@ export default function AdminRegistrationsPage() {
   const [accommodationFilter, setAccommodationFilter] = useState(searchParams.get('accommodation') || '')
   const [search, setSearch] = useState('')
   const tableScrollRef = useRef<HTMLDivElement>(null)
+  const [backfilling, setBackfilling] = useState(false)
   useWheelScroll(tableScrollRef, !loading)
 
   useEffect(() => {
@@ -141,6 +142,27 @@ export default function AdminRegistrationsPage() {
     URL.revokeObjectURL(url)
   }
 
+  const handleBackfillBundleFields = async () => {
+    if (backfilling) return
+    setBackfilling(true)
+    try {
+      const res = await fetchWithAuth('/api/admin/backfill-bundle-fields', { method: 'POST' })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        alert(data.error ?? 'Backfill failed')
+        return
+      }
+      alert(data.message ?? `Updated ${data.updated ?? 0} registration(s).`)
+      if ((data.updated ?? 0) > 0) {
+        window.location.reload()
+      }
+    } catch {
+      alert('Request failed')
+    } finally {
+      setBackfilling(false)
+    }
+  }
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -153,13 +175,25 @@ export default function AdminRegistrationsPage() {
             All event applications. Filter and search below.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={handleExportCsv}
-          className="inline-flex items-center justify-center px-4 py-2 rounded-full border border-border bg-secondary text-foreground text-sm font-medium hover:bg-secondary/80 transition-colors"
-        >
-          Export CSV
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full border border-border bg-secondary text-foreground text-sm font-medium hover:bg-secondary/80 transition-colors"
+          >
+            <Download size={16} />
+            Export CSV
+          </button>
+          <button
+            type="button"
+            onClick={handleBackfillBundleFields}
+            disabled={backfilling}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full border border-border bg-secondary text-foreground text-sm font-medium hover:bg-secondary/80 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={backfilling ? 'animate-spin' : ''} />
+            {backfilling ? 'Backfilling…' : 'Backfill bundle fields'}
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
