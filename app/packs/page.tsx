@@ -5,13 +5,15 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Navbar } from '@/components/animated-navbar'
 import { Footer } from '@/components/footer'
-import { ArrowLeft, Package, Tag } from 'lucide-react'
+import { useMyRegistrations } from '@/hooks/use-my-registrations'
+import { ArrowLeft, Package, Tag, BadgeCheck } from 'lucide-react'
 import type { PublicBundle } from '@/app/api/bundles/route'
 
 export default function PacksPage() {
   const [bundles, setBundles] = useState<PublicBundle[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { purchasedBundleIds } = useMyRegistrations()
 
   useEffect(() => {
     fetch('/api/bundles')
@@ -103,13 +105,20 @@ export default function PacksPage() {
                       ₹{bundle.price.toLocaleString('en-IN')}
                     </span>
                   </div>
-                  <Link
-                    href={`/checkout/bundle/${bundle.id}`}
-                    className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-accent text-accent-foreground font-medium hover:bg-accent/90 transition-colors"
-                  >
-                    <Tag size={18} />
-                    Register for this pack
-                  </Link>
+                  {purchasedBundleIds.has(bundle.id) ? (
+                    <div className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-accent/20 text-accent font-medium border border-accent/40">
+                      <BadgeCheck size={18} />
+                      Already purchased
+                    </div>
+                  ) : (
+                    <Link
+                      href={`/checkout/bundle/${bundle.id}`}
+                      className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-accent text-accent-foreground font-medium hover:bg-accent/90 transition-colors"
+                    >
+                      <Tag size={18} />
+                      Register for this pack
+                    </Link>
+                  )}
                 </motion.div>
               ))}
             </div>
