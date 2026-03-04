@@ -142,6 +142,15 @@ export default function SignupPage() {
       }
 
       await setDoc(doc(db, 'vercera_5_participants', user.uid), profile)
+      try {
+        const token = await user.getIdToken()
+        await fetch('/api/mail/send-registration-email', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      } catch {
+        // Email is best-effort; still redirect
+      }
       router.push('/dashboard')
     } catch (err: unknown) {
       const code = err && typeof err === 'object' && 'code' in err ? (err as { code: string }).code : ''
