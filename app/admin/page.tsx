@@ -20,6 +20,7 @@ interface Stats {
   attendedCount: number
   totalRevenue: number
   eventWise: Record<string, { count: number; revenue: number; attended: number }>
+  eventNames?: Record<string, string>
   recentRegistrations: Array<{
     id: string
     eventId?: string
@@ -160,7 +161,7 @@ export default function AdminDashboardPage() {
                   className="flex justify-between text-sm py-1 border-b border-border/50 last:border-0"
                 >
                   <span className="text-foreground/80 truncate max-w-[180px]">
-                    {eventId}
+                    {stats.eventNames?.[eventId] ?? eventId}
                   </span>
                   <span className="text-accent font-medium">
                     ₹{data.revenue.toLocaleString('en-IN')} ({data.count})

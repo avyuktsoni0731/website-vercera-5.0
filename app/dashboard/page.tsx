@@ -309,7 +309,10 @@ export default function DashboardPage() {
                 <div className="bg-card border border-border rounded-xl p-6">
                   <p className="text-foreground/60 text-sm mb-2">Total Spent</p>
                   <p className="font-display text-3xl font-bold text-accent">
-                    ₹{regsLoading ? '...' : registrations.reduce((sum, r) => sum + r.amount, 0)}
+                    ₹{regsLoading ? '...' : (() => {
+                      const total = registrations.reduce((sum, r) => sum + (Number(r.amount) ?? 0), 0)
+                      return (Math.round(total * 100) / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    })()}
                   </p>
                 </div>
               </div>
