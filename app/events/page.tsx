@@ -1,6 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+
+function usePackColumns(n: number) {
+  const [cols, setCols] = useState(n)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const update = () => setCols(mq.matches ? n : Math.min(2, n))
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [n])
+  return cols
+}
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -92,6 +104,14 @@ export default function EventsPage() {
   const filteredEvents =
     selectedCategory === 'all' ? events : events.filter((e) => e.category === selectedCategory)
 
+  const packsOrdered = useMemo(() => {
+    const highlighted = bundles.find((b) => b.highlight)
+    const rest = bundles.filter((b) => !b.highlight)
+    const mid = Math.ceil(rest.length / 2)
+    return [...rest.slice(0, mid), ...(highlighted ? [highlighted] : []), ...rest.slice(mid)]
+  }, [bundles])
+  const packCols = usePackColumns(bundles.length)
+
   if (loading) {
     return (
       <main className="min-h-screen bg-background">
@@ -163,18 +183,12 @@ export default function EventsPage() {
                 <Package className="h-7 w-7 text-accent" />
                 Packs &amp; Bundles
               </h2>
-              {(() => {
-                const highlighted = bundles.find((b) => b.highlight)
-                const rest = bundles.filter((b) => !b.highlight)
-                const mid = Math.ceil(rest.length / 2)
-                const ordered = [...rest.slice(0, mid), ...(highlighted ? [highlighted] : []), ...rest.slice(mid)]
-                return (
               <div
-                className="flex flex-nowrap gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
-                style={{ scrollSnapType: 'x proximity' }}
+                className="grid gap-4 items-stretch w-full"
+                style={{ gridTemplateColumns: `repeat(${packCols}, minmax(0, 1fr))` }}
               >
-                {ordered.map((b) => (
-                  <div key={b.id} className="flex-shrink-0" style={{ scrollSnapAlign: 'center' }}>
+                {packsOrdered.map((b) => (
+                  <div key={b.id} className="min-w-0 flex">
                     <PackTierCard
                       bundle={b}
                       purchased={purchasedBundleIds.has(b.id)}
@@ -183,8 +197,6 @@ export default function EventsPage() {
                   </div>
                 ))}
               </div>
-                )
-              })()}
             </motion.div>
           )}
 

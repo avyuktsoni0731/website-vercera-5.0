@@ -5,9 +5,22 @@ import { motion } from 'framer-motion'
 import { useMyRegistrations } from '@/hooks/use-my-registrations'
 import { PackTierCard, type PackTierBundle } from '@/components/pack-tier-card'
 
+function useColumns(n: number) {
+  const [cols, setCols] = useState(n)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const update = () => setCols(mq.matches ? n : Math.min(2, n))
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [n])
+  return cols
+}
+
 export function PacksSection() {
   const [bundles, setBundles] = useState<PackTierBundle[]>([])
   const { purchasedBundleIds } = useMyRegistrations()
+  const cols = useColumns(bundles.length)
 
   useEffect(() => {
     fetch('/api/bundles')
@@ -55,15 +68,11 @@ export function PacksSection() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="flex flex-nowrap gap-6 justify-center overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
-          style={{ scrollSnapType: 'x proximity' }}
+          className="grid gap-4 items-stretch w-full"
+          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
         >
           {ordered.map((b) => (
-            <div
-              key={b.id}
-              className="flex-shrink-0"
-              style={{ scrollSnapAlign: 'center' }}
-            >
+            <div key={b.id} className="min-w-0 flex">
               <PackTierCard
                 bundle={b}
                 purchased={purchasedBundleIds.has(b.id)}
@@ -72,6 +81,9 @@ export function PacksSection() {
             </div>
           ))}
         </motion.div>
+        <p className="text-center text-foreground/50 text-sm mt-6 max-w-xl mx-auto">
+          Pay once. Add events from your dashboard anytime. We don&apos;t store or sell your data.
+        </p>
       </div>
     </section>
   )
