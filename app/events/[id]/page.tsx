@@ -59,6 +59,8 @@ export default function EventDetailPage({ params }: Props) {
   const [teamActionLoading, setTeamActionLoading] = useState(false)
   const [teamActionError, setTeamActionError] = useState<string | null>(null)
   const [registrationRefresh, setRegistrationRefresh] = useState(0)
+  const [eligibleFromPack, setEligibleFromPack] = useState(false)
+  const [addingFromPack, setAddingFromPack] = useState(false)
 
   const teamSizeText = useMemo(() => {
     if (!event) return 'Solo'
@@ -68,6 +70,22 @@ export default function EventDetailPage({ params }: Props) {
     const max = event.teamSizeMax ?? min
     return min === max ? `${min}` : `${min}-${max}`
   }, [event])
+
+  useEffect(() => {
+    if (!user || !event) {
+      setEligibleFromPack(false)
+      return
+    }
+    user.getIdToken().then((token) =>
+      fetch('/api/me/eligible-events', { headers: { Authorization: `Bearer ${token}` } })
+        .then((r) => r.json())
+        .then((d) => {
+          const ids = (d.eligible ?? []).map((e: { eventId: string }) => e.eventId)
+          setEligibleFromPack(ids.includes(event.id))
+        })
+        .catch(() => setEligibleFromPack(false))
+    )
+  }, [user, event?.id])
 
   useEffect(() => {
     if (!user || !event) {
@@ -442,7 +460,38 @@ export default function EventDetailPage({ params }: Props) {
                     <BadgeCheck size={18} />
                     Registered
                   </button>
-                ) : spotsAvailable > 0 ? (
+                ) : spotsAvailable > 0 ? eligibleFromPack ? (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!user || addingFromPack) return
+                      setAddingFromPack(true)
+                      try {
+                        const token = await user.getIdToken()
+                        const res = await fetch('/api/registration/add-from-pack', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                          body: JSON.stringify({ eventId: event.id }),
+                        })
+                        if (res.ok) {
+                          setRegistrationRefresh((n) => n + 1)
+                          setEligibleFromPack(false)
+                        } else {
+                          const err = await res.json().catch(() => ({}))
+                          alert(err.error || 'Failed to add event')
+                        }
+                      } catch {
+                        alert('Request failed')
+                      } finally {
+                        setAddingFromPack(false)
+                      }
+                    }}
+                    disabled={addingFromPack}
+                    className="w-full px-6 py-3 bg-accent text-accent-foreground rounded-full font-bold hover:bg-accent/90 transition-colors disabled:opacity-50"
+                  >
+                    {addingFromPack ? 'Adding…' : 'Add to my events'}
+                  </button>
+                ) : (
                   <button
                     onClick={handleRegisterClick}
                     disabled={isRegistering}
