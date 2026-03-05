@@ -11,7 +11,19 @@ import {
   CheckCircle,
   TrendingUp,
   Calendar,
+  Package,
 } from 'lucide-react'
+
+interface PackPurchase {
+  userId: string | null
+  userEmail: string | null
+  userName: string | null
+  bundleId: string | null
+  bundleName: string | null
+  amount: number
+  createdAt: string | null
+  eventsAddedCount: number
+}
 
 interface Stats {
   totalParticipants: number
@@ -31,6 +43,7 @@ interface Stats {
     createdAt?: string
     userId?: string
   }>
+  packPurchases?: PackPurchase[]
 }
 
 export default function AdminDashboardPage() {
@@ -225,6 +238,54 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Pack purchases — who bought which pack, events added count */}
+      {(stats.packPurchases?.length ?? 0) > 0 && (
+        <div className="rounded-xl border border-border bg-card p-3 sm:p-4 flex flex-col min-h-0">
+          <h2 className="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2 flex-shrink-0 mb-3">
+            <Package className="h-4 w-4 shrink-0" />
+            Pack purchases
+          </h2>
+          <p className="text-foreground/60 text-xs mb-3">Who bought which pack and how many events they&apos;ve added to their profile (even if none yet).</p>
+          <div className="overflow-x-auto -mx-1">
+            <table className="w-full text-sm border-collapse min-w-[520px]">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left py-2 px-2 font-medium text-foreground/80">Participant</th>
+                  <th className="text-left py-2 px-2 font-medium text-foreground/80">Pack</th>
+                  <th className="text-right py-2 px-2 font-medium text-foreground/80">Amount</th>
+                  <th className="text-center py-2 px-2 font-medium text-foreground/80">Events added</th>
+                  <th className="text-left py-2 px-2 font-medium text-foreground/80">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.packPurchases.map((p, i) => (
+                  <tr key={i} className="border-b border-border/50 last:border-0">
+                    <td className="py-2 px-2">
+                      <p className="font-medium text-foreground truncate max-w-[140px]" title={p.userEmail ?? undefined}>
+                        {p.userName || p.userEmail || p.userId || '—'}
+                      </p>
+                      {p.userEmail && p.userName && (
+                        <p className="text-foreground/50 text-xs truncate max-w-[140px]">{p.userEmail}</p>
+                      )}
+                    </td>
+                    <td className="py-2 px-2 text-foreground/90">{p.bundleName || p.bundleId || '—'}</td>
+                    <td className="py-2 px-2 text-right font-medium text-accent">₹{p.amount.toLocaleString('en-IN')}</td>
+                    <td className="py-2 px-2 text-center">
+                      <span className={p.eventsAddedCount === 0 ? 'text-foreground/50' : 'text-foreground'}>
+                        {p.eventsAddedCount}
+                      </span>
+                    </td>
+                    <td className="py-2 px-2 text-foreground/60 text-xs">
+                      {p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

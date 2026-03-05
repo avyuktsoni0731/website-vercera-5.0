@@ -1,6 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+
+function usePackColumns(n: number) {
+  const [cols, setCols] = useState(n)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const update = () => setCols(mq.matches ? n : Math.min(2, n))
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [n])
+  return cols
+}
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -11,10 +23,11 @@ import { useEvents } from '@/hooks/use-events'
 import { useMyRegistrations } from '@/hooks/use-my-registrations'
 import { useAuth } from '@/contexts/auth-context'
 import { EventsComingSoon } from '@/components/events-coming-soon'
-import { ArrowLeft, Users, Trophy, Clock, MapPin, BadgeCheck, Package, X } from 'lucide-react'
+import { ArrowLeft, Users, Trophy, Clock, MapPin, BadgeCheck, Package, X, Check, Info } from 'lucide-react'
 import { formatPrizeAmount } from '@/lib/format-prize'
+import { PackTierCard } from '@/components/pack-tier-card'
 
-type Bundle = { id: string; name: string; type: string; price: number; originalPrice?: number; description?: string }
+type Bundle = { id: string; name: string; type: string; price: number; originalPrice?: number; description?: string; perks?: string[]; highlight?: boolean }
 type PackEvent = { eventId: string; eventName: string }
 
 export default function EventsPage() {
@@ -91,6 +104,14 @@ export default function EventsPage() {
   const filteredEvents =
     selectedCategory === 'all' ? events : events.filter((e) => e.category === selectedCategory)
 
+  const packsOrdered = useMemo(() => {
+    const highlighted = bundles.find((b) => b.highlight)
+    const rest = bundles.filter((b) => !b.highlight)
+    const mid = Math.ceil(rest.length / 2)
+    return [...rest.slice(0, mid), ...(highlighted ? [highlighted] : []), ...rest.slice(mid)]
+  }, [bundles])
+  const packCols = usePackColumns(bundles.length)
+
   if (loading) {
     return (
       <main className="min-h-screen bg-background">
@@ -150,35 +171,54 @@ export default function EventsPage() {
             <p className="text-foreground/70 text-lg">Explore our complete catalog of technical and non-technical events at Vercera 5.0</p>
           </motion.div>
 
-          {/* Packs - prominent at top */}
+          {/* Packs - tier row */}
           {bundles.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.15 }}
-              className="mb-10"
+              className="mb-12"
             >
               <h2 className="font-display text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
                 <Package className="h-7 w-7 text-accent" />
                 Packs &amp; Bundles
               </h2>
-              <div className="flex flex-wrap gap-3">
-                {bundles.map((b) => (
-                  <button
-                    key={b.id}
-                    type="button"
-                    onClick={() => setPackModal(b)}
-                    className="px-5 py-3 rounded-xl border-2 border-accent/50 bg-accent/10 text-foreground font-semibold hover:bg-accent/20 hover:border-accent transition-colors flex items-center gap-2"
-                  >
-                    <Package size={18} />
-                    {b.name}
-                    <span className="text-accent">₹{b.price.toLocaleString('en-IN')}</span>
-                    {purchasedBundleIds.has(b.id) && (
-                      <span className="ml-1 px-2 py-0.5 rounded-full bg-accent/30 text-xs font-bold">Purchased</span>
-                    )}
-                  </button>
+              <div
+                className="grid gap-4 items-stretch w-full"
+                style={{ gridTemplateColumns: `repeat(${packCols}, minmax(0, 1fr))` }}
+              >
+                {packsOrdered.map((b) => (
+                  <div key={b.id} className="min-w-0 flex">
+                    <PackTierCard
+                      bundle={b}
+                      purchased={purchasedBundleIds.has(b.id)}
+                      onSelect={() => setPackModal(b)}
+                    />
+                  </div>
                 ))}
               </div>
+            </motion.div>
+          )}
+
+          {/* Pack purchase instructions — show when user has purchased a bundle */}
+          {user && purchasedBundleIds.size > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8 rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3"
+            >
+              <div className="flex items-start gap-2 flex-1">
+                <Info className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-foreground/90">
+                  You&apos;ve purchased a pack. <strong className="text-foreground">Add events to your profile</strong> by clicking <strong className="text-accent">&quot;Add to my events&quot;</strong> on any event included in your pack. You can do this from here or from your dashboard later.
+                </p>
+              </div>
+              <Link
+                href="/dashboard"
+                className="text-sm font-medium text-accent hover:text-accent/80 whitespace-nowrap"
+              >
+                Go to Dashboard →
+              </Link>
             </motion.div>
           )}
 
@@ -367,6 +407,19 @@ export default function EventsPage() {
                 )}
               </div>
               {packModal.description && <p className="text-foreground/70 text-sm mb-4">{packModal.description}</p>}
+              {(packModal.perks?.length ?? 0) > 0 && (
+                <>
+                  <p className="text-foreground/60 text-xs font-semibold uppercase mb-2">What&apos;s included</p>
+                  <ul className="space-y-1.5 text-sm text-foreground/90 mb-4">
+                    {packModal.perks!.map((perk, i) => (
+                      <li key={i} className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-accent flex-shrink-0" strokeWidth={2.5} />
+                        {perk}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
               <p className="text-foreground/60 text-xs font-semibold uppercase mb-2">Events included</p>
               <ul className="space-y-1.5 text-sm text-foreground/90">
                 {packModalEvents.length === 0 ? <li className="text-foreground/50">Loading…</li> : packModalEvents.map((e) => (

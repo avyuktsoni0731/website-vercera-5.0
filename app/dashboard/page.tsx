@@ -429,7 +429,7 @@ function DashboardContent() {
                 <div className="bg-card border border-border rounded-xl overflow-hidden">
                   <div className="p-6 border-b border-border">
                     <h2 className="font-display text-2xl font-bold text-foreground">Add events from your packs</h2>
-                    <p className="text-foreground/60 text-sm mt-1">You bought a pack — add these events to your profile to be counted as registered</p>
+                    <p className="text-foreground/60 text-sm mt-1">You bought a pack — add these events to your profile to be counted as registered. <strong className="text-foreground/80">You can add events later as well.</strong></p>
                   </div>
                   <div className="divide-y divide-border">
                     {eligibleEvents.map((e) => (
@@ -548,15 +548,15 @@ function DashboardContent() {
                               <code className="text-accent font-mono text-sm">{team.verceraTeamId}</code>
                             </div>
                             <ul className="space-y-1.5 text-sm text-foreground/80">
-                                {team.members.map((m) => (
-                                  <li key={m.userId} className="flex items-center gap-2">
-                                    <span>{m.fullName}</span>
-                                    {(m.isLeader || m.userId === team.leaderUserId) && (
-                                      <span className="px-2 py-0.5 bg-accent/20 text-accent text-xs font-medium rounded">Leader</span>
-                                    )}
-                                    <span className="text-foreground/50 text-xs">{m.verceraId}</span>
-                                  </li>
-                                ))}
+                              {team.members.map((m) => (
+                                <li key={m.userId} className="flex items-center gap-2">
+                                  <span>{m.fullName}</span>
+                                  {(m.isLeader || m.userId === team.leaderUserId) && (
+                                    <span className="px-2 py-0.5 bg-accent/20 text-accent text-xs font-medium rounded">Leader</span>
+                                  )}
+                                  <span className="text-foreground/50 text-xs">{m.verceraId}</span>
+                                </li>
+                              ))}
                             </ul>
                             <Link
                               href={`/events/${team.eventId}`}

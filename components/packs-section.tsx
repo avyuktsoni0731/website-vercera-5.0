@@ -1,23 +1,52 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Package, ArrowRight } from 'lucide-react'
+import { useMyRegistrations } from '@/hooks/use-my-registrations'
+import { PackTierCard, type PackTierBundle } from '@/components/pack-tier-card'
 
-type Bundle = { id: string; name: string; type: string; price: number; originalPrice?: number; description?: string }
+function useColumns(n: number) {
+  const [cols, setCols] = useState(n)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const update = () => setCols(mq.matches ? n : Math.min(2, n))
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [n])
+  return cols
+}
 
 export function PacksSection() {
-  const [bundles, setBundles] = useState<Bundle[]>([])
+  const [bundles, setBundles] = useState<PackTierBundle[]>([])
+  const { purchasedBundleIds } = useMyRegistrations()
+  const cols = useColumns(bundles.length)
 
   useEffect(() => {
     fetch('/api/bundles')
       .then((r) => r.json())
-      .then((d) => { if (d.bundles) setBundles(d.bundles) })
+      .then((d) => {
+        if (d.bundles && Array.isArray(d.bundles)) {
+          setBundles(d.bundles.map((b: PackTierBundle) => ({
+            id: b.id,
+            name: b.name,
+            price: b.price,
+            originalPrice: b.originalPrice,
+            description: b.description,
+            perks: b.perks,
+            highlight: b.highlight,
+          })))
+        }
+      })
       .catch(() => setBundles([]))
   }, [])
 
   if (bundles.length === 0) return null
+
+  const highlighted = bundles.find((b) => b.highlight)
+  const rest = bundles.filter((b) => !b.highlight)
+  const mid = Math.ceil(rest.length / 2)
+  const ordered = [...rest.slice(0, mid), ...(highlighted ? [highlighted] : []), ...rest.slice(mid)]
 
   return (
     <section id="packs" className="py-16 relative overflow-hidden">
@@ -39,39 +68,22 @@ export function PacksSection() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10"
+          className="grid gap-4 items-stretch w-full"
+          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
         >
-          {bundles.map((b, i) => (
-            <motion.div
-              key={b.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="bg-card/90 backdrop-blur border border-border rounded-2xl p-6 hover:border-accent/50 transition-colors"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center">
-                  <Package className="h-6 w-6 text-accent" />
-                </div>
-                <h3 className="font-display text-xl font-bold text-foreground">{b.name}</h3>
-              </div>
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="font-bold text-accent text-2xl">₹{b.price.toLocaleString('en-IN')}</span>
-                {b.originalPrice != null && (
-                  <span className="text-foreground/50 line-through text-sm">₹{b.originalPrice.toLocaleString('en-IN')}</span>
-                )}
-              </div>
-              {b.description && <p className="text-foreground/70 text-sm mb-4 line-clamp-2">{b.description}</p>}
-              <Link
+          {ordered.map((b) => (
+            <div key={b.id} className="min-w-0 flex">
+              <PackTierCard
+                bundle={b}
+                purchased={purchasedBundleIds.has(b.id)}
                 href="/events"
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-accent text-accent-foreground rounded-full font-semibold text-sm hover:bg-accent/90 transition-colors"
-              >
-                View pack & events <ArrowRight size={16} />
-              </Link>
-            </motion.div>
+              />
+            </div>
           ))}
         </motion.div>
+        <p className="text-center text-foreground/50 text-sm mt-6 max-w-xl mx-auto">
+          Pay once. Add events from your dashboard anytime. We don&apos;t store or sell your data.
+        </p>
       </div>
     </section>
   )

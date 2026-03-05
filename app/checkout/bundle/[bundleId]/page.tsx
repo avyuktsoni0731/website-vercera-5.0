@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { Navbar } from '@/components/animated-navbar'
 import { Footer } from '@/components/footer'
 import { useMyRegistrations } from '@/hooks/use-my-registrations'
-import { ArrowLeft, AlertCircle, CheckCircle, BadgeCheck } from 'lucide-react'
+import { ArrowLeft, AlertCircle, CheckCircle, BadgeCheck, Pin } from 'lucide-react'
 
 interface Props {
   params: Promise<{ bundleId: string }>
@@ -128,6 +128,16 @@ export default function BundleCheckoutPage({ params }: Props) {
             <ArrowLeft size={18} />
             Back to Packs
           </Link>
+
+          {/* Pinned notice: add events to profile after payment */}
+          {!alreadyPurchased && paymentStatus !== 'success' && paymentStatus !== 'failed' && (
+            <div className="mb-6 rounded-xl border-2 border-accent/50 bg-accent/10 p-4 flex gap-3">
+              <Pin className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" aria-hidden />
+              <p className="text-sm text-foreground/90">
+                <strong className="text-foreground">After payment</strong>, go to <strong className="text-accent">Events</strong> or <strong className="text-accent">Dashboard</strong> to <strong className="text-foreground">add events to your profile</strong> from this pack. You don&apos;t need to add them all at once — you can add them later as well.
+              </p>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
