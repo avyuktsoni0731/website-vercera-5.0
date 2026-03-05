@@ -30,6 +30,11 @@ export function PacksSection() {
 
   if (bundles.length === 0) return null
 
+  const highlighted = bundles.find((b) => b.highlight)
+  const rest = bundles.filter((b) => !b.highlight)
+  const mid = Math.ceil(rest.length / 2)
+  const ordered = [...rest.slice(0, mid), ...(highlighted ? [highlighted] : []), ...rest.slice(mid)]
+
   return (
     <section id="packs" className="py-16 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -53,7 +58,7 @@ export function PacksSection() {
           className="flex flex-nowrap gap-6 justify-center overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
           style={{ scrollSnapType: 'x proximity' }}
         >
-          {bundles.map((b) => (
+          {ordered.map((b) => (
             <div
               key={b.id}
               className="flex-shrink-0"

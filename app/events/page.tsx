@@ -151,35 +151,40 @@ export default function EventsPage() {
             <p className="text-foreground/70 text-lg">Explore our complete catalog of technical and non-technical events at Vercera 5.0</p>
           </motion.div>
 
-          {/* Packs - prominent at top */}
+          {/* Packs - tier row */}
           {bundles.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.15 }}
-              className="mb-10"
+              className="mb-12"
             >
               <h2 className="font-display text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
                 <Package className="h-7 w-7 text-accent" />
                 Packs &amp; Bundles
               </h2>
-              <div className="flex flex-wrap gap-3">
-                {bundles.map((b) => (
-                  <button
-                    key={b.id}
-                    type="button"
-                    onClick={() => setPackModal(b)}
-                    className="px-5 py-3 rounded-xl border-2 border-accent/50 bg-accent/10 text-foreground font-semibold hover:bg-accent/20 hover:border-accent transition-colors flex items-center gap-2"
-                  >
-                    <Package size={18} />
-                    {b.name}
-                    <span className="text-accent">₹{b.price.toLocaleString('en-IN')}</span>
-                    {purchasedBundleIds.has(b.id) && (
-                      <span className="ml-1 px-2 py-0.5 rounded-full bg-accent/30 text-xs font-bold">Purchased</span>
-                    )}
-                  </button>
+              {(() => {
+                const highlighted = bundles.find((b) => b.highlight)
+                const rest = bundles.filter((b) => !b.highlight)
+                const mid = Math.ceil(rest.length / 2)
+                const ordered = [...rest.slice(0, mid), ...(highlighted ? [highlighted] : []), ...rest.slice(mid)]
+                return (
+              <div
+                className="flex flex-nowrap gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
+                style={{ scrollSnapType: 'x proximity' }}
+              >
+                {ordered.map((b) => (
+                  <div key={b.id} className="flex-shrink-0" style={{ scrollSnapAlign: 'center' }}>
+                    <PackTierCard
+                      bundle={b}
+                      purchased={purchasedBundleIds.has(b.id)}
+                      onSelect={() => setPackModal(b)}
+                    />
+                  </div>
                 ))}
               </div>
+                )
+              })()}
             </motion.div>
           )}
 
@@ -368,6 +373,19 @@ export default function EventsPage() {
                 )}
               </div>
               {packModal.description && <p className="text-foreground/70 text-sm mb-4">{packModal.description}</p>}
+              {(packModal.perks?.length ?? 0) > 0 && (
+                <>
+                  <p className="text-foreground/60 text-xs font-semibold uppercase mb-2">What&apos;s included</p>
+                  <ul className="space-y-1.5 text-sm text-foreground/90 mb-4">
+                    {packModal.perks!.map((perk, i) => (
+                      <li key={i} className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-accent flex-shrink-0" strokeWidth={2.5} />
+                        {perk}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
               <p className="text-foreground/60 text-xs font-semibold uppercase mb-2">Events included</p>
               <ul className="space-y-1.5 text-sm text-foreground/90">
                 {packModalEvents.length === 0 ? <li className="text-foreground/50">Loading…</li> : packModalEvents.map((e) => (
