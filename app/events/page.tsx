@@ -11,10 +11,11 @@ import { useEvents } from '@/hooks/use-events'
 import { useMyRegistrations } from '@/hooks/use-my-registrations'
 import { useAuth } from '@/contexts/auth-context'
 import { EventsComingSoon } from '@/components/events-coming-soon'
-import { ArrowLeft, Users, Trophy, Clock, MapPin, BadgeCheck, Package, X } from 'lucide-react'
+import { ArrowLeft, Users, Trophy, Clock, MapPin, BadgeCheck, Package, X, Check } from 'lucide-react'
 import { formatPrizeAmount } from '@/lib/format-prize'
+import { PackTierCard } from '@/components/pack-tier-card'
 
-type Bundle = { id: string; name: string; type: string; price: number; originalPrice?: number; description?: string }
+type Bundle = { id: string; name: string; type: string; price: number; originalPrice?: number; description?: string; perks?: string[]; highlight?: boolean }
 type PackEvent = { eventId: string; eventName: string }
 
 export default function EventsPage() {
