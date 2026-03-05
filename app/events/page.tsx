@@ -23,7 +23,7 @@ import { useEvents } from '@/hooks/use-events'
 import { useMyRegistrations } from '@/hooks/use-my-registrations'
 import { useAuth } from '@/contexts/auth-context'
 import { EventsComingSoon } from '@/components/events-coming-soon'
-import { ArrowLeft, Users, Trophy, Clock, MapPin, BadgeCheck, Package, X, Check } from 'lucide-react'
+import { ArrowLeft, Users, Trophy, Clock, MapPin, BadgeCheck, Package, X, Check, Info } from 'lucide-react'
 import { formatPrizeAmount } from '@/lib/format-prize'
 import { PackTierCard } from '@/components/pack-tier-card'
 
@@ -197,6 +197,28 @@ export default function EventsPage() {
                   </div>
                 ))}
               </div>
+            </motion.div>
+          )}
+
+          {/* Pack purchase instructions — show when user has purchased a bundle */}
+          {user && purchasedBundleIds.size > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8 rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3"
+            >
+              <div className="flex items-start gap-2 flex-1">
+                <Info className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-foreground/90">
+                  You&apos;ve purchased a pack. <strong className="text-foreground">Add events to your profile</strong> by clicking <strong className="text-accent">&quot;Add to my events&quot;</strong> on any event included in your pack. You can do this from here or from your dashboard later.
+                </p>
+              </div>
+              <Link
+                href="/dashboard"
+                className="text-sm font-medium text-accent hover:text-accent/80 whitespace-nowrap"
+              >
+                Go to Dashboard →
+              </Link>
             </motion.div>
           )}
 
