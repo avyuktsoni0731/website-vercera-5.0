@@ -47,7 +47,7 @@ export function PacksSection() {
             Packs &amp; <span className="text-accent">Bundles</span>
           </h2>
           <p className="text-white/85 text-lg max-w-2xl mx-auto">
-            Save more when you buy a pack. Get access to multiple events at a better price.
+            Buy a pack for multiple events at a discount. After payment, add the events you want to your profile from the Events page or your dashboard.
           </p>
         </motion.div>
         <motion.div
