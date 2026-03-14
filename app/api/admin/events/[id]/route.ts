@@ -66,6 +66,7 @@ export async function PUT(
       order,
       excludedFromTechnicalBundle,
       includedInNonTechnicalBundle,
+      flagship,
     } = body
 
     const db = getVerceraFirestore()
@@ -108,6 +109,7 @@ export async function PUT(
     if (order !== undefined) data.order = order == null ? 0 : Number(order)
     if (excludedFromTechnicalBundle !== undefined) data.excludedFromTechnicalBundle = Boolean(excludedFromTechnicalBundle)
     if (includedInNonTechnicalBundle !== undefined) data.includedInNonTechnicalBundle = Boolean(includedInNonTechnicalBundle)
+    if (flagship !== undefined) data.flagship = Boolean(flagship)
 
     await ref.update(data)
     return NextResponse.json({ success: true })

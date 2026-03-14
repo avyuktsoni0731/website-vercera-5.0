@@ -2,17 +2,6 @@
 
 import { useState, useEffect, useMemo } from 'react'
 
-function usePackColumns(n: number) {
-  const [cols, setCols] = useState(n)
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
-    const update = () => setCols(mq.matches ? n : Math.min(2, n))
-    update()
-    mq.addEventListener('change', update)
-    return () => mq.removeEventListener('change', update)
-  }, [n])
-  return cols
-}
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -26,6 +15,7 @@ import { EventsComingSoon } from '@/components/events-coming-soon'
 import { ArrowLeft, Users, Trophy, Clock, MapPin, BadgeCheck, Package, X, Check, Info } from 'lucide-react'
 import { formatPrizeAmount } from '@/lib/format-prize'
 import { PackTierCard } from '@/components/pack-tier-card'
+import { FlagshipEventCard } from '@/components/flagship-event-card'
 
 type Bundle = { id: string; name: string; type: string; price: number; originalPrice?: number; description?: string; perks?: string[]; highlight?: boolean }
 type PackEvent = { eventId: string; eventName: string }
@@ -35,7 +25,7 @@ export default function EventsPage() {
   const { user } = useAuth()
   const { events, loading, error, showComingSoon } = useEvents()
   const { registeredEventIds, purchasedBundleIds } = useMyRegistrations()
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'technical' | 'non-technical'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'flagship' | 'technical' | 'non-technical'>('all')
   const [bundles, setBundles] = useState<Bundle[]>([])
   const [eligibleEventIds, setEligibleEventIds] = useState<Set<string>>(new Set())
   const [packModal, setPackModal] = useState<Bundle | null>(null)
@@ -101,16 +91,27 @@ export default function EventsPage() {
     }
   }
 
-  const filteredEvents =
-    selectedCategory === 'all' ? events : events.filter((e) => e.category === selectedCategory)
+  const filteredEvents = useMemo(() => {
+    const list =
+      selectedCategory === 'flagship'
+        ? events.filter((e) => e.flagship)
+        : selectedCategory === 'all'
+          ? events
+          : events.filter((e) => e.category === selectedCategory)
+    return [...list.filter((e) => e.flagship), ...list.filter((e) => !e.flagship)]
+  }, [events, selectedCategory])
+
+  const flagshipEvents = useMemo(
+    () => [...filteredEvents.filter((e) => e.flagship)].sort((a, b) => (b.prizePool ?? 0) - (a.prizePool ?? 0)),
+    [filteredEvents]
+  )
+  const otherEvents = filteredEvents.filter((e) => !e.flagship)
 
   const packsOrdered = useMemo(() => {
     const highlighted = bundles.find((b) => b.highlight)
     const rest = bundles.filter((b) => !b.highlight)
-    const mid = Math.ceil(rest.length / 2)
-    return [...rest.slice(0, mid), ...(highlighted ? [highlighted] : []), ...rest.slice(mid)]
+    return [...(highlighted ? [highlighted] : []), ...rest]
   }, [bundles])
-  const packCols = usePackColumns(bundles.length)
 
   if (loading) {
     return (
@@ -171,7 +172,7 @@ export default function EventsPage() {
             <p className="text-foreground/70 text-lg">Explore our complete catalog of technical and non-technical events at Vercera 5.0</p>
           </motion.div>
 
-          {/* Packs - tier row */}
+          {/* Packs - responsive grid, highlighted first */}
           {bundles.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -179,16 +180,16 @@ export default function EventsPage() {
               transition={{ duration: 0.5, delay: 0.15 }}
               className="mb-12"
             >
-              <h2 className="font-display text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
-                <Package className="h-7 w-7 text-accent" />
-                Packs &amp; Bundles
-              </h2>
-              <div
-                className="grid gap-4 items-stretch w-full"
-                style={{ gridTemplateColumns: `repeat(${packCols}, minmax(0, 1fr))` }}
-              >
+              <div className="mb-4">
+                <h2 className="font-display text-2xl font-bold text-foreground flex items-center gap-2">
+                  <Package className="h-7 w-7 text-accent" />
+                  Packs &amp; Bundles
+                </h2>
+                <p className="text-foreground/60 text-sm mt-1">Buy a pack to get multiple events at a discount. After payment, add the events you want to your profile.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
                 {packsOrdered.map((b) => (
-                  <div key={b.id} className="min-w-0 flex">
+                  <div key={b.id} className="flex min-w-0">
                     <PackTierCard
                       bundle={b}
                       purchased={purchasedBundleIds.has(b.id)}
@@ -200,6 +201,21 @@ export default function EventsPage() {
             </motion.div>
           )}
 
+          {/* How it works — clear guidance */}
+          <div className="mb-8 rounded-xl border border-border bg-card/80 px-4 py-4 sm:px-6 sm:py-5">
+            <h3 className="font-semibold text-foreground text-sm sm:text-base mb-2">How to register</h3>
+            <ul className="text-sm text-foreground/85 space-y-1.5">
+              <li className="flex items-start gap-2">
+                <span className="text-accent font-bold">1.</span>
+                <span><strong className="text-foreground">Buy a pack</strong> (above) — Get multiple events at a discount. After payment, add the events you want to your profile from this page or your dashboard.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-accent font-bold">2.</span>
+                <span><strong className="text-foreground">Or register for one event</strong> — Click &quot;Register for this event&quot; on any event below to pay and register for that event only.</span>
+              </li>
+            </ul>
+          </div>
+
           {/* Pack purchase instructions — show when user has purchased a bundle */}
           {user && purchasedBundleIds.size > 0 && (
             <motion.div
@@ -210,14 +226,14 @@ export default function EventsPage() {
               <div className="flex items-start gap-2 flex-1">
                 <Info className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-foreground/90">
-                  You&apos;ve purchased a pack. <strong className="text-foreground">Add events to your profile</strong> by clicking <strong className="text-accent">&quot;Add to my events&quot;</strong> on any event included in your pack. You can do this from here or from your dashboard later.
+                  You have a pack. <strong className="text-foreground">Add events to your profile</strong> by clicking <strong className="text-accent">&quot;Add to my events&quot;</strong> on any event that&apos;s included — below or on your dashboard.
                 </p>
               </div>
               <Link
                 href="/dashboard"
                 className="text-sm font-medium text-accent hover:text-accent/80 whitespace-nowrap"
               >
-                Go to Dashboard →
+                Dashboard →
               </Link>
             </motion.div>
           )}
@@ -229,7 +245,7 @@ export default function EventsPage() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="flex flex-wrap gap-3 mb-12"
           >
-            {(['all', 'technical', 'non-technical'] as const).map((category, index) => (
+            {(['all', 'flagship', 'technical', 'non-technical'] as const).map((category, index) => (
               <motion.button
                 key={category}
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -246,6 +262,8 @@ export default function EventsPage() {
               >
                 {category === 'all'
                   ? `All Events (${events.length})`
+                  : category === 'flagship'
+                  ? `Flagship (${events.filter((e) => e.flagship).length})`
                   : category === 'technical'
                   ? `Technical (${events.filter((e) => e.category === 'technical').length})`
                   : `Non-Technical (${events.filter((e) => e.category === 'non-technical').length})`}
@@ -253,27 +271,43 @@ export default function EventsPage() {
             ))}
           </motion.div>
 
-          {/* Events Grid */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-          >
-            {filteredEvents.map((event, index) => (
-              <motion.div
-                key={event.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -8 }}
-                role="button"
-                tabIndex={0}
-                onClick={() => router.push(`/events/${event.id}`)}
-                onKeyDown={(e: React.KeyboardEvent) => e.key === 'Enter' && router.push(`/events/${event.id}`)}
-                className="bg-card rounded-xl overflow-hidden border border-border hover:border-border hover:shadow-xl transition-all duration-300 h-full cursor-pointer group"
-              >
-                  {/* Image */}
+          {/* Flagship events - distinct full-width cards */}
+          {flagshipEvents.length > 0 && (
+            <div className="space-y-6 mb-10">
+              {flagshipEvents.map((event) => (
+                <FlagshipEventCard
+                  key={event.id}
+                  event={event}
+                  isRegistered={registeredEventIds.has(event.id)}
+                  isEligibleFromPack={eligibleEventIds.has(event.id)}
+                  addingEventId={addingEventId}
+                  onAddFromPack={handleAddFromPack}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Other events grid */}
+          {otherEvents.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+            >
+              {otherEvents.map((event, index) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -8 }}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push(`/events/${event.id}`)}
+                  onKeyDown={(e: React.KeyboardEvent) => e.key === 'Enter' && router.push(`/events/${event.id}`)}
+                  className="bg-card rounded-xl overflow-hidden border border-border hover:border-border hover:shadow-xl transition-all duration-300 h-full cursor-pointer group"
+                >
                   <div className="relative w-full h-48 bg-secondary border-b border-border overflow-hidden">
                     {event.image ? (
                       <img
@@ -292,16 +326,11 @@ export default function EventsPage() {
                       </span>
                     </div>
                   </div>
-
-                  {/* Content */}
                   <div className="p-6 space-y-4">
                     <h3 className="font-display text-xl sm:text-2xl font-bold text-foreground group-hover:text-accent transition-colors">
                       {event.name}
                     </h3>
-
                     <p className="text-foreground/70 text-sm line-clamp-2">{event.longDescription}</p>
-
-                    {/* Details Grid */}
                     <div className="grid grid-cols-2 gap-3 pt-2">
                       <div className="flex items-center gap-2 text-foreground/70">
                         <Clock size={16} className="text-accent flex-shrink-0" />
@@ -318,16 +347,20 @@ export default function EventsPage() {
                       <div className="flex items-center gap-2 text-foreground/70">
                         <Users size={16} className="text-accent flex-shrink-0" />
                         <span className="text-xs">
-                          {event.registeredCount}/{event.maxParticipants}
+                          {event.registeredCount ?? 0}/{event.maxParticipants}
                         </span>
                       </div>
                     </div>
-
-                    {/* Pricing & CTA */}
                     <div className="bg-secondary/50 rounded-lg p-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mt-4">
-                      <div>
-                        <p className="text-foreground/60 text-xs">Fee</p>
-                        <p className="font-bold text-accent text-lg">₹{event.registrationFee}</p>
+                      <div className="flex items-baseline gap-4">
+                        <div>
+                          <p className="text-foreground/60 text-xs">Prize Pool</p>
+                          <p className="font-bold text-accent text-xl">{formatPrizeAmount(event.prizePool ?? 0)}</p>
+                        </div>
+                        <div>
+                          <p className="text-foreground/50 text-xs">Fee</p>
+                          <p className="font-medium text-foreground/70 text-sm">₹{event.registrationFee?.toLocaleString('en-IN') ?? 0}</p>
+                        </div>
                       </div>
                       <div className="flex flex-wrap gap-2 justify-end">
                         {registeredEventIds.has(event.id) ? (
@@ -348,31 +381,21 @@ export default function EventsPage() {
                             {addingEventId === event.id ? 'Adding…' : 'Add to my events'}
                           </button>
                         ) : (
-                          <>
-                            <Link
-                              href={`/checkout/${event.id}`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="px-4 py-2 bg-accent text-accent-foreground rounded-lg font-semibold text-sm hover:bg-accent/90 inline-flex items-center justify-center"
-                            >
-                              Register
-                            </Link>
-                            {bundles.some((b) => !purchasedBundleIds.has(b.id)) && (
-                              <button
-                                type="button"
-                                onClick={(e) => { e.stopPropagation(); const b = bundles.find((x) => !purchasedBundleIds.has(x.id)); if (b) setPackModal(b) }}
-                                className="px-4 py-2 border border-accent/50 text-accent rounded-lg font-semibold text-sm hover:bg-accent/10"
-                              >
-                                Save with pack
-                              </button>
-                            )}
-                          </>
+                          <Link
+                            href={`/checkout/${event.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="px-4 py-2 bg-accent text-accent-foreground rounded-lg font-semibold text-sm hover:bg-accent/90 inline-flex items-center justify-center"
+                          >
+                            Register for this event
+                          </Link>
                         )}
                       </div>
                     </div>
                   </div>
                 </motion.div>
-            ))}
-          </motion.div>
+              ))}
+            </motion.div>
+          )}
 
           {/* Empty State */}
           {filteredEvents.length === 0 && (

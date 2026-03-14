@@ -5,22 +5,9 @@ import { motion } from 'framer-motion'
 import { useMyRegistrations } from '@/hooks/use-my-registrations'
 import { PackTierCard, type PackTierBundle } from '@/components/pack-tier-card'
 
-function useColumns(n: number) {
-  const [cols, setCols] = useState(n)
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
-    const update = () => setCols(mq.matches ? n : Math.min(2, n))
-    update()
-    mq.addEventListener('change', update)
-    return () => mq.removeEventListener('change', update)
-  }, [n])
-  return cols
-}
-
 export function PacksSection() {
   const [bundles, setBundles] = useState<PackTierBundle[]>([])
   const { purchasedBundleIds } = useMyRegistrations()
-  const cols = useColumns(bundles.length)
 
   useEffect(() => {
     fetch('/api/bundles')
@@ -45,34 +32,32 @@ export function PacksSection() {
 
   const highlighted = bundles.find((b) => b.highlight)
   const rest = bundles.filter((b) => !b.highlight)
-  const mid = Math.ceil(rest.length / 2)
-  const ordered = [...rest.slice(0, mid), ...(highlighted ? [highlighted] : []), ...rest.slice(mid)]
+  const ordered = [...(highlighted ? [highlighted] : []), ...rest]
 
   return (
-    <section id="packs" className="py-16 relative overflow-hidden">
+    <section id="packs" className="py-16 sm:py-20 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-10"
+          className="text-center mb-12 sm:mb-14"
         >
           <h2 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
             Packs &amp; <span className="text-accent">Bundles</span>
           </h2>
           <p className="text-white/85 text-lg max-w-2xl mx-auto">
-            Save more when you buy a pack. Get access to multiple events at a better price.
+            Buy a pack for multiple events at a discount. After payment, add the events you want to your profile from the Events page or your dashboard.
           </p>
         </motion.div>
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="grid gap-4 items-stretch w-full"
-          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch"
         >
           {ordered.map((b) => (
-            <div key={b.id} className="min-w-0 flex">
+            <div key={b.id} className="flex min-w-0">
               <PackTierCard
                 bundle={b}
                 purchased={purchasedBundleIds.has(b.id)}
@@ -81,7 +66,7 @@ export function PacksSection() {
             </div>
           ))}
         </motion.div>
-        <p className="text-center text-foreground/50 text-sm mt-6 max-w-xl mx-auto">
+        <p className="text-center text-foreground/50 text-sm mt-8 sm:mt-10 max-w-xl mx-auto">
           Pay once. Add events from your dashboard anytime. We don&apos;t store or sell your data.
         </p>
       </div>

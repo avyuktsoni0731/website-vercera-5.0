@@ -49,6 +49,7 @@ const defaultEvent: Partial<EventRecord> = {
   order: 0,
   excludedFromTechnicalBundle: false,
   includedInNonTechnicalBundle: false,
+  flagship: false,
 }
 
 export default function AdminEventsPage() {
@@ -162,6 +163,7 @@ export default function AdminEventsPage() {
       order: data.order ?? 0,
       excludedFromTechnicalBundle: data.excludedFromTechnicalBundle ?? false,
       includedInNonTechnicalBundle: data.includedInNonTechnicalBundle ?? false,
+      flagship: data.flagship ?? false,
     })
     setRuleInput('')
     setImageFiles([])
@@ -731,6 +733,15 @@ export default function AdminEventsPage() {
                       className="rounded border-border"
                     />
                     Included in non-technical bundle
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-foreground/80">
+                    <input
+                      type="checkbox"
+                      checked={form.flagship ?? false}
+                      onChange={(e) => updateForm('flagship', e.target.checked)}
+                      className="rounded border-border"
+                    />
+                    Flagship event (shown on top with special UI)
                   </label>
                 </div>
 

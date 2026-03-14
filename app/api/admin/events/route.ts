@@ -52,6 +52,7 @@ export async function GET(request: NextRequest) {
         order: d.order != null ? Number(d.order) : undefined,
         excludedFromTechnicalBundle: Boolean(d.excludedFromTechnicalBundle),
         includedInNonTechnicalBundle: Boolean(d.includedInNonTechnicalBundle),
+        flagship: Boolean(d.flagship),
         createdAt: d.createdAt,
         updatedAt: d.updatedAt,
       };
@@ -101,6 +102,7 @@ export async function POST(request: NextRequest) {
       order,
       excludedFromTechnicalBundle,
       includedInNonTechnicalBundle,
+      flagship,
     } = body;
 
     if (!name || !category) {
@@ -134,6 +136,7 @@ export async function POST(request: NextRequest) {
       order: order != null ? Number(order) : 0,
       excludedFromTechnicalBundle: Boolean(excludedFromTechnicalBundle),
       includedInNonTechnicalBundle: Boolean(includedInNonTechnicalBundle),
+      flagship: Boolean(flagship),
       createdAt: now,
       updatedAt: now,
     };
