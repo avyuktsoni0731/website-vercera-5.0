@@ -242,7 +242,7 @@ export default function EventsPage() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="flex flex-wrap gap-3 mb-12"
           >
-            {(['all', 'technical', 'non-technical'] as const).map((category, index) => (
+            {(['all', 'flagship', 'technical', 'non-technical'] as const).map((category, index) => (
               <motion.button
                 key={category}
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -259,6 +259,8 @@ export default function EventsPage() {
               >
                 {category === 'all'
                   ? `All Events (${events.length})`
+                  : category === 'flagship'
+                  ? `Flagship (${events.filter((e) => e.flagship).length})`
                   : category === 'technical'
                   ? `Technical (${events.filter((e) => e.category === 'technical').length})`
                   : `Non-Technical (${events.filter((e) => e.category === 'non-technical').length})`}
@@ -266,27 +268,43 @@ export default function EventsPage() {
             ))}
           </motion.div>
 
-          {/* Events Grid */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-          >
-            {filteredEvents.map((event, index) => (
-              <motion.div
-                key={event.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -8 }}
-                role="button"
-                tabIndex={0}
-                onClick={() => router.push(`/events/${event.id}`)}
-                onKeyDown={(e: React.KeyboardEvent) => e.key === 'Enter' && router.push(`/events/${event.id}`)}
-                className="bg-card rounded-xl overflow-hidden border border-border hover:border-border hover:shadow-xl transition-all duration-300 h-full cursor-pointer group"
-              >
-                  {/* Image */}
+          {/* Flagship events - distinct full-width cards */}
+          {flagshipEvents.length > 0 && (
+            <div className="space-y-6 mb-10">
+              {flagshipEvents.map((event) => (
+                <FlagshipEventCard
+                  key={event.id}
+                  event={event}
+                  isRegistered={registeredEventIds.has(event.id)}
+                  isEligibleFromPack={eligibleEventIds.has(event.id)}
+                  addingEventId={addingEventId}
+                  onAddFromPack={handleAddFromPack}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Other events grid */}
+          {otherEvents.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+            >
+              {otherEvents.map((event, index) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -8 }}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push(`/events/${event.id}`)}
+                  onKeyDown={(e: React.KeyboardEvent) => e.key === 'Enter' && router.push(`/events/${event.id}`)}
+                  className="bg-card rounded-xl overflow-hidden border border-border hover:border-border hover:shadow-xl transition-all duration-300 h-full cursor-pointer group"
+                >
                   <div className="relative w-full h-48 bg-secondary border-b border-border overflow-hidden">
                     {event.image ? (
                       <img
@@ -305,16 +323,11 @@ export default function EventsPage() {
                       </span>
                     </div>
                   </div>
-
-                  {/* Content */}
                   <div className="p-6 space-y-4">
                     <h3 className="font-display text-xl sm:text-2xl font-bold text-foreground group-hover:text-accent transition-colors">
                       {event.name}
                     </h3>
-
                     <p className="text-foreground/70 text-sm line-clamp-2">{event.longDescription}</p>
-
-                    {/* Details Grid */}
                     <div className="grid grid-cols-2 gap-3 pt-2">
                       <div className="flex items-center gap-2 text-foreground/70">
                         <Clock size={16} className="text-accent flex-shrink-0" />
@@ -331,12 +344,10 @@ export default function EventsPage() {
                       <div className="flex items-center gap-2 text-foreground/70">
                         <Users size={16} className="text-accent flex-shrink-0" />
                         <span className="text-xs">
-                          {event.registeredCount}/{event.maxParticipants}
+                          {event.registeredCount ?? 0}/{event.maxParticipants}
                         </span>
                       </div>
                     </div>
-
-                    {/* Pricing & CTA */}
                     <div className="bg-secondary/50 rounded-lg p-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mt-4">
                       <div>
                         <p className="text-foreground/60 text-xs">Fee</p>
@@ -373,8 +384,9 @@ export default function EventsPage() {
                     </div>
                   </div>
                 </motion.div>
-            ))}
-          </motion.div>
+              ))}
+            </motion.div>
+          )}
 
           {/* Empty State */}
           {filteredEvents.length === 0 && (
