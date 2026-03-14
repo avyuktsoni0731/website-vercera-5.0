@@ -29,6 +29,8 @@ export interface EventRecord {
   attachmentUrls?: string[]
   /** Display order (lower first). */
   order?: number
+  /** If true, shown as flagship event with distinct UI and on top of lists. */
+  flagship?: boolean
   /** Exclude from "all technical" bundle (e.g. Sumo Bots, Robowars sold separately). */
   excludedFromTechnicalBundle?: boolean
   /** Include in non-technical bundle (admin chooses which events). */

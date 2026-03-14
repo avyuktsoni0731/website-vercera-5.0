@@ -56,6 +56,7 @@ export async function GET(
       rulebookUrls: rulebookUrls.length ? rulebookUrls : undefined,
       attachmentUrls: Array.isArray(d.attachmentUrls) && d.attachmentUrls.length ? d.attachmentUrls : undefined,
       order: d.order != null ? Number(d.order) : undefined,
+      flagship: Boolean(d.flagship),
       createdAt: d.createdAt,
       updatedAt: d.updatedAt,
     }
