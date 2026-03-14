@@ -2,17 +2,6 @@
 
 import { useState, useEffect, useMemo } from 'react'
 
-function usePackColumns(n: number) {
-  const [cols, setCols] = useState(n)
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
-    const update = () => setCols(mq.matches ? n : Math.min(2, n))
-    update()
-    mq.addEventListener('change', update)
-    return () => mq.removeEventListener('change', update)
-  }, [n])
-  return cols
-}
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -107,10 +96,8 @@ export default function EventsPage() {
   const packsOrdered = useMemo(() => {
     const highlighted = bundles.find((b) => b.highlight)
     const rest = bundles.filter((b) => !b.highlight)
-    const mid = Math.ceil(rest.length / 2)
-    return [...rest.slice(0, mid), ...(highlighted ? [highlighted] : []), ...rest.slice(mid)]
+    return [...(highlighted ? [highlighted] : []), ...rest]
   }, [bundles])
-  const packCols = usePackColumns(bundles.length)
 
   if (loading) {
     return (
