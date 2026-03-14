@@ -15,6 +15,7 @@ import { EventsComingSoon } from '@/components/events-coming-soon'
 import { ArrowLeft, Users, Trophy, Clock, MapPin, BadgeCheck, Package, X, Check, Info } from 'lucide-react'
 import { formatPrizeAmount } from '@/lib/format-prize'
 import { PackTierCard } from '@/components/pack-tier-card'
+import { FlagshipEventCard } from '@/components/flagship-event-card'
 
 type Bundle = { id: string; name: string; type: string; price: number; originalPrice?: number; description?: string; perks?: string[]; highlight?: boolean }
 type PackEvent = { eventId: string; eventName: string }
@@ -24,7 +25,7 @@ export default function EventsPage() {
   const { user } = useAuth()
   const { events, loading, error, showComingSoon } = useEvents()
   const { registeredEventIds, purchasedBundleIds } = useMyRegistrations()
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'technical' | 'non-technical'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'flagship' | 'technical' | 'non-technical'>('all')
   const [bundles, setBundles] = useState<Bundle[]>([])
   const [eligibleEventIds, setEligibleEventIds] = useState<Set<string>>(new Set())
   const [packModal, setPackModal] = useState<Bundle | null>(null)
@@ -90,8 +91,18 @@ export default function EventsPage() {
     }
   }
 
-  const filteredEvents =
-    selectedCategory === 'all' ? events : events.filter((e) => e.category === selectedCategory)
+  const filteredEvents = useMemo(() => {
+    const list =
+      selectedCategory === 'flagship'
+        ? events.filter((e) => e.flagship)
+        : selectedCategory === 'all'
+          ? events
+          : events.filter((e) => e.category === selectedCategory)
+    return [...list.filter((e) => e.flagship), ...list.filter((e) => !e.flagship)]
+  }, [events, selectedCategory])
+
+  const flagshipEvents = filteredEvents.filter((e) => e.flagship)
+  const otherEvents = filteredEvents.filter((e) => !e.flagship)
 
   const packsOrdered = useMemo(() => {
     const highlighted = bundles.find((b) => b.highlight)
