@@ -6,7 +6,7 @@ const faqs = [
   {
     question: 'When is Vercera 5.0 happening?',
     answer:
-      'Vercera 5.0 is scheduled for March 14-16, 2026. Different events will be held across these days. Check the event details for specific timings.',
+      'Vercera 5.0 is scheduled for April 10-14, 2026. Different events will be held across these days. Check the event details for specific timings.',
   },
   {
     question: 'Can I participate in multiple events?',
@@ -21,7 +21,7 @@ const faqs = [
   {
     question: 'Is there a refund policy?',
     answer:
-      'Refunds are accepted up to 7 days before the event. If you cancel within 7 days of the event, no refund will be issued. Event transfers to other participants are allowed.',
+      'Refunds are not accepted under any circumstances.',
   },
   {
     question: 'Do I need to bring anything?',
@@ -31,7 +31,7 @@ const faqs = [
   {
     question: 'Is accommodation provided?',
     answer:
-      'Accommodation is not provided by the organizers. However, we can help with recommendations for nearby hostels and hotels. Participants from out of station can request information at the registration desk.',
+      'Accommodation is provided in accomodation bundle. You can buy it from the registration page. Participants from out of station can request information at the registration desk.',
   },
   {
     question: 'Can teams have members from different colleges?',
@@ -41,7 +41,7 @@ const faqs = [
   {
     question: 'What if I face issues during registration?',
     answer:
-      'Contact our support team at support@vercera.com or call the helpline number provided on the website. We\'re available 24/7 during the fest.',
+      'Contact our support team at chairperson@amuroboclub.com or call the numbers provided on the website. We\'re available 24/7 during the fest.',
   },
 ]
 
