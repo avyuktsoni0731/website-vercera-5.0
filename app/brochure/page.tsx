@@ -48,9 +48,9 @@ export default async function BrochurePage() {
               </p>
             </div>
 
-            <div className="print:hidden">
+            {/* <div className="print:hidden">
               <BrochureActions />
-            </div>
+            </div> */}
           </div>
 
           {/* Context (keep layout simple, high-signal) */}
@@ -106,9 +106,9 @@ export default async function BrochurePage() {
                   <img src="/images/gallery/40-3.webp" alt="Vercera 4.0" className="w-full h-40 object-cover" />
                 </div>
               </div>
-              <p className="text-foreground/60 text-sm leading-relaxed">
+              {/* <p className="text-foreground/60 text-sm leading-relaxed">
                 Sharing tip: send this brochure link, and ask participants to open any event card they like for the complete rules + rulebook.
-              </p>
+              </p> */}
             </div>
           </div>
 
