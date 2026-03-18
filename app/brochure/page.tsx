@@ -9,7 +9,7 @@ type EventsResponse = { events?: EventRecord[]; error?: string }
 
 async function getEvents(): Promise<EventRecord[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/api/events`, { cache: 'no-store' })
+    const res = await fetch('/api/events', { cache: 'no-store' })
     const data = (await res.json()) as EventsResponse
     return Array.isArray(data.events) ? data.events : []
   } catch {
