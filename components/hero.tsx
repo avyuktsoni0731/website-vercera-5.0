@@ -10,21 +10,15 @@ export function Hero() {
       {/* Content — interactive elements get pointer-events-auto */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:pt-24 sm:pb-12 md:py-12 w-full pointer-events-none">
         <div className="text-center space-y-8">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+          {/* Fest dates */}
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/80 backdrop-blur-md rounded-full border border-border/50"
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 rounded-2xl border-2 border-accent/60 bg-accent/15 text-2xl sm:text-4xl font-black text-accent tracking-wider shadow-lg shadow-accent/25"
           >
-            <motion.span
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-2 h-2 bg-accent rounded-full"
-              style={{ willChange: 'transform' }}
-            />
-            <span className="text-sm text-foreground/80">National Level Technical Fest 2026</span>
-          </motion.div>
+            17-21 April
+          </motion.p>
 
           {/* Organized By */}
           <motion.div
