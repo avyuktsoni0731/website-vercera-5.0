@@ -54,6 +54,10 @@ export default function EventDetailPage({ params }: Props) {
   const [teamLoading, setTeamLoading] = useState(false)
   const [team, setTeam] = useState<TeamDoc | null>(null)
   const [teamFormMode, setTeamFormMode] = useState<'idle' | 'form' | 'join'>('idle')
+  // Prevent UI from reverting back to "Register" for team events during refreshes
+  // when multiple registration docs exist for the same user+event.
+  const [teamEvidenceLocked, setTeamEvidenceLocked] = useState(false)
+  const [lockedVerceraTeamId, setLockedVerceraTeamId] = useState<string | null>(null)
   const [teamNameInput, setTeamNameInput] = useState('')
   const [teamCodeInput, setTeamCodeInput] = useState('')
   const [teamActionLoading, setTeamActionLoading] = useState(false)
@@ -91,6 +95,8 @@ export default function EventDetailPage({ params }: Props) {
     if (!user || !event) {
       setRegistration(null)
       setTeam(null)
+      setTeamEvidenceLocked(false)
+      setLockedVerceraTeamId(null)
       return
     }
 
@@ -101,29 +107,155 @@ export default function EventDetailPage({ params }: Props) {
 
       try {
         const regsRef = collection(db, 'registrations')
-        const q = query(regsRef, where('userId', '==', user.uid), where('eventId', '==', event.id), limit(1))
+        // Multiple registrations can exist for the same user+event (retries, pack eligibility vs paid registration).
+        // Fetch all matches and pick the best one for correct UI (especially after team form/join).
+        const q = query(regsRef, where('userId', '==', user.uid), where('eventId', '==', event.id))
         const snap = await getDocs(q)
         if (snap.empty) {
           setRegistration(null)
           return
         }
 
-        const d = snap.docs[0].data() as Record<string, unknown>
-        const reg: RegistrationDoc = {
-          id: snap.docs[0].id,
-          status: (d.status as string | undefined) ?? undefined,
-          registrationDate: (d.registrationDate as string | undefined) ?? undefined,
-          amount: (d.amount as number | undefined) ?? undefined,
-          isTeamEvent: Boolean(d.isTeamEvent),
-          isTeamLeader: Boolean(d.isTeamLeader),
-          teamId: (d.teamId as string | undefined) ?? undefined,
-          verceraTeamId: (d.verceraTeamId as string | undefined) ?? undefined,
+        const toMillis = (v: unknown): number => {
+          if (v == null) return -Infinity
+          if (typeof v === 'number') return v
+          if (typeof v === 'string') {
+            const t = Date.parse(v)
+            return Number.isFinite(t) ? t : -Infinity
+          }
+          if (typeof v === 'object') {
+            const obj = v as Record<string, unknown>
+            const maybeToMillis = (obj as { toMillis?: unknown }).toMillis
+            if (typeof maybeToMillis === 'function') {
+              try {
+                const t = (maybeToMillis as () => number)()
+                return Number.isFinite(t) ? t : -Infinity
+              } catch {
+                return -Infinity
+              }
+            }
+            if (typeof obj.seconds === 'number') return obj.seconds * 1000
+            if (typeof obj._seconds === 'number') return obj._seconds * 1000
+          }
+          return -Infinity
         }
-        setRegistration(reg)
 
-        if (reg.teamId) {
+        const candidates = snap.docs.map((docSnap) => {
+          const d = docSnap.data() as Record<string, unknown>
+          const rawStatus = d.status == null ? '' : String(d.status)
+          const status = rawStatus.trim()
+
+          const rawTeamId = d.teamId == null ? '' : String(d.teamId)
+          const teamId = rawTeamId.trim() ? rawTeamId.trim() : undefined
+
+          const rawVerceraTeamId = d.verceraTeamId == null ? '' : String(d.verceraTeamId)
+          const verceraTeamId = rawVerceraTeamId.trim() ? rawVerceraTeamId.trim() : undefined
+
+          return {
+            id: docSnap.id,
+            status: status || undefined,
+            registrationDate: (d.registrationDate as string | undefined) ?? undefined,
+            amount: (d.amount as number | undefined) ?? undefined,
+            isTeamEvent: Boolean(d.isTeamEvent),
+            isTeamLeader: Boolean(d.isTeamLeader),
+            teamId,
+            verceraTeamId,
+            createdAtMs: toMillis(d.createdAt),
+          }
+        })
+
+        const isPaid = (s?: string) => {
+          const t = (s ?? '').toLowerCase().trim()
+          return t === 'paid' || t === 'completed'
+        }
+
+        // Deterministic selection for stable UI after refresh:
+        // 1) Prefer any team evidence (teamId OR verceraTeamId)
+        // 2) If both have team evidence, prefer paid/completed
+        // 3) If neither has team evidence, prefer paid/completed
+        // 4) Then newest createdAt
+        // 5) Then newest registrationDate
+        // 6) Then stable id
+        const pick = [...candidates].sort((a, b) => {
+          const aPaid = isPaid(a.status) ? 1 : 0
+          const bPaid = isPaid(b.status) ? 1 : 0
+
+          const aHasTeamEvidence = a.teamId || a.verceraTeamId ? 1 : 0
+          const bHasTeamEvidence = b.teamId || b.verceraTeamId ? 1 : 0
+
+          if (aHasTeamEvidence !== bHasTeamEvidence) return bHasTeamEvidence - aHasTeamEvidence
+          if (aPaid !== bPaid) return bPaid - aPaid
+
+          const aTime = a.createdAtMs ?? -Infinity
+          const bTime = b.createdAtMs ?? -Infinity
+          if (aTime !== bTime) return bTime - aTime
+
+          const aRegDate = a.registrationDate ? Date.parse(a.registrationDate) : -Infinity
+          const bRegDate = b.registrationDate ? Date.parse(b.registrationDate) : -Infinity
+          if (aRegDate !== bRegDate) return bRegDate - aRegDate
+
+          // Final tie-breaker to prevent switching between docs after refresh
+          return String(b.id).localeCompare(String(a.id))
+        })[0]
+
+        const reg: RegistrationDoc = {
+          id: pick.id,
+          status: pick.status,
+          registrationDate: pick.registrationDate,
+          amount: pick.amount,
+          isTeamEvent: pick.isTeamEvent,
+          isTeamLeader: pick.isTeamLeader,
+          teamId: pick.teamId,
+          verceraTeamId: pick.verceraTeamId,
+        }
+
+        setRegistration(reg)
+        // Lock the team UI if we detect team evidence in this chosen registration doc.
+        if (reg.teamId || reg.verceraTeamId) {
+          setTeamEvidenceLocked(true)
+          if (reg.verceraTeamId) setLockedVerceraTeamId(reg.verceraTeamId)
+        }
+        // Team UI must be driven by real team membership (not just one chosen registration doc),
+        // because multiple registrations can exist for the same user+event.
+        //
+        // If we have a teamId, fetch by doc id.
+        // If teamId is missing but verceraTeamId exists, fetch by verceraTeamId.
+        // Finally, also try membership query (memberIds array-contains) as an extra safety net.
+        let teamIdToFetch: string | null = reg.teamId ?? null
+        try {
+          const teamsQ = query(
+            collection(db, 'teams'),
+            where('eventId', '==', event.id),
+            where('memberIds', 'array-contains', user.uid),
+            limit(1)
+          )
+          const teamMembershipSnap = await getDocs(teamsQ)
+          if (!teamMembershipSnap.empty) {
+            teamIdToFetch = teamMembershipSnap.docs[0].id
+          }
+        } catch {
+          // ignore and fall back to registration.teamId
+        }
+
+        if (!teamIdToFetch && reg.verceraTeamId) {
+          try {
+            const code = String(reg.verceraTeamId).trim().toUpperCase()
+            const byCodeQ = query(
+              collection(db, 'teams'),
+              where('eventId', '==', event.id),
+              where('verceraTeamId', '==', code),
+              limit(1)
+            )
+            const byCodeSnap = await getDocs(byCodeQ)
+            if (!byCodeSnap.empty) teamIdToFetch = byCodeSnap.docs[0].id
+          } catch {
+            // ignore
+          }
+        }
+
+        if (teamIdToFetch) {
           setTeamLoading(true)
-          const teamSnap = await getDoc(doc(db, 'teams', reg.teamId))
+          const teamSnap = await getDoc(doc(db, 'teams', teamIdToFetch))
           if (teamSnap.exists()) {
             const td = teamSnap.data() as Record<string, unknown>
             setTeam({
@@ -182,7 +314,9 @@ export default function EventDetailPage({ params }: Props) {
   const registeredCount = event.registeredCount ?? 0
   const spotsAvailable = event.maxParticipants - registeredCount
   const isTeamEvent = event.isTeamEvent ?? false
-  const isPaidRegistration = registration && (registration.status === 'paid' || registration.status === 'completed')
+  const statusNorm = String(registration?.status ?? '').toLowerCase().trim()
+  const isPaidRegistration = registration && (statusNorm === 'paid' || statusNorm === 'completed')
+  const hasTeamEvidence = teamEvidenceLocked || !!(registration?.teamId || registration?.verceraTeamId || lockedVerceraTeamId)
 
   const handleRegisterClick = () => {
     if (!user) {
@@ -397,17 +531,17 @@ export default function EventDetailPage({ params }: Props) {
                   <div className="bg-secondary rounded-lg p-4 text-sm text-foreground/70">
                     Checking your registration…
                   </div>
-                ) : isPaidRegistration ? (
+                ) : isPaidRegistration || team || teamLoading ? (
                   <div className="bg-accent/10 border border-accent/30 rounded-lg p-4 space-y-2">
                     <div className="flex items-center gap-2 text-accent font-semibold">
                       <BadgeCheck size={18} />
                       Registered
                     </div>
                     <p className="text-foreground/70 text-sm">
-                      {registration.isTeamEvent ? 'Team registration confirmed.' : 'Your registration is confirmed.'}
+                      {registration?.isTeamEvent ? 'Team registration confirmed.' : 'Your registration is confirmed.'}
                     </p>
-                    {registration.registrationDate && (
-                      <p className="text-xs text-foreground/60">Date: {registration.registrationDate}</p>
+                    {registration?.registrationDate && (
+                      <p className="text-xs text-foreground/60">Date: {registration?.registrationDate}</p>
                     )}
                   </div>
                 ) : null}
@@ -426,7 +560,15 @@ export default function EventDetailPage({ params }: Props) {
                 {/* CTA Button */}
                 {!regLoading && (
                   <>
-                    {isPaidRegistration ? (
+                    {teamLoading || team || hasTeamEvidence ? (
+                      <button
+                        disabled
+                        className="w-full px-6 py-3 bg-accent/20 text-accent rounded-full font-bold cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        <BadgeCheck size={18} />
+                        Registered
+                      </button>
+                    ) : isPaidRegistration ? (
                       <button
                         disabled
                         className="w-full px-6 py-3 bg-accent/20 text-accent rounded-full font-bold cursor-not-allowed flex items-center justify-center gap-2"
@@ -488,7 +630,7 @@ export default function EventDetailPage({ params }: Props) {
                 )}
 
                 {/* Form / Join team (registered, team event, not in a team yet) */}
-                {isPaidRegistration && isTeamEvent && !registration.teamId && (
+                {(isPaidRegistration || hasTeamEvidence) && isTeamEvent && !teamLoading && !team && hasTeamEvidence && (
                   <div id="team" className="bg-secondary/50 border border-border/50 rounded-lg p-4 space-y-3">
                     <div className="flex items-center gap-2 text-foreground font-semibold">
                       <Users size={18} className="text-accent" />
@@ -578,8 +720,8 @@ export default function EventDetailPage({ params }: Props) {
                   </div>
                 )}
 
-                {/* Team Info (if registered and in a team) */}
-                {isPaidRegistration && registration?.isTeamEvent && registration.teamId && (
+                {/* Team Info */}
+                {(teamLoading || team || hasTeamEvidence) && (
                   <div className="bg-secondary/50 border border-border/50 rounded-lg p-4 space-y-3">
                     <div className="flex items-center gap-2 text-foreground font-semibold">
                       <QrCode size={18} className="text-accent" />
@@ -623,10 +765,10 @@ export default function EventDetailPage({ params }: Props) {
                           </ul>
                         </div>
                       </>
-                    ) : registration.verceraTeamId ? (
+                    ) : (lockedVerceraTeamId || registration?.verceraTeamId) ? (
                       <div className="space-y-2">
                         <p className="text-sm text-foreground/70">Team ID</p>
-                        <p className="font-semibold text-foreground">{registration.verceraTeamId}</p>
+                        <p className="font-semibold text-foreground">{lockedVerceraTeamId || registration?.verceraTeamId}</p>
                       </div>
                     ) : (
                       <p className="text-sm text-foreground/60">Team info not available yet.</p>

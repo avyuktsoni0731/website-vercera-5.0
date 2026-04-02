@@ -49,18 +49,23 @@ export async function POST(request: NextRequest) {
       .collection('registrations')
       .where('userId', '==', userId)
       .where('eventId', '==', eventId)
-      .limit(1)
       .get()
     if (regSnap.empty) {
       return NextResponse.json({ error: 'You must be registered for this event first' }, { status: 400 })
     }
-    const regDoc = regSnap.docs[0]
-    const regData = regDoc.data()
-    const status = String(regData.status ?? '')
-    if (status !== 'paid' && status !== 'completed') {
+    const regDocs = regSnap.docs
+    const normalizeStatus = (s: unknown) => String(s ?? '').toLowerCase().trim()
+    const statusByDoc = regDocs.map((d) => normalizeStatus(d.data()?.status))
+    const hasPaid = statusByDoc.some((s) => s === 'paid' || s === 'completed')
+    if (!hasPaid) {
       return NextResponse.json({ error: 'Registration must be paid to join a team' }, { status: 400 })
     }
-    if (regData.teamId) {
+
+    const alreadyInTeam = regDocs.some((d) => {
+      const td = d.data()?.teamId
+      return td != null && String(td).trim().length > 0
+    })
+    if (alreadyInTeam) {
       return NextResponse.json({ error: 'You are already in a team for this event' }, { status: 400 })
     }
 
@@ -82,12 +87,17 @@ export async function POST(request: NextRequest) {
       size: newSize,
     })
 
-    await db.collection('registrations').doc(regDoc.id).update({
-      teamId,
-      verceraTeamId: trimmedCode,
-      isTeamEvent: true,
-      isTeamLeader: false,
-    })
+    // Update all matching registration docs to ensure UI never “reverts” to a stale doc.
+    const batch = db.batch()
+    for (const regDoc of regDocs) {
+      batch.update(regDoc.ref, {
+        teamId,
+        verceraTeamId: trimmedCode,
+        isTeamEvent: true,
+        isTeamLeader: false,
+      })
+    }
+    await batch.commit()
 
     return NextResponse.json({
       success: true,
