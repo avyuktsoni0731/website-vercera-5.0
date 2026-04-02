@@ -424,68 +424,72 @@ export default function EventDetailPage({ params }: Props) {
                 </div>
 
                 {/* CTA Button */}
-                {isPaidRegistration ? (
-                  <button
-                    disabled
-                    className="w-full px-6 py-3 bg-accent/20 text-accent rounded-full font-bold cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    <BadgeCheck size={18} />
-                    Registered
-                  </button>
-                ) : spotsAvailable > 0 ? eligibleFromPack ? (
-                  <div className="space-y-1.5">
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        if (!user || addingFromPack) return
-                        setAddingFromPack(true)
-                        try {
-                          const token = await user.getIdToken()
-                          const res = await fetch('/api/registration/add-from-pack', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                            body: JSON.stringify({ eventId: event.id }),
-                          })
-                          if (res.ok) {
-                            setRegistrationRefresh((n) => n + 1)
-                            setEligibleFromPack(false)
-                          } else {
-                            const err = await res.json().catch(() => ({}))
-                            alert(err.error || 'Failed to add event')
-                          }
-                        } catch {
-                          alert('Request failed')
-                        } finally {
-                          setAddingFromPack(false)
-                        }
-                      }}
-                      disabled={addingFromPack}
-                      className="w-full px-6 py-3 bg-accent text-accent-foreground rounded-full font-bold hover:bg-accent/90 transition-colors disabled:opacity-50"
-                    >
-                      {addingFromPack ? 'Adding…' : 'Add to my events'}
-                    </button>
-                    <p className="text-center text-foreground/60 text-xs">Included in your pack — no extra payment</p>
-                  </div>
-                ) : (
-                  <div className="space-y-1.5">
-                    <button
-                      onClick={handleRegisterClick}
-                      disabled={isRegistering}
-                      className="w-full px-6 py-3 bg-accent text-accent-foreground rounded-full font-bold hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isRegistering ? 'Processing...' : 'Register for this event'}
-                    </button>
-                    <p className="text-center text-foreground/60 text-xs">Pay the fee above to register</p>
-                  </div>
-                ) : (
-                  <button disabled className="w-full px-6 py-3 bg-muted text-muted-foreground rounded-full font-bold cursor-not-allowed">
-                    Registration Closed
-                  </button>
+                {!regLoading && (
+                  <>
+                    {isPaidRegistration ? (
+                      <button
+                        disabled
+                        className="w-full px-6 py-3 bg-accent/20 text-accent rounded-full font-bold cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        <BadgeCheck size={18} />
+                        Registered
+                      </button>
+                    ) : spotsAvailable > 0 ? eligibleFromPack ? (
+                      <div className="space-y-1.5">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (!user || addingFromPack) return
+                            setAddingFromPack(true)
+                            try {
+                              const token = await user.getIdToken()
+                              const res = await fetch('/api/registration/add-from-pack', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                body: JSON.stringify({ eventId: event.id }),
+                              })
+                              if (res.ok) {
+                                setRegistrationRefresh((n) => n + 1)
+                                setEligibleFromPack(false)
+                              } else {
+                                const err = await res.json().catch(() => ({}))
+                                alert(err.error || 'Failed to add event')
+                              }
+                            } catch {
+                              alert('Request failed')
+                            } finally {
+                              setAddingFromPack(false)
+                            }
+                          }}
+                          disabled={addingFromPack}
+                          className="w-full px-6 py-3 bg-accent text-accent-foreground rounded-full font-bold hover:bg-accent/90 transition-colors disabled:opacity-50"
+                        >
+                          {addingFromPack ? 'Adding…' : 'Add to my events'}
+                        </button>
+                        <p className="text-center text-foreground/60 text-xs">Included in your pack — no extra payment</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <button
+                          onClick={handleRegisterClick}
+                          disabled={isRegistering}
+                          className="w-full px-6 py-3 bg-accent text-accent-foreground rounded-full font-bold hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isRegistering ? 'Processing...' : 'Register for this event'}
+                        </button>
+                        <p className="text-center text-foreground/60 text-xs">Pay the fee above to register</p>
+                      </div>
+                    ) : (
+                      <button disabled className="w-full px-6 py-3 bg-muted text-muted-foreground rounded-full font-bold cursor-not-allowed">
+                        Registration Closed
+                      </button>
+                    )}
+                  </>
                 )}
 
                 {/* Form / Join team (registered, team event, not in a team yet) */}
                 {isPaidRegistration && isTeamEvent && !registration.teamId && (
-                  <div className="bg-secondary/50 border border-border/50 rounded-lg p-4 space-y-3">
+                  <div id="team" className="bg-secondary/50 border border-border/50 rounded-lg p-4 space-y-3">
                     <div className="flex items-center gap-2 text-foreground font-semibold">
                       <Users size={18} className="text-accent" />
                       Form or join a team

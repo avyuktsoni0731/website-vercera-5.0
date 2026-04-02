@@ -56,7 +56,8 @@ export async function POST(request: NextRequest) {
     }
     const regDoc = regSnap.docs[0]
     const regData = regDoc.data()
-    if (regData.status !== 'paid') {
+    const status = String(regData.status ?? '')
+    if (status !== 'paid' && status !== 'completed') {
       return NextResponse.json({ error: 'Registration must be paid to join a team' }, { status: 400 })
     }
     if (regData.teamId) {
