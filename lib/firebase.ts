@@ -1,6 +1,6 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app'
 import { getAuth, type Auth } from 'firebase/auth'
-import { getFirestore, type Firestore } from 'firebase/firestore'
+import { getFirestore, initializeFirestore, type Firestore } from 'firebase/firestore'
 import { getStorage, type FirebaseStorage } from 'firebase/storage'
 
 const firebaseConfig = {
@@ -20,7 +20,31 @@ if (typeof window !== 'undefined' && (!firebaseConfig.apiKey || !firebaseConfig.
 
 const app: FirebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : (getApps()[0] as FirebaseApp)
 const auth: Auth = getAuth(app)
-const db: Firestore = getFirestore(app)
+
+/**
+ * Firestore WebChannel can use fetch-based streams (see `useFetchStreams` in the SDK).
+ * In some production environments the browser then treats requests as `credentials: 'include'`
+ * while `firestore.googleapis.com` responds with `Access-Control-Allow-Origin: *`, which
+ * CORS rejects — causing offline mode and failed reads/writes. Disabling fetch streams
+ * avoids that transport path.
+ *
+ * `useFetchStreams` is a supported SDK setting but not yet in the public .d.ts; see
+ * @firebase/firestore FirestoreSettingsImpl.
+ */
+function createFirestore(): Firestore {
+  if (typeof window === 'undefined') {
+    return getFirestore(app)
+  }
+  try {
+    return initializeFirestore(app, {
+      useFetchStreams: false,
+    } as Parameters<typeof initializeFirestore>[1])
+  } catch {
+    return getFirestore(app)
+  }
+}
+
+const db: Firestore = createFirestore()
 const storage: FirebaseStorage = getStorage(app)
 
 export { app, auth, db, storage }

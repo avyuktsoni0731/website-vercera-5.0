@@ -164,6 +164,22 @@ export default function EventDetailPage({ params }: Props) {
           }
         })
 
+        // Team UI must be stable after refresh:
+        // derive evidence from ANY matching registration doc, not from only the selected one.
+        const evidenceCandidates = candidates.filter((c) => c.teamId || c.verceraTeamId)
+        const hasAnyTeamEvidence = evidenceCandidates.length > 0
+        if (hasAnyTeamEvidence) {
+          const withNewestCode = evidenceCandidates
+            .filter((c) => c.verceraTeamId)
+            .sort((a, b) => (b.createdAtMs ?? -Infinity) - (a.createdAtMs ?? -Infinity) || String(b.id).localeCompare(String(a.id)))
+          const code = withNewestCode[0]?.verceraTeamId ?? evidenceCandidates[0]?.verceraTeamId ?? evidenceCandidates[0]?.teamId ?? null
+          setTeamEvidenceLocked(true)
+          setLockedVerceraTeamId(code)
+        } else {
+          setTeamEvidenceLocked(false)
+          setLockedVerceraTeamId(null)
+        }
+
         const isPaid = (s?: string) => {
           const t = (s ?? '').toLowerCase().trim()
           return t === 'paid' || t === 'completed'
@@ -210,12 +226,7 @@ export default function EventDetailPage({ params }: Props) {
         }
 
         setRegistration(reg)
-        // Lock the team UI if we detect team evidence in this chosen registration doc.
-        if (reg.teamId || reg.verceraTeamId) {
-          setTeamEvidenceLocked(true)
-          if (reg.verceraTeamId) setLockedVerceraTeamId(reg.verceraTeamId)
-        }
-        // Team UI must be driven by real team membership (not just one chosen registration doc),
+        // Team UI must be driven by real team membership (teams doc),
         // because multiple registrations can exist for the same user+event.
         //
         // If we have a teamId, fetch by doc id.
@@ -242,7 +253,6 @@ export default function EventDetailPage({ params }: Props) {
             const code = String(reg.verceraTeamId).trim().toUpperCase()
             const byCodeQ = query(
               collection(db, 'teams'),
-              where('eventId', '==', event.id),
               where('verceraTeamId', '==', code),
               limit(1)
             )
@@ -267,10 +277,18 @@ export default function EventDetailPage({ params }: Props) {
           } else {
             setTeam(null)
           }
+        } else if (hasAnyTeamEvidence) {
+          // We had evidence in registrations but couldn't resolve the team doc.
+          // Treat as no active team so the user can form/join again.
+          setTeam(null)
+          setTeamEvidenceLocked(false)
+          setLockedVerceraTeamId(null)
         }
       } catch {
         setRegistration(null)
         setTeam(null)
+        setTeamEvidenceLocked(false)
+        setLockedVerceraTeamId(null)
       } finally {
         setRegLoading(false)
         setTeamLoading(false)
@@ -316,7 +334,9 @@ export default function EventDetailPage({ params }: Props) {
   const isTeamEvent = event.isTeamEvent ?? false
   const statusNorm = String(registration?.status ?? '').toLowerCase().trim()
   const isPaidRegistration = registration && (statusNorm === 'paid' || statusNorm === 'completed')
-  const hasTeamEvidence = teamEvidenceLocked || !!(registration?.teamId || registration?.verceraTeamId || lockedVerceraTeamId)
+  // Treat team evidence as authoritative only when the lock is enabled.
+  // We clear the lock if the team document cannot be fetched (e.g. user deleted/abandoned it).
+  const hasTeamEvidence = teamEvidenceLocked
 
   const handleRegisterClick = () => {
     if (!user) {
@@ -630,7 +650,7 @@ export default function EventDetailPage({ params }: Props) {
                 )}
 
                 {/* Form / Join team (registered, team event, not in a team yet) */}
-                {(isPaidRegistration || hasTeamEvidence) && isTeamEvent && !teamLoading && !team && hasTeamEvidence && (
+                {isPaidRegistration && isTeamEvent && !teamLoading && !team && !hasTeamEvidence && (
                   <div id="team" className="bg-secondary/50 border border-border/50 rounded-lg p-4 space-y-3">
                     <div className="flex items-center gap-2 text-foreground font-semibold">
                       <Users size={18} className="text-accent" />
@@ -766,9 +786,19 @@ export default function EventDetailPage({ params }: Props) {
                         </div>
                       </>
                     ) : (lockedVerceraTeamId || registration?.verceraTeamId) ? (
-                      <div className="space-y-2">
-                        <p className="text-sm text-foreground/70">Team ID</p>
-                        <p className="font-semibold text-foreground">{lockedVerceraTeamId || registration?.verceraTeamId}</p>
+                      <div className="space-y-3">
+                        <div className="space-y-1 text-sm">
+                          <p className="text-foreground/60">Team ID</p>
+                          <p className="font-semibold text-foreground">{lockedVerceraTeamId || registration?.verceraTeamId}</p>
+                        </div>
+                        <div className="flex items-center justify-center py-1">
+                          <div className="bg-background rounded-lg p-3 border border-border">
+                            <QRCodeSVG value={lockedVerceraTeamId || registration?.verceraTeamId || ''} size={140} />
+                          </div>
+                        </div>
+                        <p className="text-sm text-foreground/60">
+                          Team name and members will appear once the team document loads.
+                        </p>
                       </div>
                     ) : (
                       <p className="text-sm text-foreground/60">Team info not available yet.</p>
